@@ -3,6 +3,7 @@ import { Task, TaskPriority, Subtask, TaskStatus } from '../types';
 import { X, Plus, Trash } from './Icons';
 import { TASK_CATEGORIES } from '../constants';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import { toLocalDateString } from '../utils/dateUtils';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -19,7 +20,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
   const [title, setTitle] = useState('');
   const [titleError, setTitleError] = useState(false);
   const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState(new Date().toISOString().split('T')[0]);
+  const [dueDate, setDueDate] = useState(toLocalDateString());
   const [priority, setPriority] = useState<TaskPriority>(TaskPriority.MEDIUM);
   const [status, setStatus] = useState<TaskStatus>(TaskStatus.PENDING);
   const [category, setCategory] = useState<string>('Other');
@@ -55,7 +56,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
       } else {
         setTitle('');
         setDescription('');
-        setDueDate(defaultDueDate || new Date().toISOString().split('T')[0]);
+        setDueDate(defaultDueDate || toLocalDateString());
         setPriority(TaskPriority.MEDIUM);
         setStatus(TaskStatus.PENDING);
         setCategory('Other');
@@ -141,6 +142,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
   };
 
   const suggestedTags = allTags.filter(t => !tags.includes(t) && t.toLowerCase().includes(tagInput.toLowerCase())).slice(0, 5);
+
+  const isMac = typeof navigator !== 'undefined' && ((navigator as any).userAgentData?.platform === 'macOS' || /Mac|iPhone|iPad/.test(navigator.userAgent));
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
@@ -412,7 +415,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
           </button>
           <div className="flex items-center gap-4">
             <span className="text-[10px] font-medium text-theme-tertiary hidden sm:inline-block">
-              {navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'} + Enter to save
+              {isMac ? 'Cmd' : 'Ctrl'} + Enter to save
             </span>
             <button
               type="submit"

@@ -302,29 +302,40 @@
     /* Base Setup */
     body {
       background-color: var(--bg-app);
+      -webkit-tap-highlight-color: transparent;
+      color: var(--text-primary);
+      position: relative;
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      will-change: opacity;
+    }
+
+    body::before {
       background-image:
         radial-gradient(ellipse at 15% 5%, var(--bg-app-gradient-1) 0%, transparent 50%),
         radial-gradient(ellipse at 85% 90%, var(--bg-app-gradient-2) 0%, transparent 50%),
         radial-gradient(ellipse at 50% 50%, var(--bg-app-gradient-3) 0%, transparent 70%);
-      background-attachment: fixed;
-      animation: ambient-shift 30s ease-in-out infinite alternate;
-      -webkit-tap-highlight-color: transparent;
-      color: var(--text-primary);
+      animation: ambient-fade 30s ease-in-out infinite alternate;
     }
 
-    @keyframes ambient-shift {
-      0% {
-        background-image:
-          radial-gradient(ellipse at 15% 5%, var(--bg-app-gradient-1) 0%, transparent 50%),
-          radial-gradient(ellipse at 85% 90%, var(--bg-app-gradient-2) 0%, transparent 50%),
-          radial-gradient(ellipse at 50% 50%, var(--bg-app-gradient-3) 0%, transparent 70%);
-      }
-      100% {
-        background-image:
-          radial-gradient(ellipse at 25% 15%, var(--bg-app-gradient-alt-1) 0%, transparent 50%),
-          radial-gradient(ellipse at 75% 80%, var(--bg-app-gradient-alt-2) 0%, transparent 50%),
-          radial-gradient(ellipse at 40% 60%, var(--bg-app-gradient-alt-3) 0%, transparent 70%);
-      }
+    body::after {
+      background-image:
+        radial-gradient(ellipse at 25% 15%, var(--bg-app-gradient-alt-1) 0%, transparent 50%),
+        radial-gradient(ellipse at 75% 80%, var(--bg-app-gradient-alt-2) 0%, transparent 50%),
+        radial-gradient(ellipse at 40% 60%, var(--bg-app-gradient-alt-3) 0%, transparent 70%);
+      animation: ambient-fade 30s ease-in-out infinite alternate-reverse;
+    }
+
+    @keyframes ambient-fade {
+      0%   { opacity: 1; }
+      100% { opacity: 0; }
     }
 
     /* --- GLASS MATERIAL LAYERS --- */
@@ -366,8 +377,8 @@
     .volumetric-btn {
       position: relative;
       background: linear-gradient(180deg, var(--glass-btn-from) 0%, var(--glass-btn-to) 100%);
-      backdrop-filter: blur(24px) saturate(1.6);
-      -webkit-backdrop-filter: blur(24px) saturate(1.6);
+      backdrop-filter: blur(4px) saturate(1.2);
+      -webkit-backdrop-filter: blur(4px) saturate(1.2);
       border-top: 0.5px solid var(--btn-edge-top);
       border-left: 0.5px solid var(--btn-edge-left);
       border-right: 0.5px solid var(--btn-edge-right);
@@ -495,6 +506,46 @@
     }
     html.dark input[type="date"] {
       color-scheme: dark;
+    }
+
+    /* Respect user's motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.15s !important;
+      }
+      
+      /* Keep elements visible that depend on animation forwards fill */
+      .animate-slide-up,
+      .animate-fade-in,
+      .animate-scale-in {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+      
+      /* Disable the ambient background animation entirely */
+      body::before,
+      body::after {
+        animation: none !important;
+        opacity: 1 !important;
+      }
+      
+      /* Disable decorative continuous animations */
+      .animate-pulse,
+      .animate-liquid-flow {
+        animation: none !important;
+      }
+      
+      /* Reduce backdrop-filter intensity for performance */
+      .volumetric-surface {
+        backdrop-filter: blur(12px) saturate(1.2) !important;
+        -webkit-backdrop-filter: blur(12px) saturate(1.2) !important;
+      }
+      .volumetric-btn {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
     }
   </style>
 <script type="importmap">

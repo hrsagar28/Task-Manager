@@ -34,7 +34,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                 ['Alt + N', 'New Task'],
                 ['Alt + Shift + N', 'New Note'],
                 ['Ctrl + /', 'Search Palette'],
-                ['Ctrl + D', 'Toggle Dark Mode'],
+                ['Ctrl + Shift + D', 'Toggle Dark Mode'],
                 ['Esc', 'Close / Go Back']
               ].map(([keys, label], i) => (
                 <div key={keys} className="flex justify-between items-center border-b border-theme-divider pb-3 opacity-0 animate-slide-up" style={{ animationDelay: `${i * 10}ms` }}>

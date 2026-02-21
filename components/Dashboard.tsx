@@ -3,6 +3,7 @@ import { Task, TaskStatus, TaskPriority, Note } from '../types';
 import { GlassCard } from './GlassCard';
 import { Circle, CheckCircle, Clock, AlertCircle, ChevronDown, Trash, Copy, Edit2, Layers, FileText, HelpCircle } from './Icons';
 import { formatRelativeDate } from '../utils/formatRelativeDate';
+import { toLocalDateString } from '../utils/dateUtils';
 
 const AnimatedNumber: React.FC<{ value: number, className?: string, suffix?: string }> = ({ value, className, suffix = '' }) => {
   const [displayValue, setDisplayValue] = useState(value);
@@ -61,7 +62,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 }) => {
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = toLocalDateString();
 
   const { todayTasks, overdueTasks, upcomingTasks, totalUpcoming, stats, todayProgress } = useMemo(() => {
     let today: Task[] = [];

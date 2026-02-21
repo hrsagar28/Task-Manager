@@ -1,4 +1,5 @@
 import { Task, TaskPriority, TaskStatus, Note } from './types';
+import { toLocalDateString } from './utils/dateUtils';
 
 export const TASK_CATEGORIES = [
   "Tax Filing", "GST", "Audit", "ROC", "Advisory", "Litigation", 
@@ -14,16 +15,16 @@ export const NOTE_COLORS = [
   { id: 'indigo', name: 'Indigo', className: 'bg-indigo-500/10 border-indigo-500/20' },
 ];
 
-const getTodayDateString = () => new Date().toISOString().split('T')[0];
+const getTodayDateString = () => toLocalDateString();
 const getFutureDateString = (days: number) => {
   const d = new Date();
   d.setDate(d.getDate() + days);
-  return d.toISOString().split('T')[0];
+  return toLocalDateString(d);
 };
 const getPastDateString = (days: number) => {
   const d = new Date();
   d.setDate(d.getDate() - days);
-  return d.toISOString().split('T')[0];
+  return toLocalDateString(d);
 };
 
 export const INITIAL_TASKS: Task[] = [

@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Task, TaskStatus, TaskPriority } from '../types';
 import { GlassCard } from './GlassCard';
 import { ChevronLeft, ChevronRight, ChevronDown, Circle, CheckCircle, Calendar as CalendarIcon, Plus, Edit2, Trash } from './Icons';
+import { toLocalDateString } from '../utils/dateUtils';
 
 interface CalendarViewProps {
   tasks: Task[];
@@ -57,8 +58,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
     setShowMonthPicker(false);
   };
 
-  const selectedDateStr = selectedDate.toISOString().split('T')[0];
-  const todayStr = new Date().toISOString().split('T')[0];
+  const selectedDateStr = toLocalDateString(selectedDate);
+  const todayStr = toLocalDateString();
 
   const tasksForSelectedDate = useMemo(() => 
     tasks.filter(t => t.dueDate === selectedDateStr),
@@ -159,7 +160,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
             <button onClick={prevMonth} className="volumetric-btn w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-110 active:scale-95" aria-label="Previous month">
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <button onClick={() => setCurrentDate(new Date())} className="volumetric-btn px-4 py-2 rounded-full text-[11px] font-medium uppercase tracking-wider text-theme-tertiary transition-transform hover:scale-105 active:scale-95">
+            <button 
+              onClick={() => {
+                const today = new Date();
+                setCurrentDate(new Date(today.getFullYear(), today.getMonth(), 1));
+                setSelectedDate(today);
+              }} 
+              className="volumetric-btn px-4 py-2 rounded-full text-[11px] font-medium uppercase tracking-wider text-theme-tertiary transition-transform hover:scale-105 active:scale-95"
+            >
               Today
             </button>
             <button onClick={nextMonth} className="volumetric-btn w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-110 active:scale-95" aria-label="Next month">
@@ -176,7 +184,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
 
         <div className="grid grid-cols-7 gap-2 md:gap-3 relative z-10">
           {daysInMonth.map((dayObj, i) => {
-            const dateStr = dayObj.date.toISOString().split('T')[0];
+            const dateStr = toLocalDateString(dayObj.date);
             const isSelected = dateStr === selectedDateStr;
             const isToday = dateStr === todayStr;
             const dayTasks = tasksByDate.get(dateStr) || [];
@@ -193,7 +201,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
                 key={`${currentDate.toISOString()}-${i}`} // re-trigger animation on month change
                 onClick={() => setSelectedDate(dayObj.date)}
                 onDoubleClick={() => {
-                  const dateStr = dayObj.date.toISOString().split('T')[0];
+                  const dateStr = toLocalDateString(dayObj.date);
                   onAddTaskForDate(dateStr);
                 }}
                 style={{ animationDelay: `${Math.min(50 + (i * 5), 150)}ms` }}

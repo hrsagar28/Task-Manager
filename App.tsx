@@ -11,6 +11,7 @@ import { TaskModal } from './components/TaskModal';
 import { CommandPalette } from './components/CommandPalette';
 import { HelpModal } from './components/HelpModal';
 import { CheckCircle, AlertCircle, X } from './components/Icons';
+import { toLocalDateString } from './utils/dateUtils';
 
 function App() {
   const [tasks, setTasks] = useState<Task[]>(() => {
@@ -21,6 +22,19 @@ function App() {
   });
   const [currentView, setCurrentView] = useState<ViewState>('DASHBOARD');
   
+  // Date refresh state to ensure app updates at midnight if left open
+  const [currentDateStr, setCurrentDateStr] = useState(toLocalDateString());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = toLocalDateString();
+      if (now !== currentDateStr) {
+        setCurrentDateStr(now);
+      }
+    }, 30_000);
+    return () => clearInterval(interval);
+  }, [currentDateStr]);
+
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [defaultDueDate, setDefaultDueDate] = useState<string | null>(null);
@@ -36,7 +50,6 @@ function App() {
 
   // Toast & Undo State
   const [toast, setToast] = useState<{ message: string, type?: 'success' | 'info' | 'error', action?: { label: string, onClick: () => void } } | null>(null);
-  const deletedTaskRef = useRef<Task | null>(null);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Theme State
@@ -97,15 +110,14 @@ function App() {
   }, [tasks]);
 
   const badgeCounts = useMemo(() => {
-    const todayStr = new Date().toISOString().split('T')[0];
     const overdue = activeTasks.filter(t => 
-      t.status !== TaskStatus.COMPLETED && t.dueDate < todayStr
+      t.status !== TaskStatus.COMPLETED && t.dueDate < currentDateStr
     ).length;
     return { 
       dashboard: overdue,
       tasks: activeTasks.filter(t => t.status !== TaskStatus.COMPLETED).length,
     };
-  }, [activeTasks]);
+  }, [activeTasks, currentDateStr]);
 
   // Dynamic Depth Mapping (Lighting)
   useEffect(() => {
@@ -163,7 +175,6 @@ function App() {
   const handleBulkAction = useCallback((ids: string[], action: 'complete' | 'delete' | 'archive') => {
     if (action === 'delete') {
       const tasksToDelete = tasks.filter(t => ids.includes(t.id));
-      deletedTaskRef.current = null;
       setTasks(prev => prev.filter(t => !ids.includes(t.id)));
       showToast(`${ids.length} tasks deleted`, 'info', {
         label: 'Undo',
@@ -213,18 +224,13 @@ function App() {
   const handleDeleteTask = useCallback((id: string) => {
     const taskToDelete = tasks.find(t => t.id === id);
     if (!taskToDelete) return;
-    deletedTaskRef.current = taskToDelete;
     
     setTasks(prev => prev.filter(t => t.id !== id));
     showToast('Task deleted', 'info', {
       label: 'Undo',
       onClick: () => {
-        if (deletedTaskRef.current) {
-          const taskToRestore = deletedTaskRef.current;
-          setTasks(prev => [...prev, taskToRestore]);
-          deletedTaskRef.current = null;
-          showToast('Task restored');
-        }
+        setTasks(prev => [...prev, taskToDelete]);
+        showToast('Task restored');
       }
     });
   }, [tasks, showToast]);
@@ -248,9 +254,18 @@ function App() {
   }, []);
 
   const handleDeleteNote = useCallback((id: string) => {
+    const noteToDelete = notes.find(n => n.id === id);
+    if (!noteToDelete) return;
+    
     setNotes(prev => prev.filter(n => n.id !== id));
-    showToast('Note deleted', 'info');
-  }, [showToast]);
+    showToast('Note deleted', 'info', {
+      label: 'Undo',
+      onClick: () => {
+        setNotes(prev => [noteToDelete, ...prev]);
+        showToast('Note restored');
+      }
+    });
+  }, [notes, showToast]);
 
   // View Transitions
   const handleViewChange = useCallback((view: ViewState) => {
@@ -298,7 +313,7 @@ function App() {
         return;
       }
       
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'd') {
         e.preventDefault();
         toggleTheme();
         return;
