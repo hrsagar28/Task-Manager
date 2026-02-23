@@ -32,6 +32,7 @@ export interface Task {
   recurringInterval?: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
   createdAt: string;
   updatedAt?: string;
+  completedAt?: string;  // ISO timestamp of when task was marked complete
   isArchived?: boolean;
 }
 

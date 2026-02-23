@@ -157,8 +157,8 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                 }}
                 style={{ animationDelay: `${staggerOffset + Math.min(index * 10, 150)}ms` }}
                 className={`w-full text-left p-5 rounded-[24px] transition-all duration-300 ease-smooth relative group/note opacity-0 animate-slide-up ${selectedNoteId === note.id
-                    ? `volumetric-btn ${colorClass} scale-[1.02] z-10`
-                    : `volumetric-input hover-surface ${colorClass}`
+                  ? `volumetric-btn ${colorClass} scale-[1.02] z-10`
+                  : `volumetric-input hover-surface ${colorClass}`
                   }`}
               >
                 <div className="absolute top-4 right-4 flex items-center gap-1.5 opacity-50">
@@ -240,17 +240,27 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                   placeholder="Note Title"
                 />
                 <div className="mt-3 flex items-center gap-2">
-                  {selectedNote.linkedTaskId ? (
-                    <div className="volumetric-input px-3 py-1.5 rounded-xl text-[11px] font-semibold text-blue-600/70 dark:text-blue-400 flex items-center gap-2">
-                      <LinkIcon className="w-3 h-3" />
-                      <span className="truncate max-w-[200px]">
-                        {tasks.find(t => t.id === selectedNote.linkedTaskId)?.title || 'Unknown Task'}
-                      </span>
-                      <button onClick={() => handleUpdateField('linkedTaskId', undefined)} className="hover:text-red-500 ml-1 transition-colors" title="Unlink task">
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ) : (
+                  {selectedNote.linkedTaskId ? (() => {
+                    const linkedTask = tasks.find(t => t.id === selectedNote.linkedTaskId);
+                    return (
+                      <div className="volumetric-input px-3 py-2 rounded-xl text-[11px] font-semibold text-blue-600/70 dark:text-blue-400 flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${linkedTask?.status === 'COMPLETED' ? 'bg-emerald-400' :
+                            linkedTask?.status === 'IN_PROGRESS' ? 'bg-blue-400' : 'bg-slate-400'
+                          }`} />
+                        <LinkIcon className="w-3 h-3 shrink-0" />
+                        <span className="truncate max-w-[200px]">
+                          {linkedTask?.title || 'Unknown Task'}
+                        </span>
+                        <span className={`text-[9px] font-semibold uppercase tracking-wider ml-auto shrink-0 ${linkedTask?.status === 'COMPLETED' ? 'text-emerald-500' : 'text-theme-tertiary'
+                          }`}>
+                          {linkedTask?.status === 'IN_PROGRESS' ? 'In Progress' : (linkedTask?.status || 'unknown').toLowerCase()}
+                        </span>
+                        <button onClick={() => handleUpdateField('linkedTaskId', undefined)} className="hover:text-red-500 ml-1 transition-colors shrink-0" title="Unlink task">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    );
+                  })() : (
                     <div className="relative">
                       {isLinking ? (
                         <div className="absolute top-0 left-0 z-20 w-[280px] volumetric-surface rounded-[16px] p-2 shadow-xl animate-scale-in origin-top-left">
@@ -301,8 +311,8 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                 <button
                   onClick={() => handleDeleteClick(selectedNote.id)}
                   className={`transition-all duration-300 flex items-center justify-center ${pendingDeleteId === selectedNote.id
-                      ? 'volumetric-btn bg-red-500/20 !border-red-500/50 text-red-600 dark:text-red-400 px-4 h-10 rounded-xl gap-2 hover:bg-red-500/30 ring-2 ring-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.2)]'
-                      : 'volumetric-input w-10 h-10 rounded-full text-theme-tertiary hover:text-red-500'
+                    ? 'volumetric-btn bg-red-500/20 !border-red-500/50 text-red-600 dark:text-red-400 px-4 h-10 rounded-xl gap-2 hover:bg-red-500/30 ring-2 ring-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.2)]'
+                    : 'volumetric-input w-10 h-10 rounded-full text-theme-tertiary hover:text-red-500'
                     }`}
                   title={pendingDeleteId === selectedNote.id ? "Confirm Delete?" : "Delete Note"}
                 >

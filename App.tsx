@@ -191,15 +191,39 @@ function App() {
     }, action ? 7000 : 3000);
   }, []);
 
+  // Global Ctrl+Z / Cmd+Z undo shortcut
+  useEffect(() => {
+    const handleUndo = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        // Don't hijack undo inside text inputs
+        const tag = (e.target as HTMLElement)?.tagName;
+        const editable = (e.target as HTMLElement)?.isContentEditable;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || editable) return;
+
+        const action = undoStackRef.current.pop();
+        if (action) {
+          e.preventDefault();
+          action.execute();
+          setToast({ message: `Undo: ${action.label}`, type: 'info' });
+          if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+          toastTimeoutRef.current = setTimeout(() => setToast(null), 3000);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleUndo);
+    return () => window.removeEventListener('keydown', handleUndo);
+  }, []);
+
   const handleToggleTaskStatus = useCallback((id: string) => {
     setTasks(prev => {
       const task = prev.find(t => t.id === id);
       if (!task) return prev;
 
       const isCompleting = task.status !== TaskStatus.COMPLETED;
+      const now = new Date().toISOString();
       const updatedTasks = prev.map(t =>
         t.id === id
-          ? { ...t, status: isCompleting ? TaskStatus.COMPLETED : TaskStatus.PENDING, updatedAt: new Date().toISOString() }
+          ? { ...t, status: isCompleting ? TaskStatus.COMPLETED : TaskStatus.PENDING, updatedAt: now, completedAt: isCompleting ? now : undefined }
           : t
       );
 
@@ -239,8 +263,9 @@ function App() {
       const nextStatus = nextStatusMap[task.status];
       const isCompleting = nextStatus === TaskStatus.COMPLETED;
 
+      const now = new Date().toISOString();
       const updatedTasks = prev.map(t =>
-        t.id === id ? { ...t, status: nextStatus, updatedAt: new Date().toISOString() } : t
+        t.id === id ? { ...t, status: nextStatus, updatedAt: now, completedAt: isCompleting ? now : (nextStatus === TaskStatus.PENDING ? undefined : t.completedAt) } : t
       );
 
       if (isCompleting && task.recurring && task.recurringInterval) {

@@ -16,7 +16,7 @@ interface TaskModalProps {
 
 export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, initialData, defaultDueDate, allTags = [] }) => {
   const focusTrapRef = useFocusTrap(isOpen);
-  
+
   const [title, setTitle] = useState('');
   const [titleError, setTitleError] = useState(false);
   const [description, setDescription] = useState('');
@@ -25,7 +25,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
   const [status, setStatus] = useState<TaskStatus>(TaskStatus.PENDING);
   const [category, setCategory] = useState<string>('Other');
   const [clientName, setClientName] = useState('');
-  
+
   // Checklist State
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [newSubtask, setNewSubtask] = useState('');
@@ -147,14 +147,14 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-      <div 
+      <div
         className="absolute inset-0 backdrop-blur-2xl saturate-150 animate-fade-in"
         style={{ background: 'var(--modal-backdrop)' }}
         onClick={onClose}
         aria-hidden="true"
       />
-      
-      <div 
+
+      <div
         ref={focusTrapRef}
         className="relative w-full max-w-2xl max-h-[90vh] flex flex-col volumetric-surface rounded-[32px] overflow-hidden animate-scale-in"
         role="dialog"
@@ -165,7 +165,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
           <h2 id="modal-title" className="text-2xl font-semibold tracking-tight text-theme-primary">
             {initialData ? 'Edit Task' : 'New Task'}
           </h2>
-          <button 
+          <button
             onClick={onClose}
             className="volumetric-btn w-12 h-12 rounded-full flex items-center justify-center text-theme-tertiary transition-transform hover:scale-110 active:scale-95"
             aria-label="Close modal"
@@ -239,31 +239,51 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
                 </div>
               </div>
             </div>
-            
+
             {/* Recurring Toggle */}
             <div>
-               <label className="block text-[11px] font-medium uppercase tracking-wider text-theme-tertiary mb-2 pl-1">Recurring</label>
-               <div className="flex items-center gap-3 h-[52px]">
-                 <button 
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-theme-tertiary mb-2 pl-1">Recurring</label>
+              <div className="flex items-center gap-3 h-[52px]">
+                <button
                   type="button"
                   onClick={() => setRecurring(!recurring)}
                   className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ease-smooth ${recurring ? 'bg-emerald-500' : 'volumetric-input'}`}
-                 >
-                    <div className={`w-4 h-4 rounded-full bg-white transition-transform duration-300 ease-spring ${recurring ? 'translate-x-6' : 'translate-x-0'}`} />
-                 </button>
-                 {recurring && (
-                    <select
-                      value={recurringInterval}
-                      onChange={e => setRecurringInterval(e.target.value as any)}
-                      className="volumetric-input px-4 py-2 rounded-xl font-semibold text-sm appearance-none cursor-pointer flex-1 animate-scale-in origin-left text-theme-primary"
-                    >
-                      <option value="weekly">Weekly</option>
-                      <option value="monthly">Monthly</option>
-                      <option value="quarterly">Quarterly</option>
-                      <option value="yearly">Yearly</option>
-                    </select>
-                 )}
-               </div>
+                >
+                  <div className={`w-4 h-4 rounded-full bg-white transition-transform duration-300 ease-spring ${recurring ? 'translate-x-6' : 'translate-x-0'}`} />
+                </button>
+                {recurring && (
+                  <select
+                    value={recurringInterval}
+                    onChange={e => setRecurringInterval(e.target.value as any)}
+                    className="volumetric-input px-4 py-2 rounded-xl font-semibold text-sm appearance-none cursor-pointer flex-1 animate-scale-in origin-left text-theme-primary"
+                  >
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                )}
+              </div>
+              {recurring && (
+                <div className="mt-3 px-1">
+                  <p className="text-[11px] text-theme-tertiary">
+                    <span className="inline-flex items-center gap-1.5">
+                      <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17 2l4 4-4 4" /><path d="M3 11v-1a4 4 0 014-4h14" />
+                        <path d="M7 22l-4-4 4-4" /><path d="M21 13v1a4 4 0 01-4 4H3" />
+                      </svg>
+                      When completed, a new task will be created due{' '}
+                      <strong className="text-theme-secondary">
+                        {recurringInterval === 'weekly' && '1 week'}
+                        {recurringInterval === 'monthly' && '1 month'}
+                        {recurringInterval === 'quarterly' && '3 months'}
+                        {recurringInterval === 'yearly' && '1 year'}
+                      </strong>{' '}
+                      after the current due date.
+                    </span>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -276,11 +296,10 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
                   key={cat}
                   type="button"
                   onClick={() => setCategory(cat)}
-                  className={`px-4 py-2 rounded-[14px] text-[11px] font-medium uppercase tracking-wider whitespace-nowrap transition-all duration-300 ease-smooth hover:-translate-y-0.5 active:scale-95 ${
-                    category === cat 
-                      ? 'volumetric-btn volumetric-btn-primary text-theme-primary scale-[1.02]' 
+                  className={`px-4 py-2 rounded-[14px] text-[11px] font-medium uppercase tracking-wider whitespace-nowrap transition-all duration-300 ease-smooth hover:-translate-y-0.5 active:scale-95 ${category === cat
+                      ? 'volumetric-btn volumetric-btn-primary text-theme-primary scale-[1.02]'
                       : 'volumetric-input text-theme-tertiary hover:text-theme-primary'
-                  }`}
+                    }`}
                 >
                   {cat}
                 </button>
@@ -341,11 +360,10 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
                     key={s.val}
                     type="button"
                     onClick={() => setStatus(s.val)}
-                    className={`flex-1 py-2.5 rounded-[12px] text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth ${
-                      status === s.val 
-                        ? 'volumetric-surface shadow-sm text-theme-primary scale-[1.02]' 
+                    className={`flex-1 py-2.5 rounded-[12px] text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth ${status === s.val
+                        ? 'volumetric-surface shadow-sm text-theme-primary scale-[1.02]'
                         : 'text-theme-tertiary hover:text-theme-secondary hover-surface'
-                    }`}
+                      }`}
                   >
                     {s.label}
                   </button>
@@ -374,8 +392,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
               {subtasks.map((sub, idx) => (
                 <div key={sub.id} className="flex items-center gap-3 animate-slide-up" style={{ animationDelay: `${idx * 10}ms` }}>
                   <span className="text-sm font-medium flex-1 pl-2 text-theme-secondary transition-colors">• {sub.text}</span>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => removeSubtask(sub.id)}
                     className="p-2 text-theme-tertiary hover:text-red-500 transition-colors hover:scale-110 active:scale-95"
                   >
@@ -385,15 +403,15 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
               ))}
             </div>
             <div className="flex gap-3">
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={newSubtask}
                 onChange={e => setNewSubtask(e.target.value)}
                 onKeyDown={handleAddSubtask}
                 placeholder="Add subtask..."
                 className="volumetric-input flex-1 px-5 py-3 rounded-[16px] font-medium text-sm transition-all focus:-translate-y-0.5 text-theme-secondary"
               />
-              <button 
+              <button
                 type="button"
                 onClick={handleAddSubtask}
                 className="volumetric-btn w-12 rounded-[16px] flex items-center justify-center text-theme-tertiary transition-transform hover:scale-105 active:scale-95"
@@ -404,7 +422,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
           </div>
 
         </form>
-        
+
         <div className="p-8 pt-4 flex flex-wrap justify-between items-center gap-4 border-t border-theme-divider flex-shrink-0">
           <button
             type="button"

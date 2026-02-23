@@ -188,8 +188,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
                   key={g}
                   onClick={() => setGroupBy(g)}
                   className={`px-3 py-1.5 rounded-xl text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all duration-300 ${groupBy === g
-                      ? 'volumetric-surface text-theme-primary shadow-sm'
-                      : 'text-theme-tertiary hover:text-theme-secondary hover-surface'
+                    ? 'volumetric-surface text-theme-primary shadow-sm'
+                    : 'text-theme-tertiary hover:text-theme-secondary hover-surface'
                     }`}
                 >
                   {g === 'NONE' ? 'Flat' : g === 'PRIORITY' ? 'Priority' : g === 'CATEGORY' ? 'Category' : 'Status'}
@@ -404,6 +404,13 @@ export const TasksView: React.FC<TasksViewProps> = ({
                             )}
 
                             <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-theme-divider">
+                              {task.completedAt && (
+                                <span className="text-[10px] text-emerald-500/70 font-medium mr-auto">
+                                  Completed {new Date(task.completedAt).toLocaleDateString('en-US', {
+                                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                                  })}
+                                </span>
+                              )}
                               <button
                                 onClick={(e) => { e.stopPropagation(); onEditTask(task); }}
                                 className="volumetric-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center gap-2 text-theme-secondary transition-transform hover:-translate-y-0.5"

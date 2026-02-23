@@ -15,8 +15,8 @@ interface CommandPaletteProps {
   onNewNote: () => void;
 }
 
-export const CommandPalette: React.FC<CommandPaletteProps> = ({ 
-  isOpen, onClose, tasks, notes, onNavigate, onNewTask, onEditTask, onSelectNote, onNewNote 
+export const CommandPalette: React.FC<CommandPaletteProps> = ({
+  isOpen, onClose, tasks, notes, onNavigate, onNewTask, onEditTask, onSelectNote, onNewNote
 }) => {
   const focusTrapRef = useFocusTrap(isOpen);
   const [query, setQuery] = useState('');
@@ -34,8 +34,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   }, [isOpen]);
 
   // Reset active index when query changes
-  useEffect(() => { 
-    setActiveIndex(0); 
+  useEffect(() => {
+    setActiveIndex(0);
   }, [query]);
 
   // Scroll active item into view
@@ -52,13 +52,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   const lowerQuery = query.toLowerCase();
 
-  const filteredTasks = query ? tasks.filter(t => 
+  const filteredTasks = query ? tasks.filter(t =>
     t.title.toLowerCase().includes(lowerQuery) ||
     (t.clientName && t.clientName.toLowerCase().includes(lowerQuery)) ||
     (t.category && t.category.toLowerCase().includes(lowerQuery)) ||
     (t.tags && t.tags.some(tag => tag.toLowerCase().includes(lowerQuery)))
   ).slice(0, 5) : [];
-  
+
   const filteredNotes = query ? notes.filter(n => n.title.toLowerCase().includes(lowerQuery) || n.content.toLowerCase().includes(lowerQuery)).slice(0, 3) : [];
 
   const commands = [
@@ -97,8 +97,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   return (
     <div className="fixed inset-0 z-[200] flex items-start justify-center pt-[15vh] px-4" onClick={onClose}>
       <div className="absolute inset-0 backdrop-blur-2xl saturate-150 animate-fade-in" style={{ background: 'var(--modal-backdrop)' }} aria-hidden="true" />
-      
-      <div 
+
+      <div
         ref={focusTrapRef as any}
         className="relative w-full max-w-2xl volumetric-surface rounded-[32px] shadow-2xl overflow-hidden animate-scale-in flex flex-col max-h-[70vh]"
         onClick={e => e.stopPropagation()}
@@ -135,8 +135,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   const currentIndex = globalIndex++;
                   const isActive = currentIndex === activeIndex;
                   return (
-                    <button 
-                      key={i} 
+                    <button
+                      key={i}
                       data-index={currentIndex}
                       className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl volumetric-input hover-surface transition-all text-left group animate-slide-up cursor-pointer ${isActive ? 'bg-black/5 dark:bg-white/10 ring-1 ring-black/10 dark:ring-white/20 scale-[1.01]' : ''}`}
                       style={{ animationDelay: `${i * 10}ms` }}
@@ -162,17 +162,22 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   const currentIndex = globalIndex++;
                   const isActive = currentIndex === activeIndex;
                   return (
-                    <button 
-                      key={task.id} 
+                    <button
+                      key={task.id}
                       data-index={currentIndex}
                       onClick={() => { onEditTask(task); onClose(); }}
                       onMouseEnter={() => setActiveIndex(currentIndex)}
-                      className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl volumetric-input hover-surface text-left animate-slide-up transition-all cursor-pointer group ${isActive ? 'bg-black/5 dark:bg-white/10 ring-1 ring-black/10 dark:ring-white/20 scale-[1.01]' : ''}`} 
+                      className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl volumetric-input hover-surface text-left animate-slide-up transition-all cursor-pointer group ${isActive ? 'bg-black/5 dark:bg-white/10 ring-1 ring-black/10 dark:ring-white/20 scale-[1.01]' : ''}`}
                       style={{ animationDelay: `${idx * 10}ms` }}
                     >
                       <CheckCircle className={`w-5 h-5 transition-colors ${isActive ? 'text-emerald-500' : 'text-theme-tertiary group-hover:text-emerald-500'}`} />
                       <div className="flex-1 min-w-0">
-                        <p className={`font-semibold text-base transition-colors truncate ${isActive ? 'text-theme-primary' : 'text-theme-secondary group-hover:text-theme-primary'}`}>{task.title}</p>
+                        <p className={`font-semibold text-base transition-colors truncate flex items-center ${isActive ? 'text-theme-primary' : 'text-theme-secondary group-hover:text-theme-primary'}`}>
+                          {task.title}
+                          {task.recurring && (
+                            <span className="ml-1.5 text-[9px] font-semibold uppercase tracking-wider text-theme-muted bg-slate-500/10 px-1.5 py-0.5 rounded shrink-0">↻ Recurring</span>
+                          )}
+                        </p>
                         <div className="flex items-center gap-2 mt-0.5">
                           {task.clientName && (
                             <span className="text-[10px] uppercase font-medium text-theme-tertiary">{task.clientName}</span>
@@ -197,12 +202,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   const currentIndex = globalIndex++;
                   const isActive = currentIndex === activeIndex;
                   return (
-                    <button 
-                      key={note.id} 
+                    <button
+                      key={note.id}
                       data-index={currentIndex}
                       onClick={() => { onSelectNote(note.id); onClose(); }}
                       onMouseEnter={() => setActiveIndex(currentIndex)}
-                      className={`w-full flex items-start gap-4 px-4 py-3 rounded-xl volumetric-input hover-surface text-left animate-slide-up transition-all cursor-pointer group ${isActive ? 'bg-black/5 dark:bg-white/10 ring-1 ring-black/10 dark:ring-white/20 scale-[1.01]' : ''}`} 
+                      className={`w-full flex items-start gap-4 px-4 py-3 rounded-xl volumetric-input hover-surface text-left animate-slide-up transition-all cursor-pointer group ${isActive ? 'bg-black/5 dark:bg-white/10 ring-1 ring-black/10 dark:ring-white/20 scale-[1.01]' : ''}`}
                       style={{ animationDelay: `${idx * 10}ms` }}
                     >
                       <FileText className={`w-5 h-5 mt-0.5 transition-colors ${isActive ? 'text-amber-500' : 'text-theme-tertiary group-hover:text-amber-500'}`} />
