@@ -169,10 +169,10 @@ export const Layout: React.FC<LayoutProps> = ({
             </div>
           ) : (
             <>
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-3 w-full">
                 <button
                   onClick={onAddNew}
-                  className="volumetric-btn volumetric-btn-primary flex-1 py-4 px-6 rounded-[24px] font-semibold tracking-wide flex items-center justify-center gap-3"
+                  className="volumetric-btn volumetric-btn-primary w-full py-4 px-6 rounded-[24px] font-semibold tracking-wide flex items-center justify-center gap-3"
                   style={{ color: 'var(--text-primary)' }}
                 >
                   <Plus className="w-5 h-5" />
@@ -184,33 +184,36 @@ export const Layout: React.FC<LayoutProps> = ({
                     tasks={tasks}
                     onEditTask={onEditTask}
                     onNavigateToTasks={onNavigateToTasks}
+                    expanded
                   />
                 )}
                 {onToggleTheme && (
                   <button
                     onClick={onToggleTheme}
-                    className="volumetric-btn w-14 rounded-[24px] flex items-center justify-center transition-colors hover:text-theme-primary"
+                    className="volumetric-btn w-full py-3.5 px-5 rounded-[20px] flex items-center gap-4 transition-colors hover:text-theme-primary"
                     style={{ color: 'var(--text-tertiary)' }}
                     title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                   >
                     {isDark ? (
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
                       </svg>
                     ) : (
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                       </svg>
                     )}
+                    <span className="font-semibold text-sm tracking-tight">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
                   </button>
                 )}
                 <button
                   onClick={onOpenHelp}
-                  className="volumetric-btn w-14 rounded-[24px] flex items-center justify-center transition-colors hover:text-theme-primary"
+                  className="volumetric-btn w-full py-3.5 px-5 rounded-[20px] flex items-center gap-4 transition-colors hover:text-theme-primary"
                   style={{ color: 'var(--text-tertiary)' }}
                   title="Keyboard Shortcuts"
                 >
-                  <HelpCircle className="w-5 h-5" />
+                  <HelpCircle className="w-5 h-5 shrink-0" />
+                  <span className="font-semibold text-sm tracking-tight">Keyboard Shortcuts</span>
                 </button>
               </div>
               {onToggleSidebar && (

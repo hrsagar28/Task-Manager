@@ -111,7 +111,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
             {showMonthPicker && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowMonthPicker(false)} />
-                <div className="absolute top-[120%] left-0 w-[300px] z-50 volumetric-surface rounded-[24px] p-5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] animate-scale-in origin-top-left flex flex-col gap-5">
+                <div className="absolute top-[120%] left-0 w-[300px] z-50 rounded-[24px] p-5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.25),0_8px_20px_rgba(0,0,0,0.1)] animate-scale-in origin-top-left flex flex-col gap-5"
+                  style={{ background: 'var(--bg-app)', border: '1px solid var(--glass-border)' }}>
                   {/* Year Selector row */}
                   <div className="flex items-center justify-between gap-1">
                     <button onClick={() => setPickerYear(y => y - 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover-surface text-theme-tertiary transition-colors">
@@ -208,8 +209,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
                       key={dateStr}
                       onClick={() => setSelectedDate(day)}
                       className={`snap-center flex flex-col items-center min-w-[56px] py-3 px-2 rounded-2xl transition-all duration-300 ${isSelected
-                          ? 'volumetric-surface shadow-sm scale-105'
-                          : 'hover-surface'
+                        ? 'volumetric-surface shadow-sm scale-105'
+                        : 'hover-surface'
                         }`}
                     >
                       <span className="text-[10px] font-medium uppercase tracking-wider text-theme-tertiary">

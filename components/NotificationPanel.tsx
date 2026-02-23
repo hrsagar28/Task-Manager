@@ -14,6 +14,7 @@ interface NotificationPanelProps {
     tasks: Task[];
     onEditTask: (task: Task) => void;
     onNavigateToTasks: () => void;
+    expanded?: boolean;
 }
 
 interface NotificationItem {
@@ -24,7 +25,7 @@ interface NotificationItem {
 }
 
 export const NotificationPanel: React.FC<NotificationPanelProps> = ({
-    tasks, onEditTask, onNavigateToTasks
+    tasks, onEditTask, onNavigateToTasks, expanded = false
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [dismissedIds, setDismissedIds] = useState<Set<string>>(() => {
@@ -156,25 +157,52 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
     return (
         <div className="relative" ref={panelRef}>
             {/* Bell Button */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="relative volumetric-btn w-11 h-11 rounded-[16px] flex items-center justify-center transition-all hover:scale-105 active:scale-95"
-                style={{ color: 'var(--text-tertiary)' }}
-                aria-label={`Notifications: ${totalCount} pending`}
-                title={`${totalCount} notification${totalCount !== 1 ? 's' : ''}`}
-            >
-                <Bell className="w-5 h-5" />
-                {totalCount > 0 && (
-                    <span className={`absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full text-white text-[9px] font-bold flex items-center justify-center px-1 shadow-sm ${overdueCount > 0 ? 'bg-red-500 animate-pulse' : 'bg-amber-500'
-                        }`}>
-                        {totalCount > 99 ? '99+' : totalCount}
-                    </span>
-                )}
-            </button>
+            {expanded ? (
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="relative volumetric-btn w-full py-3.5 px-5 rounded-[20px] flex items-center gap-4 transition-all hover:text-theme-primary"
+                    style={{ color: 'var(--text-tertiary)' }}
+                    aria-label={`Notifications: ${totalCount} pending`}
+                    title={`${totalCount} notification${totalCount !== 1 ? 's' : ''}`}
+                >
+                    <div className="relative shrink-0">
+                        <Bell className="w-5 h-5" />
+                        {totalCount > 0 && (
+                            <span className={`absolute -top-2 -right-2 min-w-[16px] h-[16px] rounded-full text-white text-[8px] font-bold flex items-center justify-center px-0.5 shadow-sm ${overdueCount > 0 ? 'bg-red-500 animate-pulse' : 'bg-amber-500'}`}>
+                                {totalCount > 99 ? '99+' : totalCount}
+                            </span>
+                        )}
+                    </div>
+                    <span className="font-semibold text-sm tracking-tight">Notifications</span>
+                    {totalCount > 0 && (
+                        <span className="ml-auto text-[10px] font-medium text-theme-muted bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded-md">
+                            {totalCount} pending
+                        </span>
+                    )}
+                </button>
+            ) : (
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="relative volumetric-btn w-11 h-11 rounded-[16px] flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+                    style={{ color: 'var(--text-tertiary)' }}
+                    aria-label={`Notifications: ${totalCount} pending`}
+                    title={`${totalCount} notification${totalCount !== 1 ? 's' : ''}`}
+                >
+                    <Bell className="w-5 h-5" />
+                    {totalCount > 0 && (
+                        <span className={`absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full text-white text-[9px] font-bold flex items-center justify-center px-1 shadow-sm ${overdueCount > 0 ? 'bg-red-500 animate-pulse' : 'bg-amber-500'
+                            }`}>
+                            {totalCount > 99 ? '99+' : totalCount}
+                        </span>
+                    )}
+                </button>
+            )}
 
             {/* Dropdown Panel */}
             {isOpen && (
-                <div className="absolute top-full right-0 mt-3 w-[380px] max-w-[calc(100vw-2rem)] max-h-[70vh] volumetric-surface rounded-[24px] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.15),0_8px_20px_rgba(0,0,0,0.06)] overflow-hidden z-50 animate-scale-in origin-top-right">
+                <div className={`absolute ${expanded ? 'bottom-full mb-3 left-0' : 'top-full mt-3 right-0'} w-[380px] max-w-[calc(100vw-2rem)] max-h-[70vh] rounded-[24px] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25),0_8px_20px_rgba(0,0,0,0.1)] overflow-hidden z-50 animate-scale-in ${expanded ? 'origin-bottom-left' : 'origin-top-right'}`}
+                    style={{ background: 'var(--bg-app)', border: '1px solid var(--glass-border)' }}
+                >
                     {/* Header */}
                     <div className="flex items-center justify-between px-6 py-4 border-b border-theme-divider">
                         <h3 className="font-semibold text-base text-theme-primary">Notifications</h3>
