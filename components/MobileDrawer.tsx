@@ -114,7 +114,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                             key={idx}
                             onClick={item.action}
                             className="w-full flex items-center gap-4 px-4 py-4 rounded-[20px] hover-surface transition-all duration-200 group text-left animate-slide-up"
-                            style={{ animationDelay: `${idx * 50}ms` }}
+                            style={{ animationDelay: `${Math.min(idx * 50, 200)}ms` }}
                         >
                             <div className="w-10 h-10 rounded-[14px] volumetric-input flex items-center justify-center text-theme-tertiary group-hover:text-theme-secondary transition-colors shrink-0">
                                 {item.icon}
@@ -125,8 +125,8 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                             </div>
                             {item.toggle && (
                                 <div className={`w-10 h-6 rounded-full transition-all duration-300 flex items-center ${item.toggleState
-                                        ? 'bg-emerald-500 justify-end'
-                                        : 'bg-slate-300 dark:bg-slate-600 justify-start'
+                                    ? 'bg-emerald-500 justify-end'
+                                    : 'bg-slate-300 dark:bg-slate-600 justify-start'
                                     }`}>
                                     <div className="w-5 h-5 rounded-full bg-white shadow-sm mx-0.5 transition-all" />
                                 </div>

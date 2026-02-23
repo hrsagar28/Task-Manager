@@ -90,6 +90,27 @@
     /* ============================== */
     /* LIQUID GLASS DESIGN TOKENS     */
     /* ============================== */
+
+    /* Visible focus indicators for keyboard navigation */
+    *:focus-visible {
+      outline: 2px solid rgba(16, 185, 129, 0.6);
+      outline-offset: 2px;
+      border-radius: inherit;
+    }
+
+    /* Remove focus outline for mouse clicks */
+    *:focus:not(:focus-visible) {
+      outline: none;
+    }
+
+    /* Special styling for volumetric buttons when focused */
+    .volumetric-btn:focus-visible,
+    .volumetric-input:focus-visible {
+      outline: 2px solid rgba(16, 185, 129, 0.5);
+      outline-offset: 2px;
+      box-shadow: var(--shadow-glass-button), 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
     :root {
       /* Light Mode — Warm, airy, sunlit */
       --bg-app: #efecea;

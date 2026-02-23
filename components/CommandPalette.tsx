@@ -139,7 +139,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                       key={i}
                       data-index={currentIndex}
                       className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl volumetric-input hover-surface transition-all text-left group animate-slide-up cursor-pointer ${isActive ? 'bg-black/5 dark:bg-white/10 ring-1 ring-black/10 dark:ring-white/20 scale-[1.01]' : ''}`}
-                      style={{ animationDelay: `${i * 10}ms` }}
+                      style={{ animationDelay: `${Math.min(i * 10, 200)}ms` }}
                       onClick={() => { cmd.action(); onClose(); }}
                       onMouseEnter={() => setActiveIndex(currentIndex)}
                     >
@@ -168,7 +168,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                       onClick={() => { onEditTask(task); onClose(); }}
                       onMouseEnter={() => setActiveIndex(currentIndex)}
                       className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl volumetric-input hover-surface text-left animate-slide-up transition-all cursor-pointer group ${isActive ? 'bg-black/5 dark:bg-white/10 ring-1 ring-black/10 dark:ring-white/20 scale-[1.01]' : ''}`}
-                      style={{ animationDelay: `${idx * 10}ms` }}
+                      style={{ animationDelay: `${Math.min(idx * 10, 200)}ms` }}
                     >
                       <CheckCircle className={`w-5 h-5 transition-colors ${isActive ? 'text-emerald-500' : 'text-theme-tertiary group-hover:text-emerald-500'}`} />
                       <div className="flex-1 min-w-0">
@@ -208,7 +208,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                       onClick={() => { onSelectNote(note.id); onClose(); }}
                       onMouseEnter={() => setActiveIndex(currentIndex)}
                       className={`w-full flex items-start gap-4 px-4 py-3 rounded-xl volumetric-input hover-surface text-left animate-slide-up transition-all cursor-pointer group ${isActive ? 'bg-black/5 dark:bg-white/10 ring-1 ring-black/10 dark:ring-white/20 scale-[1.01]' : ''}`}
-                      style={{ animationDelay: `${idx * 10}ms` }}
+                      style={{ animationDelay: `${Math.min(idx * 10, 200)}ms` }}
                     >
                       <FileText className={`w-5 h-5 mt-0.5 transition-colors ${isActive ? 'text-amber-500' : 'text-theme-tertiary group-hover:text-amber-500'}`} />
                       <div className="flex-1 min-w-0">

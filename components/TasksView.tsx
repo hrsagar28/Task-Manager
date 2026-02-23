@@ -403,14 +403,29 @@ export const TasksView: React.FC<TasksViewProps> = ({
                               </div>
                             )}
 
-                            <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-theme-divider">
-                              {task.completedAt && (
-                                <span className="text-[10px] text-emerald-500/70 font-medium mr-auto">
-                                  Completed {new Date(task.completedAt).toLocaleDateString('en-US', {
-                                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                                  })}
-                                </span>
-                              )}
+                            <div className="mt-6 pt-4 border-t border-theme-divider">
+                              <p className="text-[10px] font-medium uppercase tracking-widest text-theme-muted mb-3">Activity</p>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-[11px] font-medium text-theme-tertiary">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                                  <span>Created {new Date(task.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                </div>
+                                {task.updatedAt && (
+                                  <div className="flex items-center gap-2 text-[11px] font-medium text-theme-tertiary">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                                    <span>Updated {new Date(task.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+                                  </div>
+                                )}
+                                {task.completedAt && (
+                                  <div className="flex items-center gap-2 text-[11px] font-medium text-emerald-500">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    <span>Completed {new Date(task.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-3 pt-4 mt-4 border-t border-theme-divider">
                               <button
                                 onClick={(e) => { e.stopPropagation(); onEditTask(task); }}
                                 className="volumetric-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center gap-2 text-theme-secondary transition-transform hover:-translate-y-0.5"

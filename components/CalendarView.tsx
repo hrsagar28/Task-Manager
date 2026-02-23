@@ -349,7 +349,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
                 <div
                   key={task.id}
                   className={`relative group/task opacity-0 animate-slide-up`}
-                  style={{ animationDelay: `${200 + Math.min(index * 10, 150)}ms` }}
+                  style={{ animationDelay: `${Math.min(index * 10, 200)}ms` }}
                 >
                   <div className={`absolute -inset-1 rounded-[28px] blur-[15px] transition-all duration-700 ease-smooth -z-10
                     ${isCompleted ? 'bg-emerald-500/10 group-hover/task:bg-emerald-500/20'

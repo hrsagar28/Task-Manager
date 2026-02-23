@@ -147,6 +147,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="animate-fade-in space-y-8">
+      {tasks.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
+          <div className="relative w-48 h-48 mx-auto mb-8 flex items-center justify-center">
+            <div className="absolute inset-0 bg-emerald-500/10 blur-[50px] rounded-full" />
+            <div className="relative z-10 volumetric-surface w-32 h-32 rounded-[36px] flex items-center justify-center">
+              <span className="text-5xl font-bold bg-gradient-to-b from-slate-700 to-slate-500 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">A</span>
+            </div>
+          </div>
+          <h2 className="text-2xl font-semibold text-theme-primary mb-3">Welcome to AuraDesk</h2>
+          <p className="text-sm font-medium text-theme-secondary max-w-md mx-auto mb-8">
+            Your CA workspace is ready. Tap the <strong className="text-emerald-500">+</strong> button to create your first task.
+          </p>
+        </div>
+      )}
       <header className="mb-6 px-2 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
         <div className="flex justify-between items-start w-full md:w-auto">
           <div className="animate-slide-up">
@@ -157,13 +171,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
               You have <strong className="text-theme-primary transition-colors">{todayTasks.length}</strong> tasks due today and <strong className="text-red-500/80 transition-colors">{overdueTasks.length}</strong> overdue.
             </p>
           </div>
-          <button
-            onClick={onOpenHelp}
-            className="md:hidden volumetric-btn w-10 h-10 rounded-full flex items-center justify-center text-theme-tertiary shrink-0 mt-1"
-            aria-label="Help & Tips"
-          >
-            <HelpCircle className="w-5 h-5" />
-          </button>
         </div>
         <button
           onClick={() => setFocusMode(!focusMode)}
@@ -273,7 +280,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </GlassCard>
           )}
 
-          <GlassCard className="opacity-0 animate-slide-up" style={{ animationDelay: overdueTasks.length > 0 ? '300ms' : '200ms' }}>
+          <GlassCard className="opacity-0 animate-slide-up" style={{ animationDelay: '200ms' }}>
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-xl font-semibold tracking-tight text-theme-primary">Today's Agenda</h3>
               <div className="volumetric-input px-4 py-2 rounded-full text-[11px] font-medium uppercase tracking-wider text-theme-tertiary">
@@ -320,7 +327,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         {/* Sidebar Column */}
         <div className="space-y-6 md:space-y-8">
-          <GlassCard className="opacity-0 animate-slide-up" style={{ animationDelay: '400ms' }}>
+          <GlassCard className="opacity-0 animate-slide-up" style={{ animationDelay: '200ms' }}>
             <h3 className="text-xl font-semibold tracking-tight mb-6 flex items-center gap-3 text-theme-primary">
               <div className="volumetric-btn w-10 h-10 rounded-full flex items-center justify-center text-theme-tertiary">
                 <Clock className="w-4 h-4" />
@@ -334,7 +341,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 {upcomingTasks.map((task, index) => {
                   const { label: relDateLabel, urgent: isDateUrgent } = formatRelativeDate(task.dueDate);
                   return (
-                    <div key={task.id} className="group flex flex-col gap-1 volumetric-input p-4 rounded-2xl opacity-0 animate-slide-up" style={{ animationDelay: `${400 + Math.min(index * 12, 150)}ms` }}>
+                    <div key={task.id} className="group flex flex-col gap-1 volumetric-input p-4 rounded-2xl opacity-0 animate-slide-up" style={{ animationDelay: `${Math.min(index * 12, 200)}ms` }}>
                       <div className="flex justify-between items-start">
                         <p className="font-semibold text-sm line-clamp-1 text-theme-secondary flex items-center">
                           {task.title}
@@ -611,7 +618,29 @@ const TaskItem: React.FC<TaskItemProps> = ({
               </div>
             )}
 
-            <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-theme-divider">
+            <div className="mt-6 pt-4 border-t border-theme-divider">
+              <p className="text-[10px] font-medium uppercase tracking-widest text-theme-muted mb-3">Activity</p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-[11px] font-medium text-theme-tertiary">
+                  <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                  <span>Created {new Date(task.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+                {task.updatedAt && (
+                  <div className="flex items-center gap-2 text-[11px] font-medium text-theme-tertiary">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                    <span>Updated {new Date(task.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+                  </div>
+                )}
+                {task.completedAt && (
+                  <div className="flex items-center gap-2 text-[11px] font-medium text-emerald-500">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span>Completed {new Date(task.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 pt-4 mt-4 border-t border-theme-divider">
               <button
                 onClick={(e) => { e.stopPropagation(); onEdit(); }}
                 className="volumetric-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center gap-2 text-theme-secondary transition-transform hover:-translate-y-0.5"

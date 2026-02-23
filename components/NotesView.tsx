@@ -88,9 +88,6 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
       }
     } else {
       setPendingDeleteId(id);
-      setTimeout(() => {
-        setPendingDeleteId(current => current === id ? null : current);
-      }, 5000);
     }
   };
 
@@ -128,13 +125,74 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
     try {
       if (!content || !content.trim()) return '<p class="text-theme-tertiary italic">Empty note</p>';
 
-      // Strip <script> tags and event handlers but preserve markdown-valid HTML
-      const sanitized = content
-        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-        .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
-        .replace(/javascript\s*:/gi, '');
+      // Parse markdown to HTML first
+      const rawHtml = marked.parse(content) as string;
 
-      return marked.parse(sanitized) as string;
+      // Whitelist-based sanitization (much safer than blacklist regex)
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(rawHtml, 'text/html');
+
+      const ALLOWED_TAGS = new Set([
+        'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'del',
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'ul', 'ol', 'li', 'blockquote', 'pre', 'code',
+        'a', 'img', 'hr', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+        'span', 'div', 'sup', 'sub', 'details', 'summary',
+        'input' // for GFM task lists
+      ]);
+
+      const ALLOWED_ATTRS: Record<string, Set<string>> = {
+        'a': new Set(['href', 'title', 'target', 'rel']),
+        'img': new Set(['src', 'alt', 'title', 'width', 'height']),
+        'input': new Set(['type', 'checked', 'disabled']),
+        'td': new Set(['align']),
+        'th': new Set(['align']),
+        'code': new Set(['class']), // for syntax highlighting class names
+      };
+
+      const sanitizeNode = (node: Node): void => {
+        // Process children first (iterate backwards since we may remove nodes)
+        const children = Array.from(node.childNodes);
+        for (const child of children) {
+          if (child.nodeType === Node.ELEMENT_NODE) {
+            const el = child as Element;
+            const tagName = el.tagName.toLowerCase();
+
+            if (!ALLOWED_TAGS.has(tagName)) {
+              // Replace disallowed elements with their text content
+              const text = document.createTextNode(el.textContent || '');
+              node.replaceChild(text, child);
+              continue;
+            }
+
+            // Strip disallowed attributes
+            const allowedAttrs = ALLOWED_ATTRS[tagName] || new Set();
+            const attrsToRemove: string[] = [];
+            for (const attr of Array.from(el.attributes)) {
+              if (!allowedAttrs.has(attr.name)) {
+                attrsToRemove.push(attr.name);
+              }
+              // Block javascript: protocol in any attribute
+              if (attr.value && /^\s*javascript\s*:/i.test(attr.value)) {
+                attrsToRemove.push(attr.name);
+              }
+            }
+            attrsToRemove.forEach(a => el.removeAttribute(a));
+
+            // Enforce safe link attributes
+            if (tagName === 'a') {
+              el.setAttribute('target', '_blank');
+              el.setAttribute('rel', 'noopener noreferrer');
+            }
+
+            // Recurse into children
+            sanitizeNode(el);
+          }
+        }
+      };
+
+      sanitizeNode(doc.body);
+      return doc.body.innerHTML;
     } catch (e) {
       return '<p class="text-red-500">Error rendering preview.</p>';
     }
@@ -144,7 +202,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
     if (list.length === 0) return null;
     return (
       <div className="mb-6">
-        {title && <h3 className="text-[11px] font-medium uppercase tracking-wider text-theme-tertiary mb-3 pl-2 opacity-0 animate-fade-in" style={{ animationDelay: `${staggerOffset}ms` }}>{title}</h3>}
+        {title && <h3 className="text-[11px] font-medium uppercase tracking-wider text-theme-tertiary mb-3 pl-2 opacity-0 animate-fade-in" style={{ animationDelay: `${Math.min(staggerOffset, 200)}ms` }}>{title}</h3>}
         <div className="space-y-3">
           {list.map((note, index) => {
             const colorClass = NOTE_COLORS.find(c => c.id === note.color)?.className || '';
@@ -155,7 +213,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                   onSelectNote(note.id);
                   setIsPreview(true);
                 }}
-                style={{ animationDelay: `${staggerOffset + Math.min(index * 10, 150)}ms` }}
+                style={{ animationDelay: `${Math.min(staggerOffset + index * 10, 200)}ms` }}
                 className={`w-full text-left p-5 rounded-[24px] transition-all duration-300 ease-smooth relative group/note opacity-0 animate-slide-up ${selectedNoteId === note.id
                   ? `volumetric-btn ${colorClass} scale-[1.02] z-10`
                   : `volumetric-input hover-surface ${colorClass}`
@@ -170,6 +228,32 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                 <span className="text-[10px] font-medium uppercase tracking-widest text-theme-muted block mt-3">
                   {new Date(note.updatedAt).toLocaleDateString()}
                 </span>
+                <div className="absolute bottom-4 right-4 flex items-center gap-1 opacity-100 md:opacity-0 group-hover/note:opacity-100 md:group-hover/note:opacity-100 transition-opacity">
+                  {pendingDeleteId === note.id ? (
+                    <div className="flex items-center gap-1 animate-scale-in">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteClick(note.id); }}
+                        className="px-2.5 py-1 rounded-lg bg-red-500/15 text-red-500 text-[10px] font-bold uppercase tracking-wider hover:bg-red-500/25 transition-colors"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setPendingDeleteId(null); }}
+                        className="px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/5 text-theme-tertiary text-[10px] font-bold uppercase tracking-wider hover:text-theme-secondary transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setPendingDeleteId(note.id); }}
+                      className="p-1.5 rounded-lg text-theme-tertiary hover:text-red-500 transition-colors"
+                      title="Delete note"
+                    >
+                      <Trash className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
               </button>
             )
           })}
@@ -319,6 +403,15 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                   <Trash className="w-4 h-4" />
                   {pendingDeleteId === selectedNote.id && <span className="text-xs font-bold tracking-wide">Confirm?</span>}
                 </button>
+                {pendingDeleteId === selectedNote.id && (
+                  <button
+                    onClick={() => setPendingDeleteId(null)}
+                    className="volumetric-input w-10 h-10 rounded-full text-theme-tertiary hover:text-theme-secondary"
+                    title="Cancel Delete"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </div>
 
