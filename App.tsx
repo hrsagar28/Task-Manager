@@ -515,6 +515,8 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isTaskModalOpen, isHelpOpen, isCommandPaletteOpen, handleViewChange, toggleTheme, handleAddNote, handleViewNote]);
 
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+
   const isAnyModalOpen = isTaskModalOpen || isHelpOpen || isCommandPaletteOpen;
 
   return (
@@ -529,12 +531,17 @@ function App() {
           setCurrentView={handleViewChange}
           onAddNew={() => handleAddNewTask()}
           onOpenHelp={() => setIsHelpOpen(true)}
+          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
           isFocusMode={focusMode}
           badgeCounts={badgeCounts}
           isDark={isDark}
           onToggleTheme={toggleTheme}
           isSidebarCollapsed={isSidebarCollapsed}
           onToggleSidebar={() => setIsSidebarCollapsed(prev => !prev)}
+          isMobileDrawerOpen={isMobileDrawerOpen}
+          onOpenDrawer={() => setIsMobileDrawerOpen(true)}
+          onCloseDrawer={() => setIsMobileDrawerOpen(false)}
+          onToggleFocusMode={() => setFocusMode(prev => !prev)}
         >
           {currentView === 'DASHBOARD' && (
             <Dashboard
