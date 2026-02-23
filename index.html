@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="antialiased">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -100,8 +101,10 @@
       --bg-app-gradient-alt-3: rgba(205, 212, 205, 0.25);
 
       /* Ambient light washes */
-      --ambient-cool: rgba(191, 219, 254, 0.2);   /* blue-100/20 */
-      --ambient-warm: rgba(254, 243, 199, 0.15);  /* amber-100/15 */
+      --ambient-cool: rgba(191, 219, 254, 0.2);
+      /* blue-100/20 */
+      --ambient-warm: rgba(254, 243, 199, 0.15);
+      /* amber-100/15 */
 
       /* Glass Materials */
       --glass-surface-from: rgba(255, 255, 255, 0.6);
@@ -177,10 +180,14 @@
       --specular-blend: soft-light;
 
       /* Text */
-      --text-primary: #1e293b;     /* slate-800 */
-      --text-secondary: #475569;   /* slate-600 */
-      --text-tertiary: #94a3b8;    /* slate-400 */
-      --text-muted: rgba(148, 163, 184, 0.7);  /* slate-400/70 */
+      --text-primary: #1e293b;
+      /* slate-800 */
+      --text-secondary: #475569;
+      /* slate-600 */
+      --text-tertiary: #94a3b8;
+      /* slate-400 */
+      --text-muted: rgba(148, 163, 184, 0.7);
+      /* slate-400/70 */
 
       /* Dividers */
       --divider: rgba(0, 0, 0, 0.05);
@@ -191,7 +198,8 @@
       --scrollbar-border: rgba(255, 255, 255, 0.3);
 
       /* Overlay / Backdrop for modals */
-      --modal-backdrop: rgba(100, 116, 139, 0.2); /* slate-500/20 */
+      --modal-backdrop: rgba(100, 116, 139, 0.2);
+      /* slate-500/20 */
     }
 
     /* ============================== */
@@ -282,10 +290,14 @@
       --specular-blend: screen;
 
       /* Text — light on dark, proper contrast hierarchy */
-      --text-primary: #f1f5f9;     /* slate-100 */
-      --text-secondary: #cbd5e1;   /* slate-300 */
-      --text-tertiary: #64748b;    /* slate-500 */
-      --text-muted: rgba(100, 116, 139, 0.7);  /* slate-500/70 */
+      --text-primary: #f1f5f9;
+      /* slate-100 */
+      --text-secondary: #cbd5e1;
+      /* slate-300 */
+      --text-tertiary: #64748b;
+      /* slate-500 */
+      --text-muted: rgba(100, 116, 139, 0.7);
+      /* slate-500/70 */
 
       /* Dividers */
       --divider: rgba(255, 255, 255, 0.06);
@@ -334,8 +346,13 @@
     }
 
     @keyframes ambient-fade {
-      0%   { opacity: 1; }
-      100% { opacity: 0; }
+      0% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
 
     /* --- GLASS MATERIAL LAYERS --- */
@@ -357,18 +374,16 @@
       position: absolute;
       inset: 0;
       border-radius: inherit;
-      background: radial-gradient(
-        600px ellipse at var(--mouse-x) var(--mouse-y),
-        var(--specular-intensity) 0%,
-        transparent 70%
-      );
+      background: radial-gradient(600px ellipse at var(--mouse-x) var(--mouse-y),
+          var(--specular-intensity) 0%,
+          transparent 70%);
       background-attachment: fixed;
       pointer-events: none;
       z-index: 0;
       mix-blend-mode: var(--specular-blend);
     }
 
-    .volumetric-surface > * {
+    .volumetric-surface>* {
       position: relative;
       z-index: 1;
     }
@@ -441,81 +456,176 @@
       animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
       mix-blend-mode: normal;
     }
-    
+
     ::view-transition-old(root) {
       z-index: 1;
     }
+
     ::view-transition-new(root) {
       z-index: 9999;
       animation: reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1);
     }
+
     @keyframes reveal {
-      from { clip-path: circle(0% at 85% 95%); }
-      to { clip-path: circle(150% at 85% 95%); }
+      from {
+        clip-path: circle(0% at 85% 95%);
+      }
+
+      to {
+        clip-path: circle(150% at 85% 95%);
+      }
     }
 
     /* Custom scrollbar */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
     ::-webkit-scrollbar-thumb {
       background: var(--scrollbar-thumb);
       border-radius: 10px;
       border: 1px solid var(--scrollbar-border);
     }
+
     ::-webkit-scrollbar-thumb:hover {
       background: var(--scrollbar-thumb-hover);
     }
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-    
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+
     /* Hide scrollbar but keep scrolling functional */
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
 
     /* Safe area insets for iOS notch devices */
-    .pt-safe { padding-top: env(safe-area-inset-top); }
-    .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-    
+    .pt-safe {
+      padding-top: env(safe-area-inset-top);
+    }
+
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
     /* Markdown Styles */
-    .markdown-body h1, .markdown-body h2, .markdown-body h3 { font-weight: bold; margin-bottom: 0.5rem; }
-    .markdown-body h1 { font-size: 1.5rem; }
-    .markdown-body h2 { font-size: 1.25rem; }
-    .markdown-body p { margin-bottom: 1rem; }
-    .markdown-body ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
-    .markdown-body ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
-    .markdown-body a { color: #60a5fa; text-decoration: underline; }
-    .markdown-body blockquote { border-left: 4px solid var(--divider); padding-left: 1rem; color: var(--text-secondary); font-style: italic; }
+    .markdown-body h1,
+    .markdown-body h2,
+    .markdown-body h3 {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .markdown-body h1 {
+      font-size: 1.5rem;
+    }
+
+    .markdown-body h2 {
+      font-size: 1.25rem;
+    }
+
+    .markdown-body p {
+      margin-bottom: 1rem;
+    }
+
+    .markdown-body ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .markdown-body ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .markdown-body a {
+      color: #60a5fa;
+      text-decoration: underline;
+    }
+
+    .markdown-body blockquote {
+      border-left: 4px solid var(--divider);
+      padding-left: 1rem;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
 
     /* Theme-Adaptive Utility Classes */
-    .text-theme-primary { color: var(--text-primary); }
-    .text-theme-secondary { color: var(--text-secondary); }
-    .text-theme-tertiary { color: var(--text-tertiary); }
-    .text-theme-muted { color: var(--text-muted); }
-    .border-theme-divider { border-color: var(--divider); }
-    .bg-theme-divider { background: var(--divider); }
-    .bg-theme-hover { background: transparent; }
-    .bg-theme-hover:hover { background: var(--divider); }
-    .hover-surface:hover { background: var(--divider); }
-    
+    .text-theme-primary {
+      color: var(--text-primary);
+    }
+
+    .text-theme-secondary {
+      color: var(--text-secondary);
+    }
+
+    .text-theme-tertiary {
+      color: var(--text-tertiary);
+    }
+
+    .text-theme-muted {
+      color: var(--text-muted);
+    }
+
+    .border-theme-divider {
+      border-color: var(--divider);
+    }
+
+    .bg-theme-divider {
+      background: var(--divider);
+    }
+
+    .bg-theme-hover {
+      background: transparent;
+    }
+
+    .bg-theme-hover:hover {
+      background: var(--divider);
+    }
+
+    .hover-surface:hover {
+      background: var(--divider);
+    }
+
     /* Component specific native overrides */
-    select, option {
+    select,
+    option {
       background: var(--bg-app);
       color: var(--text-primary);
     }
+
     input[type="date"] {
       color-scheme: light;
     }
+
     html.dark input[type="date"] {
       color-scheme: dark;
     }
 
     /* Respect user's motion preference */
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
+
+      *,
+      *::before,
+      *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.15s !important;
       }
-      
+
       /* Keep elements visible that depend on animation forwards fill */
       .animate-slide-up,
       .animate-fade-in,
@@ -523,44 +633,37 @@
         opacity: 1 !important;
         transform: none !important;
       }
-      
+
       /* Disable the ambient background animation entirely */
       body::before,
       body::after {
         animation: none !important;
         opacity: 1 !important;
       }
-      
+
       /* Disable decorative continuous animations */
       .animate-pulse,
       .animate-liquid-flow {
         animation: none !important;
       }
-      
+
       /* Reduce backdrop-filter intensity for performance */
       .volumetric-surface {
         backdrop-filter: blur(12px) saturate(1.2) !important;
         -webkit-backdrop-filter: blur(12px) saturate(1.2) !important;
       }
+
       .volumetric-btn {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
       }
     }
   </style>
-<script type="importmap">
-{
-  "imports": {
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "marked": "https://esm.sh/marked@9.1.6",
-    "react-dom": "https://esm.sh/react-dom@^19.2.4"
-  }
-}
-</script>
 </head>
+
 <body class="overflow-hidden" style="color: var(--text-primary);">
   <div id="root" class="h-screen w-screen"></div>
+  <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>

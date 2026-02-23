@@ -21,7 +21,7 @@ function App() {
     try { const local = localStorage.getItem('auradesk-notes'); return local ? JSON.parse(local) : INITIAL_NOTES; } catch { return INITIAL_NOTES; }
   });
   const [currentView, setCurrentView] = useState<ViewState>('DASHBOARD');
-  
+
   // Date refresh state to ensure app updates at midnight if left open
   const [currentDateStr, setCurrentDateStr] = useState(toLocalDateString());
 
@@ -38,19 +38,20 @@ function App() {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [defaultDueDate, setDefaultDueDate] = useState<string | null>(null);
-  
+
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
 
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  
+
   // Focus Mode State - Hoisted for layout-wide dimming
   const [focusMode, setFocusMode] = useState(false);
 
   // Toast & Undo State
   const [toast, setToast] = useState<{ message: string, type?: 'success' | 'info' | 'error', action?: { label: string, onClick: () => void } } | null>(null);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const undoStackRef = useRef<Array<{ label: string; execute: () => void }>>([]);
 
   // Theme State
   const [isDark, setIsDark] = useState(() => {
@@ -110,10 +111,10 @@ function App() {
   }, [tasks]);
 
   const badgeCounts = useMemo(() => {
-    const overdue = activeTasks.filter(t => 
+    const overdue = activeTasks.filter(t =>
       t.status !== TaskStatus.COMPLETED && t.dueDate < currentDateStr
     ).length;
-    return { 
+    return {
       dashboard: overdue,
       tasks: activeTasks.filter(t => t.status !== TaskStatus.COMPLETED).length,
     };
@@ -131,9 +132,22 @@ function App() {
   }, []);
 
   const showToast = useCallback((message: string, type: 'success' | 'info' | 'error' = 'success', action?: { label: string, onClick: () => void }) => {
+    // If there's an undo action, push to stack
+    if (action) {
+      undoStackRef.current.push({ label: action.label, execute: action.onClick });
+      // Keep only last 10 undo actions
+      if (undoStackRef.current.length > 10) {
+        undoStackRef.current.shift();
+      }
+    }
+
     setToast({ message, type, action });
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-    toastTimeoutRef.current = setTimeout(() => setToast(null), action ? 6000 : 3000);
+    toastTimeoutRef.current = setTimeout(() => {
+      setToast(null);
+      // Clear undo stack after timeout (can't undo after toast disappears)
+      undoStackRef.current = [];
+    }, action ? 7000 : 3000);
   }, []);
 
   const handleToggleTaskStatus = useCallback((id: string) => {
@@ -224,7 +238,7 @@ function App() {
   const handleDeleteTask = useCallback((id: string) => {
     const taskToDelete = tasks.find(t => t.id === id);
     if (!taskToDelete) return;
-    
+
     setTasks(prev => prev.filter(t => t.id !== id));
     showToast('Task deleted', 'info', {
       label: 'Undo',
@@ -256,7 +270,7 @@ function App() {
   const handleDeleteNote = useCallback((id: string) => {
     const noteToDelete = notes.find(n => n.id === id);
     if (!noteToDelete) return;
-    
+
     setNotes(prev => prev.filter(n => n.id !== id));
     showToast('Note deleted', 'info', {
       label: 'Undo',
@@ -305,14 +319,24 @@ function App() {
         setIsHelpOpen(false);
         return;
       }
-      
+
+      // Multi-step undo: Ctrl+Z pops the last undo action from the stack
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        if (undoStackRef.current.length > 0) {
+          e.preventDefault();
+          const lastUndo = undoStackRef.current.pop()!;
+          lastUndo.execute();
+          return;
+        }
+      }
+
       // Global shortcut for Command Palette: Ctrl + / or Ctrl + K
       if ((e.ctrlKey || e.metaKey) && (e.key === '/' || e.key.toLowerCase() === 'k')) {
         e.preventDefault();
         setIsCommandPaletteOpen(true);
         return;
       }
-      
+
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'd') {
         e.preventDefault();
         toggleTheme();
@@ -353,13 +377,13 @@ function App() {
 
   return (
     <>
-      <div 
-        className="h-full w-full relative" 
-        inert={isAnyModalOpen ? true : undefined} 
+      <div
+        className="h-full w-full relative"
+        inert={isAnyModalOpen ? true : undefined}
         aria-hidden={isAnyModalOpen ? "true" : undefined}
       >
-        <Layout 
-          currentView={currentView} 
+        <Layout
+          currentView={currentView}
           setCurrentView={handleViewChange}
           onAddNew={() => handleAddNewTask()}
           onOpenHelp={() => setIsHelpOpen(true)}
@@ -371,10 +395,10 @@ function App() {
           onToggleSidebar={() => setIsSidebarCollapsed(prev => !prev)}
         >
           {currentView === 'DASHBOARD' && (
-            <Dashboard 
-              tasks={activeTasks} 
+            <Dashboard
+              tasks={activeTasks}
               notes={notes}
-              toggleTaskStatus={handleToggleTaskStatus} 
+              toggleTaskStatus={handleToggleTaskStatus}
               onCycleStatus={handleCycleTaskStatus}
               onEditTask={handleEditTask}
               onDuplicateTask={handleDuplicateTask}
@@ -388,17 +412,17 @@ function App() {
             />
           )}
           {currentView === 'CALENDAR' && (
-            <CalendarView 
-               tasks={activeTasks} 
-               toggleTaskStatus={handleToggleTaskStatus} 
-               onAddTaskForDate={handleAddNewTask}
-               onEditTask={handleEditTask}
-               onDeleteTask={handleDeleteTask}
+            <CalendarView
+              tasks={activeTasks}
+              toggleTaskStatus={handleToggleTaskStatus}
+              onAddTaskForDate={handleAddNewTask}
+              onEditTask={handleEditTask}
+              onDeleteTask={handleDeleteTask}
             />
           )}
           {currentView === 'TASKS' && (
-            <TasksView 
-              tasks={tasks} 
+            <TasksView
+              tasks={tasks}
               notes={notes}
               toggleTaskStatus={handleToggleTaskStatus}
               onEditTask={handleEditTask}
@@ -411,8 +435,8 @@ function App() {
             />
           )}
           {currentView === 'NOTES' && (
-            <NotesView 
-              notes={notes} 
+            <NotesView
+              notes={notes}
               tasks={tasks}
               onAddNote={handleAddNote}
               onUpdateNote={handleUpdateNote}
@@ -424,16 +448,16 @@ function App() {
         </Layout>
       </div>
 
-      <TaskModal 
-        isOpen={isTaskModalOpen} 
-        onClose={() => { setIsTaskModalOpen(false); setEditingTask(null); }} 
-        onSave={handleSaveTask} 
+      <TaskModal
+        isOpen={isTaskModalOpen}
+        onClose={() => { setIsTaskModalOpen(false); setEditingTask(null); }}
+        onSave={handleSaveTask}
         initialData={editingTask}
         defaultDueDate={defaultDueDate}
         allTags={allTags}
       />
 
-      <CommandPalette 
+      <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
         tasks={tasks}
@@ -448,9 +472,9 @@ function App() {
         }}
       />
 
-      <HelpModal 
-        isOpen={isHelpOpen} 
-        onClose={() => setIsHelpOpen(false)} 
+      <HelpModal
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
       />
 
       {/* Global Toast - always render the live region, conditionally render content */}
@@ -461,7 +485,7 @@ function App() {
               {toast.type === 'error' ? <AlertCircle className="w-5 h-5 text-red-500" /> : <CheckCircle className="w-5 h-5 text-emerald-500" />}
               <span className="font-semibold text-sm tracking-wide text-theme-primary whitespace-nowrap">{toast.message}</span>
               {toast.action && (
-                <button 
+                <button
                   onClick={toast.action.onClick}
                   className="volumetric-btn volumetric-btn-primary px-4 py-2 rounded-xl text-xs font-semibold text-theme-primary ml-2 hover:scale-105 active:scale-95 transition-transform shrink-0"
                 >
