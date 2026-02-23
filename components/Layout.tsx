@@ -402,9 +402,10 @@ const SidebarButton = ({ active, onClick, icon, label, shortcut, badge, collapse
       </>
     )}
     {collapsed && badge && badge > 0 && (
-      <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center shadow-sm">
-        {badge > 99 ? '99+' : badge}
-      </div>
+      <div
+        title={`${badge} unread`}
+        className="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm ring-2 ring-white dark:ring-slate-900"
+      />
     )}
   </button>
 );
