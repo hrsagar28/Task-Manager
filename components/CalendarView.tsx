@@ -208,7 +208,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
                     <button
                       key={dateStr}
                       onClick={() => setSelectedDate(day)}
-                      className={`snap-center flex flex-col items-center min-w-[56px] py-3 px-2 rounded-2xl transition-all duration-300 ${isSelected
+                      className={`snap-center flex flex-col items-center min-w-[56px] min-h-[64px] py-3 px-2 rounded-2xl transition-all duration-300 ${isSelected
                         ? 'volumetric-surface shadow-sm scale-105'
                         : 'hover-surface'
                         }`}

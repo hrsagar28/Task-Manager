@@ -65,6 +65,18 @@ function App() {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  // Auto-collapse sidebar on tablet-sized screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && window.innerWidth < 1024) {
+        setIsSidebarCollapsed(true);
+      }
+    };
+    handleResize(); // Run on mount
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Focus Mode State - Hoisted for layout-wide dimming
   const [focusMode, setFocusMode] = useState(false);
 
@@ -518,6 +530,16 @@ function App() {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   const isAnyModalOpen = isTaskModalOpen || isHelpOpen || isCommandPaletteOpen;
+
+  // Prevent body scroll when modals are open
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isAnyModalOpen]);
 
   return (
     <>

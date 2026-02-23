@@ -176,7 +176,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </header>
 
       {/* Progress & Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Hero Progress Card */}
         <div className="md:col-span-2 volumetric-surface rounded-[32px] p-6 md:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6 md:gap-8 opacity-0 animate-slide-up">
           <div className="relative w-32 h-32 shrink-0 flex items-center justify-center">

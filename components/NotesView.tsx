@@ -181,7 +181,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
   return (
     <div className="animate-fade-in flex flex-col md:flex-row gap-4 md:gap-6 h-[calc(100vh-10rem)] md:h-[calc(100vh-4rem)]">
       {/* Sidebar List - Hidden on mobile when a note is selected */}
-      <GlassCard className={`${selectedNote ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-[380px] h-full shrink-0`}>
+      <GlassCard className={`${selectedNote ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-64 lg:w-80 h-full shrink-0`}>
         <div className="flex items-center justify-between mb-8 opacity-0 animate-slide-up">
           <h2 className="text-2xl font-semibold tracking-tight flex items-center gap-3 text-theme-primary">
             <div className="volumetric-btn w-10 h-10 rounded-full flex items-center justify-center text-theme-tertiary">
@@ -225,10 +225,10 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
           <div key={selectedNote.id} className="flex flex-col h-full animate-fade-in p-2">
             <button
               onClick={() => onSelectNote(null)}
-              className="md:hidden flex items-center gap-2 text-sm font-semibold text-theme-secondary mb-4 hover:text-theme-primary transition-colors"
+              className="md:hidden flex items-center gap-2 mb-4 text-sm font-semibold text-theme-secondary hover:text-theme-primary transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
-              All Notes
+              <span>All Notes</span>
             </button>
             <div className="flex justify-between items-start mb-4 border-b border-theme-divider pb-4 relative">
               <div className="flex-1">
@@ -245,7 +245,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                     return (
                       <div className="volumetric-input px-3 py-2 rounded-xl text-[11px] font-semibold text-blue-600/70 dark:text-blue-400 flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full shrink-0 ${linkedTask?.status === 'COMPLETED' ? 'bg-emerald-400' :
-                            linkedTask?.status === 'IN_PROGRESS' ? 'bg-blue-400' : 'bg-slate-400'
+                          linkedTask?.status === 'IN_PROGRESS' ? 'bg-blue-400' : 'bg-slate-400'
                           }`} />
                         <LinkIcon className="w-3 h-3 shrink-0" />
                         <span className="truncate max-w-[200px]">

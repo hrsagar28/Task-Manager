@@ -443,7 +443,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
         {/* Floating Bulk Action Bar */}
         {selectedTaskIds.size > 0 && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
+          <div className="absolute bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
             <div className="volumetric-surface px-6 py-4 rounded-[24px] flex items-center gap-6 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15),0_4px_12px_-4px_rgba(0,0,0,0.06)]">
               <span className="text-sm font-semibold bg-blue-500/6 text-blue-600/70 dark:text-blue-400 border border-blue-500/8 px-3 py-1.5 rounded-[8px] backdrop-blur-sm">{selectedTaskIds.size} selected</span>
               <div className="w-px h-8 bg-theme-divider" />
