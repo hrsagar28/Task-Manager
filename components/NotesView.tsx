@@ -5,11 +5,20 @@ import { Plus, FileText, Pin, Trash, Search, BoldIcon, ItalicIcon, ListIcon, Eye
 import { NOTE_COLORS } from '../constants';
 import { marked } from 'marked';
 
-// Configure marked to handle line breaks and avoid raw HTML to prevent layout breaks
+// Configure marked for safe rendering
 marked.setOptions({
   breaks: true,
   gfm: true
 });
+
+// Create a custom renderer that opens links in new tabs safely
+const renderer = new marked.Renderer();
+renderer.link = ({ href, title, text }: { href: string; title?: string | null; text: string }) => {
+  const titleAttr = title ? ` title="${title}"` : '';
+  return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+};
+
+marked.use({ renderer });
 
 interface NotesViewProps {
   notes: Note[];
@@ -29,15 +38,15 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
   const [linkSearch, setLinkSearch] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isNewNoteRef = useRef(false);
-  
+
   const [showSaved, setShowSaved] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const selectedNoteId = activeNoteId || (notes.length > 0 ? notes[0].id : null);
   const selectedNote = notes.find(n => n.id === selectedNoteId) || null;
 
-  const filteredNotes = notes.filter(n => 
-    n.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredNotes = notes.filter(n =>
+    n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     n.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -103,10 +112,10 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
     const before = text.substring(0, start);
     const selected = text.substring(start, end) || 'text';
     const after = text.substring(end);
-    
+
     const newContent = `${before}${prefix}${selected}${suffix}${after}`;
     handleUpdateField('content', newContent);
-    
+
     // Focus back and set cursor position (setTimeout required to wait for render)
     setTimeout(() => {
       textarea.focus();
@@ -117,9 +126,15 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
 
   const renderSafeMarkdown = (content: string) => {
     try {
-      // Basic sanitization: escape HTML tags to prevent broken layouts/XSS
-      const escaped = (content || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      return marked.parse(escaped || '*Empty note*') as string;
+      if (!content || !content.trim()) return '<p class="text-theme-tertiary italic">Empty note</p>';
+
+      // Strip <script> tags and event handlers but preserve markdown-valid HTML
+      const sanitized = content
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+        .replace(/javascript\s*:/gi, '');
+
+      return marked.parse(sanitized) as string;
     } catch (e) {
       return '<p class="text-red-500">Error rendering preview.</p>';
     }
@@ -141,11 +156,10 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                   setIsPreview(true);
                 }}
                 style={{ animationDelay: `${staggerOffset + Math.min(index * 10, 150)}ms` }}
-                className={`w-full text-left p-5 rounded-[24px] transition-all duration-300 ease-smooth relative group/note opacity-0 animate-slide-up ${
-                  selectedNoteId === note.id 
-                    ? `volumetric-btn ${colorClass} scale-[1.02] z-10` 
+                className={`w-full text-left p-5 rounded-[24px] transition-all duration-300 ease-smooth relative group/note opacity-0 animate-slide-up ${selectedNoteId === note.id
+                    ? `volumetric-btn ${colorClass} scale-[1.02] z-10`
                     : `volumetric-input hover-surface ${colorClass}`
-                }`}
+                  }`}
               >
                 <div className="absolute top-4 right-4 flex items-center gap-1.5 opacity-50">
                   {note.linkedTaskId && <LinkIcon className="w-3 h-3 text-blue-500" />}
@@ -171,24 +185,24 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
         <div className="flex items-center justify-between mb-8 opacity-0 animate-slide-up">
           <h2 className="text-2xl font-semibold tracking-tight flex items-center gap-3 text-theme-primary">
             <div className="volumetric-btn w-10 h-10 rounded-full flex items-center justify-center text-theme-tertiary">
-               <FileText className="w-4 h-4" />
+              <FileText className="w-4 h-4" />
             </div>
             Notes
           </h2>
-          <button 
+          <button
             onClick={handleAdd}
-            className="volumetric-btn w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-110 active:scale-95 text-theme-primary" 
+            className="volumetric-btn w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-110 active:scale-95 text-theme-primary"
             aria-label="New Note"
           >
             <Plus className="w-5 h-5" />
           </button>
         </div>
-        
+
         <div className="relative mb-6 opacity-0 animate-slide-up" style={{ animationDelay: '100ms' }}>
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-tertiary" />
-          <input 
-            type="text" 
-            placeholder="Search notes..." 
+          <input
+            type="text"
+            placeholder="Search notes..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             className="volumetric-input w-full pl-12 pr-4 py-3 rounded-[20px] text-sm font-medium text-theme-secondary placeholder:text-theme-tertiary transition-all focus:-translate-y-0.5"
@@ -198,9 +212,9 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
         <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
           {renderNoteList(pinnedNotes, "Pinned", 150)}
           {renderNoteList(otherNotes, pinnedNotes.length > 0 ? "Others" : undefined, 150 + (pinnedNotes.length * 10))}
-          
+
           {filteredNotes.length === 0 && (
-             <p className="text-center text-sm font-medium text-theme-tertiary py-10 animate-fade-in">No notes found.</p>
+            <p className="text-center text-sm font-medium text-theme-tertiary py-10 animate-fade-in">No notes found.</p>
           )}
         </div>
       </GlassCard>
@@ -218,8 +232,8 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
             </button>
             <div className="flex justify-between items-start mb-4 border-b border-theme-divider pb-4 relative">
               <div className="flex-1">
-                 <input 
-                  type="text" 
+                <input
+                  type="text"
                   className="w-full text-3xl md:text-4xl font-semibold tracking-tight bg-transparent border-none focus:outline-none focus:ring-0 text-theme-primary placeholder:text-theme-tertiary transition-colors"
                   value={selectedNote.title}
                   onChange={e => handleUpdateField('title', e.target.value)}
@@ -227,70 +241,69 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                 />
                 <div className="mt-3 flex items-center gap-2">
                   {selectedNote.linkedTaskId ? (
-                     <div className="volumetric-input px-3 py-1.5 rounded-xl text-[11px] font-semibold text-blue-600/70 dark:text-blue-400 flex items-center gap-2">
-                       <LinkIcon className="w-3 h-3" />
-                       <span className="truncate max-w-[200px]">
-                         {tasks.find(t => t.id === selectedNote.linkedTaskId)?.title || 'Unknown Task'}
-                       </span>
-                       <button onClick={() => handleUpdateField('linkedTaskId', undefined)} className="hover:text-red-500 ml-1 transition-colors" title="Unlink task">
-                         <X className="w-3 h-3" />
-                       </button>
-                     </div>
+                    <div className="volumetric-input px-3 py-1.5 rounded-xl text-[11px] font-semibold text-blue-600/70 dark:text-blue-400 flex items-center gap-2">
+                      <LinkIcon className="w-3 h-3" />
+                      <span className="truncate max-w-[200px]">
+                        {tasks.find(t => t.id === selectedNote.linkedTaskId)?.title || 'Unknown Task'}
+                      </span>
+                      <button onClick={() => handleUpdateField('linkedTaskId', undefined)} className="hover:text-red-500 ml-1 transition-colors" title="Unlink task">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
                   ) : (
-                     <div className="relative">
-                       {isLinking ? (
-                          <div className="absolute top-0 left-0 z-20 w-[280px] volumetric-surface rounded-[16px] p-2 shadow-xl animate-scale-in origin-top-left">
-                            <div className="relative mb-2">
-                               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-theme-tertiary" />
-                               <input
-                                 autoFocus
-                                 type="text"
-                                 placeholder="Search task to link..."
-                                 value={linkSearch}
-                                 onChange={e => setLinkSearch(e.target.value)}
-                                 className="volumetric-input w-full pl-8 pr-3 py-2 text-xs rounded-lg font-medium text-theme-primary"
-                               />
-                            </div>
-                            <div className="max-h-40 overflow-y-auto custom-scrollbar space-y-1">
-                              {tasks.filter(t => t.title.toLowerCase().includes(linkSearch.toLowerCase())).slice(0, 5).map(t => (
-                                <button
-                                  key={t.id}
-                                  onClick={() => { handleUpdateField('linkedTaskId', t.id); setIsLinking(false); }}
-                                  className="w-full text-left px-3 py-2 text-xs font-medium text-theme-secondary hover-surface rounded-lg truncate transition-colors"
-                                >
-                                  {t.title}
-                                </button>
-                              ))}
-                              {tasks.filter(t => t.title.toLowerCase().includes(linkSearch.toLowerCase())).length === 0 && (
-                                <div className="px-3 py-2 text-xs text-theme-tertiary text-center">No matching tasks</div>
-                              )}
-                            </div>
-                            <button onClick={() => setIsLinking(false)} className="absolute -top-2 -right-2 w-6 h-6 rounded-full volumetric-surface shadow-sm flex items-center justify-center text-theme-tertiary hover:text-theme-primary transition-transform hover:scale-110"><X className="w-3 h-3"/></button>
+                    <div className="relative">
+                      {isLinking ? (
+                        <div className="absolute top-0 left-0 z-20 w-[280px] volumetric-surface rounded-[16px] p-2 shadow-xl animate-scale-in origin-top-left">
+                          <div className="relative mb-2">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-theme-tertiary" />
+                            <input
+                              autoFocus
+                              type="text"
+                              placeholder="Search task to link..."
+                              value={linkSearch}
+                              onChange={e => setLinkSearch(e.target.value)}
+                              className="volumetric-input w-full pl-8 pr-3 py-2 text-xs rounded-lg font-medium text-theme-primary"
+                            />
                           </div>
-                       ) : (
-                         <button onClick={() => { setIsLinking(true); setLinkSearch(''); }} className="volumetric-input px-3 py-1.5 rounded-xl text-[11px] font-medium text-theme-tertiary hover:text-theme-primary flex items-center gap-1.5 transition-colors">
-                           <LinkIcon className="w-3 h-3" /> Link to task...
-                         </button>
-                       )}
-                     </div>
+                          <div className="max-h-40 overflow-y-auto custom-scrollbar space-y-1">
+                            {tasks.filter(t => t.title.toLowerCase().includes(linkSearch.toLowerCase())).slice(0, 5).map(t => (
+                              <button
+                                key={t.id}
+                                onClick={() => { handleUpdateField('linkedTaskId', t.id); setIsLinking(false); }}
+                                className="w-full text-left px-3 py-2 text-xs font-medium text-theme-secondary hover-surface rounded-lg truncate transition-colors"
+                              >
+                                {t.title}
+                              </button>
+                            ))}
+                            {tasks.filter(t => t.title.toLowerCase().includes(linkSearch.toLowerCase())).length === 0 && (
+                              <div className="px-3 py-2 text-xs text-theme-tertiary text-center">No matching tasks</div>
+                            )}
+                          </div>
+                          <button onClick={() => setIsLinking(false)} className="absolute -top-2 -right-2 w-6 h-6 rounded-full volumetric-surface shadow-sm flex items-center justify-center text-theme-tertiary hover:text-theme-primary transition-transform hover:scale-110"><X className="w-3 h-3" /></button>
+                        </div>
+                      ) : (
+                        <button onClick={() => { setIsLinking(true); setLinkSearch(''); }} className="volumetric-input px-3 py-1.5 rounded-xl text-[11px] font-medium text-theme-tertiary hover:text-theme-primary flex items-center gap-1.5 transition-colors">
+                          <LinkIcon className="w-3 h-3" /> Link to task...
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
               <div className="flex items-center gap-2 ml-4">
-                <button 
+                <button
                   onClick={() => handleUpdateField('pinned', !selectedNote.pinned)}
                   className={`volumetric-btn w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${selectedNote.pinned ? 'text-blue-500 scale-110' : 'text-theme-tertiary hover:scale-105'}`}
                   title={selectedNote.pinned ? 'Unpin Note' : 'Pin Note'}
                 >
                   <Pin className="w-4 h-4" />
                 </button>
-                <button 
+                <button
                   onClick={() => handleDeleteClick(selectedNote.id)}
-                  className={`transition-all duration-300 flex items-center justify-center ${
-                    pendingDeleteId === selectedNote.id
+                  className={`transition-all duration-300 flex items-center justify-center ${pendingDeleteId === selectedNote.id
                       ? 'volumetric-btn bg-red-500/20 !border-red-500/50 text-red-600 dark:text-red-400 px-4 h-10 rounded-xl gap-2 hover:bg-red-500/30 ring-2 ring-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.2)]'
                       : 'volumetric-input w-10 h-10 rounded-full text-theme-tertiary hover:text-red-500'
-                  }`}
+                    }`}
                   title={pendingDeleteId === selectedNote.id ? "Confirm Delete?" : "Delete Note"}
                 >
                   <Trash className="w-4 h-4" />
@@ -302,33 +315,33 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
             {/* Rich Text Toolbar */}
             <div className="flex items-center justify-between mb-4 pb-2 opacity-0 animate-slide-up" style={{ animationDelay: '100ms' }}>
               <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => insertFormatting('**', '**')} 
+                <button
+                  onClick={() => insertFormatting('**', '**')}
                   disabled={isPreview}
-                  className={`volumetric-btn w-8 h-8 rounded-lg flex items-center justify-center text-theme-secondary transition-all active:scale-95 ${isPreview ? 'opacity-30 cursor-not-allowed' : ''}`} 
+                  className={`volumetric-btn w-8 h-8 rounded-lg flex items-center justify-center text-theme-secondary transition-all active:scale-95 ${isPreview ? 'opacity-30 cursor-not-allowed' : ''}`}
                   title="Bold"
                 >
                   <BoldIcon className="w-4 h-4" />
                 </button>
-                <button 
-                  onClick={() => insertFormatting('*', '*')} 
+                <button
+                  onClick={() => insertFormatting('*', '*')}
                   disabled={isPreview}
-                  className={`volumetric-btn w-8 h-8 rounded-lg flex items-center justify-center text-theme-secondary transition-all active:scale-95 ${isPreview ? 'opacity-30 cursor-not-allowed' : ''}`} 
+                  className={`volumetric-btn w-8 h-8 rounded-lg flex items-center justify-center text-theme-secondary transition-all active:scale-95 ${isPreview ? 'opacity-30 cursor-not-allowed' : ''}`}
                   title="Italic"
                 >
                   <ItalicIcon className="w-4 h-4" />
                 </button>
                 <div className="w-px h-6 bg-theme-divider mx-1" />
-                <button 
-                  onClick={() => insertFormatting('- ')} 
+                <button
+                  onClick={() => insertFormatting('- ')}
                   disabled={isPreview}
-                  className={`volumetric-btn w-8 h-8 rounded-lg flex items-center justify-center text-theme-secondary transition-all active:scale-95 ${isPreview ? 'opacity-30 cursor-not-allowed' : ''}`} 
+                  className={`volumetric-btn w-8 h-8 rounded-lg flex items-center justify-center text-theme-secondary transition-all active:scale-95 ${isPreview ? 'opacity-30 cursor-not-allowed' : ''}`}
                   title="Bullet List"
                 >
                   <ListIcon className="w-4 h-4" />
                 </button>
               </div>
-              <button 
+              <button
                 onClick={() => setIsPreview(!isPreview)}
                 className="volumetric-input px-3 py-1.5 rounded-xl text-[11px] font-medium uppercase tracking-wider flex items-center gap-2 text-theme-tertiary transition-transform active:scale-95"
               >
@@ -338,12 +351,12 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
 
             {/* Editor vs Preview Area */}
             {isPreview ? (
-              <div 
+              <div
                 className="flex-1 w-full overflow-y-auto markdown-body text-theme-secondary leading-relaxed font-medium text-sm custom-scrollbar px-2 animate-fade-in"
                 dangerouslySetInnerHTML={{ __html: renderSafeMarkdown(selectedNote.content) }}
               />
             ) : (
-              <textarea 
+              <textarea
                 ref={textareaRef}
                 className="flex-1 w-full resize-none bg-transparent border-none focus:outline-none focus:ring-0 text-theme-secondary placeholder:text-theme-tertiary leading-relaxed font-medium text-sm custom-scrollbar opacity-0 animate-slide-up"
                 style={{ animationDelay: '150ms' }}
@@ -352,17 +365,17 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                 placeholder="Start typing your notes using markdown..."
               />
             )}
-            
+
             <div className="mt-4 pt-4 flex flex-wrap justify-between items-center gap-4 border-t border-theme-divider opacity-0 animate-slide-up" style={{ animationDelay: '200ms' }}>
               <div className="flex gap-2 items-center">
-                 {NOTE_COLORS.map(color => (
-                   <button 
+                {NOTE_COLORS.map(color => (
+                  <button
                     key={color.id}
                     onClick={() => handleUpdateField('color', color.id)}
                     className={`w-6 h-6 rounded-full transition-all duration-300 ease-smooth border-2 ${selectedNote.color === color.id ? 'border-slate-800 dark:border-slate-200 scale-125' : 'border-transparent hover:scale-110'} ${color.className || 'bg-slate-200 dark:bg-slate-700'}`}
                     title={color.name}
-                   />
-                 ))}
+                  />
+                ))}
               </div>
               <div className="flex items-center gap-3 text-[10px] font-medium uppercase tracking-widest text-theme-muted">
                 <span className={`transition-all duration-300 ${showSaved ? 'opacity-100 text-emerald-500' : 'opacity-0'}`}>
@@ -374,16 +387,16 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
           </div>
         ) : (
           <div className="h-full flex flex-col items-center justify-center text-theme-tertiary opacity-60 animate-fade-in">
-             <div className="relative w-40 h-40 mx-auto mb-8 flex items-center justify-center">
-                <div className="absolute inset-0 bg-amber-500/10 blur-[40px] rounded-full" />
-                <div className="absolute top-4 left-4 w-16 h-16 volumetric-surface rounded-2xl rotate-[-15deg] opacity-60 transition-transform duration-700 ease-smooth hover:rotate-[-5deg]" />
-                <div className="absolute bottom-4 right-4 w-20 h-20 volumetric-surface rounded-[20px] rotate-[15deg] opacity-40 transition-transform duration-700 ease-smooth hover:rotate-[5deg]" />
-                <div className="relative z-10 volumetric-surface w-28 h-28 rounded-[32px] flex items-center justify-center transform hover:scale-105 transition-transform duration-500 ease-smooth">
-                   <div className="volumetric-btn w-16 h-16 rounded-[20px] flex items-center justify-center bg-amber-500/10 text-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
-                      <FileText className="w-8 h-8" />
-                   </div>
+            <div className="relative w-40 h-40 mx-auto mb-8 flex items-center justify-center">
+              <div className="absolute inset-0 bg-amber-500/10 blur-[40px] rounded-full" />
+              <div className="absolute top-4 left-4 w-16 h-16 volumetric-surface rounded-2xl rotate-[-15deg] opacity-60 transition-transform duration-700 ease-smooth hover:rotate-[-5deg]" />
+              <div className="absolute bottom-4 right-4 w-20 h-20 volumetric-surface rounded-[20px] rotate-[15deg] opacity-40 transition-transform duration-700 ease-smooth hover:rotate-[5deg]" />
+              <div className="relative z-10 volumetric-surface w-28 h-28 rounded-[32px] flex items-center justify-center transform hover:scale-105 transition-transform duration-500 ease-smooth">
+                <div className="volumetric-btn w-16 h-16 rounded-[20px] flex items-center justify-center bg-amber-500/10 text-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
+                  <FileText className="w-8 h-8" />
                 </div>
-             </div>
+              </div>
+            </div>
             <p className="font-medium text-sm text-theme-secondary">Select a note to view or edit.</p>
           </div>
         )}

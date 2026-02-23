@@ -119,6 +119,27 @@ function App() {
   useEffect(() => { localStorage.setItem('auradesk-tasks', JSON.stringify(tasks)); }, [tasks]);
   useEffect(() => { localStorage.setItem('auradesk-notes', JSON.stringify(notes)); }, [notes]);
 
+  // Sync state across browser tabs
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'auradesk-tasks' && e.newValue) {
+        try {
+          setTasks(JSON.parse(e.newValue));
+        } catch { /* ignore parse errors */ }
+      }
+      if (e.key === 'auradesk-notes' && e.newValue) {
+        try {
+          setNotes(JSON.parse(e.newValue));
+        } catch { /* ignore parse errors */ }
+      }
+      if (e.key === 'auradesk-theme') {
+        setIsDark(e.newValue === 'dark');
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   // Derived state to keep Dashboard & Calendar clean
   const activeTasks = useMemo(() => tasks.filter(t => !t.isArchived), [tasks]);
 
@@ -308,7 +329,25 @@ function App() {
   }, []);
 
   const handleDuplicateTask = useCallback((task: Task) => {
-    const duplicated: Task = { ...task, id: `t_${Date.now()}`, title: `${task.title} (Copy)`, status: TaskStatus.PENDING, createdAt: new Date().toISOString() };
+    const duplicated: Task = {
+      ...task,
+      id: `t_${Date.now()}`,
+      title: `${task.title} (Copy)`,
+      status: TaskStatus.PENDING,
+      createdAt: new Date().toISOString(),
+      updatedAt: undefined,
+      isArchived: false,
+      // Deep-copy subtasks with new unique IDs, reset completion
+      subtasks: task.subtasks
+        ? task.subtasks.map((s, i) => ({
+          ...s,
+          id: `sub_${Date.now()}_${i}`,
+          done: false,
+        }))
+        : [],
+      // Deep-copy tags array (arrays are reference types)
+      tags: [...(task.tags || [])],
+    };
     setTasks(prev => [...prev, duplicated]);
     showToast('Task duplicated', 'info');
   }, [showToast]);
