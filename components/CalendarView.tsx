@@ -21,6 +21,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
   // Quick-nav picker state
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [pickerYear, setPickerYear] = useState(currentDate.getFullYear());
+  const [mobileView, setMobileView] = useState<'week' | 'month'>('week');
 
   // Sync picker year when calendar changes externally
   useEffect(() => {
@@ -175,63 +176,125 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
           </div>
         </div>
 
-        <div className="grid grid-cols-7 gap-2 text-center text-[11px] font-medium tracking-wider uppercase text-theme-tertiary mb-4 opacity-0 animate-slide-up" style={{ animationDelay: '100ms' }}>
-          {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-            <div key={day} className="py-2">{day}</div>
-          ))}
+        {/* Mobile Week View */}
+        <div className="md:hidden">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-theme-secondary">
+              {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            </h3>
+            <button
+              onClick={() => setMobileView(mobileView === 'week' ? 'month' : 'week')}
+              className="volumetric-input px-3 py-1.5 rounded-xl text-[11px] font-medium uppercase tracking-wider text-theme-tertiary"
+            >
+              {mobileView === 'week' ? 'Month' : 'Week'}
+            </button>
+          </div>
+
+          {mobileView === 'week' && (
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 snap-x snap-mandatory">
+              {(() => {
+                const weekStart = new Date(selectedDate);
+                weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+                return Array.from({ length: 7 }, (_, i) => {
+                  const day = new Date(weekStart);
+                  day.setDate(weekStart.getDate() + i);
+                  const dateStr = toLocalDateString(day);
+                  const dayTasks = (tasksByDate.get(dateStr) || []).filter(t => t.status !== TaskStatus.COMPLETED);
+                  const isToday = dateStr === todayStr;
+                  const isSelected = dateStr === selectedDateStr;
+
+                  return (
+                    <button
+                      key={dateStr}
+                      onClick={() => setSelectedDate(day)}
+                      className={`snap-center flex flex-col items-center min-w-[56px] py-3 px-2 rounded-2xl transition-all duration-300 ${isSelected
+                          ? 'volumetric-surface shadow-sm scale-105'
+                          : 'hover-surface'
+                        }`}
+                    >
+                      <span className="text-[10px] font-medium uppercase tracking-wider text-theme-tertiary">
+                        {day.toLocaleDateString('en-US', { weekday: 'short' })}
+                      </span>
+                      <span className={`text-lg font-semibold mt-1 ${isToday ? 'text-emerald-500' : isSelected ? 'text-theme-primary' : 'text-theme-secondary'
+                        }`}>
+                        {day.getDate()}
+                      </span>
+                      {dayTasks.length > 0 && (
+                        <div className="flex gap-0.5 mt-1.5">
+                          {dayTasks.slice(0, 3).map((t, idx) => {
+                            const dotColor = t.priority === TaskPriority.URGENT ? 'bg-red-400' : t.priority === TaskPriority.HIGH ? 'bg-orange-400' : 'bg-blue-400';
+                            return <div key={idx} className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />;
+                          })}
+                        </div>
+                      )}
+                    </button>
+                  );
+                });
+              })()}
+            </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-7 gap-1 md:gap-2 relative z-10">
-          {daysInMonth.map((dayObj, i) => {
-            const dateStr = toLocalDateString(dayObj.date);
-            const isSelected = dateStr === selectedDateStr;
-            const isToday = dateStr === todayStr;
-            const dayTasks = tasksByDate.get(dateStr) || [];
+        {/* Desktop Month Grid + Mobile Month View (toggled) */}
+        <div className={`${mobileView === 'month' ? 'block' : 'hidden'} md:block`}>
+          <div className="grid grid-cols-7 gap-2 text-center text-[11px] font-medium tracking-wider uppercase text-theme-tertiary mb-4 opacity-0 animate-slide-up" style={{ animationDelay: '100ms' }}>
+            {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+              <div key={day} className="py-2">{day}</div>
+            ))}
+          </div>
 
-            const sortedForDots = [...dayTasks].sort((a, b) => {
-              if (a.status === TaskStatus.COMPLETED && b.status !== TaskStatus.COMPLETED) return 1;
-              if (a.status !== TaskStatus.COMPLETED && b.status === TaskStatus.COMPLETED) return -1;
-              const pOrder: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
-              return (pOrder[a.priority] ?? 3) - (pOrder[b.priority] ?? 3);
-            }).slice(0, 3);
+          <div className="grid grid-cols-7 gap-1 md:gap-2 relative z-10">
+            {daysInMonth.map((dayObj, i) => {
+              const dateStr = toLocalDateString(dayObj.date);
+              const isSelected = dateStr === selectedDateStr;
+              const isToday = dateStr === todayStr;
+              const dayTasks = tasksByDate.get(dateStr) || [];
 
-            return (
-              <button
-                key={`${currentDate.toISOString()}-${i}`} // re-trigger animation on month change
-                onClick={() => setSelectedDate(dayObj.date)}
-                onDoubleClick={() => {
-                  const dateStr = toLocalDateString(dayObj.date);
-                  onAddTaskForDate(dateStr);
-                }}
-                style={{ animationDelay: `${Math.min(50 + (i * 5), 150)}ms` }}
-                className={`
-                  relative aspect-square flex flex-col items-center justify-center rounded-2xl transition-all duration-300 ease-smooth font-semibold text-sm opacity-0 animate-scale-in
-                  ${!dayObj.isCurrentMonth ? 'text-theme-muted' : 'text-theme-secondary'}
-                  ${isSelected ? 'volumetric-btn volumetric-btn-primary !text-theme-primary scale-110 z-10' : 'volumetric-input hover-surface hover:scale-105'}
-                  ${isToday && !isSelected ? 'ring-2 ring-emerald-500/30 dark:ring-emerald-400/25' : ''}
-                `}
-              >
-                <span>{dayObj.date.getDate()}</span>
-                {sortedForDots.length > 0 && (
-                  <div className="absolute bottom-1.5 flex items-center gap-0.5 max-h-3 overflow-hidden md:max-h-none md:overflow-visible">
-                    {sortedForDots.map((t, idx) => (
-                      <div key={idx} className={`w-1 h-1 rounded-full transition-colors duration-300 ${getDotColor(t, isSelected)}`} />
-                    ))}
-                    {dayTasks.length > 3 && (
-                      <>
-                        <span className={`text-[7px] font-bold leading-none ml-0.5 hidden md:inline ${isSelected ? 'text-theme-primary' : 'text-theme-tertiary'}`}>
-                          +{dayTasks.length - 3}
-                        </span>
-                        <span className={`text-[8px] font-bold leading-none ml-0.5 md:hidden ${isSelected ? 'text-theme-primary' : 'text-theme-tertiary'}`}>
-                          +{dayTasks.length - 3}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                )}
-              </button>
-            );
-          })}
+              const sortedForDots = [...dayTasks].sort((a, b) => {
+                if (a.status === TaskStatus.COMPLETED && b.status !== TaskStatus.COMPLETED) return 1;
+                if (a.status !== TaskStatus.COMPLETED && b.status === TaskStatus.COMPLETED) return -1;
+                const pOrder: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+                return (pOrder[a.priority] ?? 3) - (pOrder[b.priority] ?? 3);
+              }).slice(0, 3);
+
+              return (
+                <button
+                  key={`${currentDate.toISOString()}-${i}`}
+                  onClick={() => setSelectedDate(dayObj.date)}
+                  onDoubleClick={() => {
+                    const dateStr = toLocalDateString(dayObj.date);
+                    onAddTaskForDate(dateStr);
+                  }}
+                  style={{ animationDelay: `${Math.min(50 + (i * 5), 150)}ms` }}
+                  className={`
+                    relative aspect-square flex flex-col items-center justify-center rounded-2xl transition-all duration-300 ease-smooth font-semibold text-sm opacity-0 animate-scale-in
+                    ${!dayObj.isCurrentMonth ? 'text-theme-muted' : 'text-theme-secondary'}
+                    ${isSelected ? 'volumetric-btn volumetric-btn-primary !text-theme-primary scale-110 z-10' : 'volumetric-input hover-surface hover:scale-105'}
+                    ${isToday && !isSelected ? 'ring-2 ring-emerald-500/30 dark:ring-emerald-400/25' : ''}
+                  `}
+                >
+                  <span>{dayObj.date.getDate()}</span>
+                  {sortedForDots.length > 0 && (
+                    <div className="absolute bottom-1.5 flex items-center gap-0.5 max-h-3 overflow-hidden md:max-h-none md:overflow-visible">
+                      {sortedForDots.map((t, idx) => (
+                        <div key={idx} className={`w-1 h-1 rounded-full transition-colors duration-300 ${getDotColor(t, isSelected)}`} />
+                      ))}
+                      {dayTasks.length > 3 && (
+                        <>
+                          <span className={`text-[7px] font-bold leading-none ml-0.5 hidden md:inline ${isSelected ? 'text-theme-primary' : 'text-theme-tertiary'}`}>
+                            +{dayTasks.length - 3}
+                          </span>
+                          <span className={`text-[8px] font-bold leading-none ml-0.5 md:hidden ${isSelected ? 'text-theme-primary' : 'text-theme-tertiary'}`}>
+                            +{dayTasks.length - 3}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </GlassCard>
 
