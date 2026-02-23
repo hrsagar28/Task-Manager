@@ -13,6 +13,26 @@ import { HelpModal } from './components/HelpModal';
 import { CheckCircle, AlertCircle, X } from './components/Icons';
 import { toLocalDateString } from './utils/dateUtils';
 
+// Helper: Calculate next due date based on recurrence interval
+function getNextRecurringDate(currentDueDate: string, interval: 'weekly' | 'monthly' | 'quarterly' | 'yearly'): string {
+  const date = new Date(currentDueDate + 'T00:00:00');
+  switch (interval) {
+    case 'weekly':
+      date.setDate(date.getDate() + 7);
+      break;
+    case 'monthly':
+      date.setMonth(date.getMonth() + 1);
+      break;
+    case 'quarterly':
+      date.setMonth(date.getMonth() + 3);
+      break;
+    case 'yearly':
+      date.setFullYear(date.getFullYear() + 1);
+      break;
+  }
+  return toLocalDateString(date);
+}
+
 function App() {
   const [tasks, setTasks] = useState<Task[]>(() => {
     try { const local = localStorage.getItem('auradesk-tasks'); return local ? JSON.parse(local) : INITIAL_TASKS; } catch { return INITIAL_TASKS; }
@@ -151,20 +171,78 @@ function App() {
   }, []);
 
   const handleToggleTaskStatus = useCallback((id: string) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, status: t.status === TaskStatus.COMPLETED ? TaskStatus.PENDING : TaskStatus.COMPLETED } : t));
-  }, []);
+    setTasks(prev => {
+      const task = prev.find(t => t.id === id);
+      if (!task) return prev;
+
+      const isCompleting = task.status !== TaskStatus.COMPLETED;
+      const updatedTasks = prev.map(t =>
+        t.id === id
+          ? { ...t, status: isCompleting ? TaskStatus.COMPLETED : TaskStatus.PENDING, updatedAt: new Date().toISOString() }
+          : t
+      );
+
+      // If completing a recurring task, auto-generate the next instance
+      if (isCompleting && task.recurring && task.recurringInterval) {
+        const nextDueDate = getNextRecurringDate(task.dueDate, task.recurringInterval);
+        const nextTask: Task = {
+          ...task,
+          id: `t_${Date.now()}_r`,
+          dueDate: nextDueDate,
+          status: TaskStatus.PENDING,
+          createdAt: new Date().toISOString(),
+          updatedAt: undefined,
+          isArchived: false,
+          subtasks: task.subtasks
+            ? task.subtasks.map((s, i) => ({ ...s, id: `sub_${Date.now()}_${i}`, done: false }))
+            : [],
+        };
+        updatedTasks.push(nextTask);
+        setTimeout(() => showToast(`Next "${task.title}" created for ${new Date(nextDueDate + 'T00:00:00').toLocaleDateString()}`, 'info'), 100);
+      }
+
+      return updatedTasks;
+    });
+  }, [showToast]);
 
   const handleCycleTaskStatus = useCallback((id: string) => {
-    setTasks(prev => prev.map(t => {
-      if (t.id !== id) return t;
-      const nextStatus = {
+    setTasks(prev => {
+      const task = prev.find(t => t.id === id);
+      if (!task) return prev;
+
+      const nextStatusMap = {
         [TaskStatus.PENDING]: TaskStatus.IN_PROGRESS,
         [TaskStatus.IN_PROGRESS]: TaskStatus.COMPLETED,
         [TaskStatus.COMPLETED]: TaskStatus.PENDING,
       };
-      return { ...t, status: nextStatus[t.status] };
-    }));
-  }, []);
+      const nextStatus = nextStatusMap[task.status];
+      const isCompleting = nextStatus === TaskStatus.COMPLETED;
+
+      const updatedTasks = prev.map(t =>
+        t.id === id ? { ...t, status: nextStatus, updatedAt: new Date().toISOString() } : t
+      );
+
+      if (isCompleting && task.recurring && task.recurringInterval) {
+        const nextDueDate = getNextRecurringDate(task.dueDate, task.recurringInterval);
+        const nextTask: Task = {
+          ...task,
+          id: `t_${Date.now()}_r`,
+          dueDate: nextDueDate,
+          status: TaskStatus.PENDING,
+          createdAt: new Date().toISOString(),
+          updatedAt: undefined,
+          isArchived: false,
+          subtasks: task.subtasks
+            ? task.subtasks.map((s, i) => ({ ...s, id: `sub_${Date.now()}_${i}`, done: false }))
+            : [],
+        };
+        updatedTasks.push(nextTask);
+        setTimeout(() => showToast(`Next "${task.title}" created for ${new Date(nextDueDate + 'T00:00:00').toLocaleDateString()}`, 'info'), 100);
+      }
+
+      return updatedTasks;
+    });
+  }, [showToast]);
 
   const handleToggleSubtask = useCallback((taskId: string, subtaskId: string) => {
     setTasks(prev => prev.map(t => {

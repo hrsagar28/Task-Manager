@@ -21,9 +21,8 @@ const AnimatedNumber: React.FC<{ value: number, className?: string, suffix?: str
   }, [value, displayValue]);
 
   return (
-    <span className={`inline-block transition-all duration-300 ease-smooth ${
-      isAnimating ? 'scale-110 opacity-70' : 'scale-100 opacity-100'
-    } ${className || ''}`}>
+    <span className={`inline-block transition-all duration-300 ease-smooth ${isAnimating ? 'scale-110 opacity-70' : 'scale-100 opacity-100'
+      } ${className || ''}`}>
       {displayValue}{suffix}
     </span>
   );
@@ -45,13 +44,13 @@ interface DashboardProps {
   onNavigateToTasks: () => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ 
-  tasks, 
+export const Dashboard: React.FC<DashboardProps> = ({
+  tasks,
   notes,
-  toggleTaskStatus, 
+  toggleTaskStatus,
   onCycleStatus,
-  onEditTask, 
-  onDuplicateTask, 
+  onEditTask,
+  onDuplicateTask,
   onDeleteTask,
   onToggleSubtask,
   onViewNote,
@@ -102,16 +101,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     today.sort(sortTasks);
     overdue.sort(sortTasks);
-    
+
     upcoming.sort((a, b) => a.dueDate.localeCompare(b.dueDate) || sortTasks(a, b));
     const limitedUpcoming = upcoming.slice(0, 5);
 
     const totalToday = today.length + todayCompletedCount;
     const progressPercent = totalToday === 0 ? 0 : Math.round((todayCompletedCount / totalToday) * 100);
 
-    return { 
-      todayTasks: today, 
-      overdueTasks: overdue, 
+    return {
+      todayTasks: today,
+      overdueTasks: overdue,
       upcomingTasks: limitedUpcoming,
       totalUpcoming: upcoming.length,
       stats: { total: tasks.length, completed: completedCount, pending: totalActive },
@@ -158,7 +157,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               You have <strong className="text-theme-primary transition-colors">{todayTasks.length}</strong> tasks due today and <strong className="text-red-500/80 transition-colors">{overdueTasks.length}</strong> overdue.
             </p>
           </div>
-          <button 
+          <button
             onClick={onOpenHelp}
             className="md:hidden volumetric-btn w-10 h-10 rounded-full flex items-center justify-center text-theme-tertiary shrink-0 mt-1"
             aria-label="Help & Tips"
@@ -166,7 +165,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <HelpCircle className="w-5 h-5" />
           </button>
         </div>
-        <button 
+        <button
           onClick={() => setFocusMode(!focusMode)}
           className={`volumetric-btn px-6 py-3 rounded-[20px] font-semibold tracking-wide flex items-center gap-2 transition-all duration-500 ease-smooth animate-fade-in ${focusMode ? 'volumetric-btn-primary text-theme-primary scale-[1.02]' : 'text-theme-tertiary hover:text-theme-primary'}`}
           style={{ animationDelay: '100ms' }}
@@ -214,7 +213,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               )}
             </div>
           </div>
-          
+
           <div className="text-center sm:text-left pt-2">
             <h3 className="text-xl font-semibold tracking-tight text-theme-primary mb-2">Today's Progress</h3>
             <p className="text-theme-tertiary font-medium text-sm md:text-base">
@@ -248,15 +247,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <GlassCard className="!border-red-500/30 opacity-0 animate-slide-up" style={{ animationDelay: '200ms' }}>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
-                   <AlertCircle className="w-5 h-5" />
+                  <AlertCircle className="w-5 h-5" />
                 </div>
                 <h3 className="text-xl font-semibold tracking-tight text-red-600 dark:text-red-400">Overdue Filings</h3>
               </div>
               <div className="space-y-4">
                 {overdueTasks.map((task, index) => (
-                  <TaskItem 
-                    key={task.id} 
-                    task={task} 
+                  <TaskItem
+                    key={task.id}
+                    task={task}
                     relatedNotes={notes.filter(n => n.linkedTaskId === task.id)}
                     index={index}
                     isExpanded={expandedTaskId === task.id}
@@ -267,7 +266,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     onDelete={() => onDeleteTask(task.id)}
                     onToggleSubtask={(subId) => onToggleSubtask(task.id, subId)}
                     onViewNote={onViewNote}
-                    isOverdue 
+                    isOverdue
                   />
                 ))}
               </div>
@@ -285,28 +284,28 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <div className="py-12 text-center text-theme-tertiary flex flex-col items-center animate-fade-in">
                 {/* Illustrative Volumetric Empty State */}
                 <div className="relative w-40 h-40 mx-auto mb-8 flex items-center justify-center">
-                   <div className="absolute inset-0 bg-emerald-500/10 blur-[40px] rounded-full" />
-                   <div className="absolute top-4 left-4 w-16 h-16 volumetric-surface rounded-2xl rotate-[-15deg] opacity-60 transition-transform hover:rotate-[-5deg] duration-500" />
-                   <div className="absolute bottom-4 right-4 w-20 h-20 volumetric-surface rounded-[20px] rotate-[15deg] opacity-40 transition-transform hover:rotate-[5deg] duration-500" />
-                   <div className="relative z-10 volumetric-surface w-28 h-28 rounded-[32px] flex items-center justify-center transform hover:scale-105 transition-transform duration-500 ease-smooth">
-                      <div className="volumetric-btn w-16 h-16 rounded-[20px] flex items-center justify-center bg-emerald-500/10 text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
-                         <CheckCircle className="w-8 h-8" />
-                      </div>
-                   </div>
+                  <div className="absolute inset-0 bg-emerald-500/10 blur-[40px] rounded-full" />
+                  <div className="absolute top-4 left-4 w-16 h-16 volumetric-surface rounded-2xl rotate-[-15deg] opacity-60 transition-transform hover:rotate-[-5deg] duration-500" />
+                  <div className="absolute bottom-4 right-4 w-20 h-20 volumetric-surface rounded-[20px] rotate-[15deg] opacity-40 transition-transform hover:rotate-[5deg] duration-500" />
+                  <div className="relative z-10 volumetric-surface w-28 h-28 rounded-[32px] flex items-center justify-center transform hover:scale-105 transition-transform duration-500 ease-smooth">
+                    <div className="volumetric-btn w-16 h-16 rounded-[20px] flex items-center justify-center bg-emerald-500/10 text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+                      <CheckCircle className="w-8 h-8" />
+                    </div>
+                  </div>
                 </div>
                 <p className="text-sm font-medium text-theme-secondary">All caught up. Enjoy the peace.</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {todayTasks.map((task, index) => (
-                  <TaskItem 
-                    key={task.id} 
-                    task={task} 
+                  <TaskItem
+                    key={task.id}
+                    task={task}
                     relatedNotes={notes.filter(n => n.linkedTaskId === task.id)}
                     index={index}
                     isExpanded={expandedTaskId === task.id}
                     onToggleExpand={() => handleToggleExpand(task.id)}
-                    onCycleStatus={() => onCycleStatus(task.id)} 
+                    onCycleStatus={() => onCycleStatus(task.id)}
                     onEdit={() => onEditTask(task)}
                     onDuplicate={() => onDuplicateTask(task)}
                     onDelete={() => onDeleteTask(task.id)}
@@ -322,14 +321,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Sidebar Column */}
         <div className="space-y-6 md:space-y-8">
           <GlassCard className="opacity-0 animate-slide-up" style={{ animationDelay: '400ms' }}>
-             <h3 className="text-xl font-semibold tracking-tight mb-6 flex items-center gap-3 text-theme-primary">
+            <h3 className="text-xl font-semibold tracking-tight mb-6 flex items-center gap-3 text-theme-primary">
               <div className="volumetric-btn w-10 h-10 rounded-full flex items-center justify-center text-theme-tertiary">
-                <Clock className="w-4 h-4" /> 
+                <Clock className="w-4 h-4" />
               </div>
               Upcoming
             </h3>
             {upcomingTasks.length === 0 ? (
-               <p className="text-sm text-theme-secondary text-center py-6 font-medium animate-fade-in">No upcoming tasks.</p>
+              <p className="text-sm text-theme-secondary text-center py-6 font-medium animate-fade-in">No upcoming tasks.</p>
             ) : (
               <div className="space-y-5">
                 {upcomingTasks.map((task, index) => {
@@ -337,8 +336,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   return (
                     <div key={task.id} className="group flex flex-col gap-1 volumetric-input p-4 rounded-2xl opacity-0 animate-slide-up" style={{ animationDelay: `${400 + Math.min(index * 12, 150)}ms` }}>
                       <div className="flex justify-between items-start">
-                        <p className="font-semibold text-sm line-clamp-1 text-theme-secondary">{task.title}</p>
-                        <span 
+                        <p className="font-semibold text-sm line-clamp-1 text-theme-secondary flex items-center">
+                          {task.title}
+                          {task.recurring && (
+                            <span className="inline-flex items-center ml-1.5 text-theme-tertiary shrink-0" title={`Repeats ${task.recurringInterval}`}>
+                              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M17 2l4 4-4 4" /><path d="M3 11v-1a4 4 0 014-4h14" />
+                                <path d="M7 22l-4-4 4-4" /><path d="M21 13v1a4 4 0 01-4 4H3" />
+                              </svg>
+                            </span>
+                          )}
+                        </p>
+                        <span
                           className={`text-[11px] font-medium whitespace-nowrap ml-3 bg-theme-divider px-2 py-1 rounded-md ${isDateUrgent ? 'text-red-500' : 'text-theme-tertiary'}`}
                           title={new Date(task.dueDate).toLocaleDateString()}
                         >
@@ -352,9 +361,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     </div>
                   );
                 })}
-                
+
                 {totalUpcoming > 5 && (
-                  <button 
+                  <button
                     onClick={onNavigateToTasks}
                     className="w-full mt-4 volumetric-input py-3 rounded-xl text-[11px] font-semibold uppercase tracking-wider text-theme-tertiary hover:text-theme-primary text-center transition-colors"
                   >
@@ -371,7 +380,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 };
 
 const StatPill: React.FC<{ title: string, value: number, icon: React.ReactNode, isAlert?: boolean, delay: number }> = ({ title, value, icon, isAlert, delay }) => (
-  <div 
+  <div
     className={`volumetric-surface rounded-[20px] p-4 flex items-center justify-between transition-transform duration-500 ease-smooth hover:-translate-y-1 ${isAlert ? '!border-red-500/30 bg-red-500/5' : ''}`}
     style={{ animationDelay: `${delay}ms` }}
   >
@@ -400,13 +409,13 @@ interface TaskItemProps {
   isOverdue?: boolean;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ 
-  task, relatedNotes, index = 0, isExpanded, onToggleExpand, onCycleStatus, onEdit, onDuplicate, onDelete, onToggleSubtask, onViewNote, isOverdue = false 
+const TaskItem: React.FC<TaskItemProps> = ({
+  task, relatedNotes, index = 0, isExpanded, onToggleExpand, onCycleStatus, onEdit, onDuplicate, onDelete, onToggleSubtask, onViewNote, isOverdue = false
 }) => {
   const isCompleted = task.status === TaskStatus.COMPLETED;
   const isInProgress = task.status === TaskStatus.IN_PROGRESS;
   const [isRippling, setIsRippling] = useState(false);
-  
+
   const priorityColors = {
     [TaskPriority.URGENT]: 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.25)]',
     [TaskPriority.HIGH]: 'bg-orange-400 shadow-[0_0_6px_rgba(251,146,60,0.2)]',
@@ -430,34 +439,33 @@ const TaskItem: React.FC<TaskItemProps> = ({
   const { label: relDateLabel } = formatRelativeDate(task.dueDate);
 
   return (
-    <div 
+    <div
       className="relative group/task opacity-0 animate-slide-up"
       style={{ animationDelay: `${Math.min(index * 10, 150)}ms` }}
     >
       {/* Contextual Ambient Glow Layer */}
       <div className={`absolute -inset-1 rounded-[28px] blur-[20px] transition-all duration-700 ease-smooth -z-10
-        ${isCompleted ? 'bg-emerald-500/10 group-hover/task:bg-emerald-500/20' 
-        : isInProgress ? 'bg-indigo-500/10 group-hover/task:bg-indigo-500/20'
-        : isOverdue ? 'bg-red-500/10 group-hover/task:bg-red-500/20' 
-        : 'bg-transparent group-hover/task:bg-white/10 dark:group-hover/task:bg-white/5'}
+        ${isCompleted ? 'bg-emerald-500/10 group-hover/task:bg-emerald-500/20'
+          : isInProgress ? 'bg-indigo-500/10 group-hover/task:bg-indigo-500/20'
+            : isOverdue ? 'bg-red-500/10 group-hover/task:bg-red-500/20'
+              : 'bg-transparent group-hover/task:bg-white/10 dark:group-hover/task:bg-white/5'}
       `} />
-      
-      <div 
+
+      <div
         className={`group flex flex-col gap-4 p-4 rounded-3xl volumetric-input transition-all duration-500 ease-smooth ${isCompleted ? 'opacity-50' : ''} ${isExpanded ? 'ring-1 scale-[1.01]' : ''}`}
         style={isExpanded ? { background: 'var(--glass-expanded)', '--tw-ring-color': 'var(--glass-border)' } as React.CSSProperties : undefined}
       >
-        
+
         {/* Task Header row */}
         <div className="flex items-start gap-4 cursor-pointer" onClick={onToggleExpand}>
-          <button 
+          <button
             onClick={handleToggle}
-            className={`mt-1 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isRippling ? 'animate-glass-ripple text-emerald-500' : ''} ${
-              isCompleted 
-                ? 'volumetric-input text-emerald-500 bg-emerald-500/10' 
-                : isInProgress
-                  ? 'volumetric-btn text-indigo-500 bg-indigo-500/10'
-                  : 'volumetric-btn text-theme-tertiary hover:text-theme-secondary'
-            }`}
+            className={`mt-1 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isRippling ? 'animate-glass-ripple text-emerald-500' : ''} ${isCompleted
+              ? 'volumetric-input text-emerald-500 bg-emerald-500/10'
+              : isInProgress
+                ? 'volumetric-btn text-indigo-500 bg-indigo-500/10'
+                : 'volumetric-btn text-theme-tertiary hover:text-theme-secondary'
+              }`}
             aria-label={`Cycle status for task ${task.title}`}
           >
             {isCompleted ? (
@@ -470,11 +478,19 @@ const TaskItem: React.FC<TaskItemProps> = ({
               <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-500 opacity-50 transition-transform group-hover/task:scale-110" />
             )}
           </button>
-          
+
           <div className="flex-1 min-w-0 pt-1">
             <div className="flex items-center gap-3">
               <h4 className={`font-semibold text-base truncate transition-all duration-500 ease-smooth ${isCompleted ? 'line-through text-theme-tertiary' : 'text-theme-primary'}`}>
                 {task.title}
+                {task.recurring && (
+                  <span className="inline-flex items-center ml-1.5 text-theme-tertiary" title={`Repeats ${task.recurringInterval}`}>
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17 2l4 4-4 4" /><path d="M3 11v-1a4 4 0 014-4h14" />
+                      <path d="M7 22l-4-4 4-4" /><path d="M21 13v1a4 4 0 01-4 4H3" />
+                    </svg>
+                  </span>
+                )}
               </h4>
               {!isCompleted && (
                 isInProgress ? (
@@ -484,11 +500,11 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 )
               )}
             </div>
-            
+
             <div className="flex flex-wrap items-center gap-2 mt-2 text-[10px] font-semibold tracking-wider uppercase">
               {isInProgress && !isCompleted && (
                 <span className="text-indigo-600/90 dark:text-indigo-400 flex items-center gap-1 bg-indigo-500/10 px-2.5 py-1 rounded-[8px] border border-indigo-500/20 backdrop-blur-sm shadow-sm">
-                   <Clock className="w-3 h-3" /> In Progress
+                  <Clock className="w-3 h-3" /> In Progress
                 </span>
               )}
               {task.category && (
@@ -513,7 +529,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
               ))}
               {isOverdue && !isCompleted && (
                 <span className="text-red-600/80 dark:text-red-400 flex items-center gap-1 bg-red-500/8 px-2.5 py-1 rounded-[8px] border border-red-500/10 backdrop-blur-sm" title={new Date(task.dueDate).toLocaleDateString()}>
-                   <AlertCircle className="w-3 h-3" /> {relDateLabel}
+                  <AlertCircle className="w-3 h-3" /> {relDateLabel}
                 </span>
               )}
             </div>
@@ -528,18 +544,18 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   </span>
                 </div>
                 <div className="h-1.5 w-full volumetric-input rounded-full overflow-hidden p-[1px]">
-                  <div 
+                  <div
                     className="h-full rounded-full bg-emerald-500 transition-all duration-1000 ease-smooth shadow-[0_0_10px_rgba(16,185,129,0.5)] relative overflow-hidden"
                     style={{ width: `${progressPercent}%` }}
                   >
-                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-[200%] animate-liquid-flow opacity-50" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-[200%] animate-liquid-flow opacity-50" />
                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          <button 
+          <button
             className={`mt-2 p-2 rounded-full text-theme-tertiary hover:text-theme-primary transition-all duration-500 ease-smooth ${isExpanded ? 'rotate-180 bg-theme-divider text-theme-primary' : ''}`}
           >
             <ChevronDown className="w-5 h-5" />
@@ -559,7 +575,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
               <div className="mb-6 space-y-2 mt-4">
                 {task.subtasks?.map((sub, sIdx) => (
                   <div key={sub.id} className="flex items-center gap-3 group/sub opacity-0 animate-slide-up" style={{ animationDelay: `${Math.min(sIdx * 30, 150)}ms` }}>
-                    <button 
+                    <button
                       onClick={(e) => { e.stopPropagation(); onToggleSubtask(sub.id); }}
                       className={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-300 ease-smooth ${sub.done ? 'volumetric-btn volumetric-btn-primary text-theme-primary' : 'volumetric-input text-transparent hover:text-theme-tertiary'}`}
                     >
@@ -575,40 +591,40 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
             {relatedNotes.length > 0 && (
               <div className="mb-6 pt-4 border-t border-theme-divider animate-slide-up">
-                 <h5 className="text-[11px] font-medium uppercase tracking-wider text-theme-tertiary mb-3 pl-1">Related Notes</h5>
-                 <div className="space-y-2">
-                   {relatedNotes.map((note, nIdx) => (
-                     <button
-                       key={note.id}
-                       onClick={(e) => { e.stopPropagation(); onViewNote(note.id); }}
-                       className="w-full text-left p-3 rounded-xl volumetric-input hover-surface transition-colors group/relnote flex flex-col gap-1 opacity-0 animate-slide-up"
-                       style={{ animationDelay: `${Math.min(nIdx * 20, 100)}ms` }}
-                     >
-                       <div className="flex items-center gap-2">
-                         <FileText className="w-4 h-4 text-amber-500/70" />
-                         <span className="font-semibold text-sm text-theme-secondary">{note.title || 'Untitled'}</span>
-                       </div>
-                       <p className="text-xs text-theme-tertiary line-clamp-1 ml-6">{note.content}</p>
-                     </button>
-                   ))}
-                 </div>
+                <h5 className="text-[11px] font-medium uppercase tracking-wider text-theme-tertiary mb-3 pl-1">Related Notes</h5>
+                <div className="space-y-2">
+                  {relatedNotes.map((note, nIdx) => (
+                    <button
+                      key={note.id}
+                      onClick={(e) => { e.stopPropagation(); onViewNote(note.id); }}
+                      className="w-full text-left p-3 rounded-xl volumetric-input hover-surface transition-colors group/relnote flex flex-col gap-1 opacity-0 animate-slide-up"
+                      style={{ animationDelay: `${Math.min(nIdx * 20, 100)}ms` }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-amber-500/70" />
+                        <span className="font-semibold text-sm text-theme-secondary">{note.title || 'Untitled'}</span>
+                      </div>
+                      <p className="text-xs text-theme-tertiary line-clamp-1 ml-6">{note.content}</p>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
             <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-theme-divider">
-              <button 
+              <button
                 onClick={(e) => { e.stopPropagation(); onEdit(); }}
                 className="volumetric-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center gap-2 text-theme-secondary transition-transform hover:-translate-y-0.5"
               >
                 <Edit2 className="w-4 h-4" /> Edit
               </button>
-              <button 
+              <button
                 onClick={(e) => { e.stopPropagation(); onDuplicate(); }}
                 className="volumetric-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center gap-2 text-theme-secondary transition-transform hover:-translate-y-0.5"
               >
                 <Copy className="w-4 h-4" /> Duplicate
               </button>
-              <button 
+              <button
                 onClick={(e) => { e.stopPropagation(); onDelete(); }}
                 className="volumetric-input px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center gap-2 text-red-500 hover:bg-red-500/10 transition-colors"
               >

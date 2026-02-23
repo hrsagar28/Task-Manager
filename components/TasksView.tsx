@@ -40,10 +40,10 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
     if (searchTerm) {
       const lower = searchTerm.toLowerCase();
-      result = result.filter(t => 
-        t.title.toLowerCase().includes(lower) || 
+      result = result.filter(t =>
+        t.title.toLowerCase().includes(lower) ||
         (t.description && t.description.toLowerCase().includes(lower)) ||
-        (t.clientName && t.clientName.toLowerCase().includes(lower)) || 
+        (t.clientName && t.clientName.toLowerCase().includes(lower)) ||
         (t.category && t.category.toLowerCase().includes(lower)) ||
         (t.tags && t.tags.some(tag => tag.toLowerCase().includes(lower)))
       );
@@ -89,9 +89,9 @@ export const TasksView: React.FC<TasksViewProps> = ({
       const order = ['PENDING', 'IN_PROGRESS', 'COMPLETED'];
       return order
         .filter(k => groups.has(k))
-        .map(k => ({ 
-          label: k === 'IN_PROGRESS' ? 'In Progress' : k.charAt(0) + k.slice(1).toLowerCase(), 
-          tasks: groups.get(k)! 
+        .map(k => ({
+          label: k === 'IN_PROGRESS' ? 'In Progress' : k.charAt(0) + k.slice(1).toLowerCase(),
+          tasks: groups.get(k)!
         }));
     }
 
@@ -153,29 +153,29 @@ export const TasksView: React.FC<TasksViewProps> = ({
         <div className="flex flex-wrap items-center gap-4 p-4 md:px-6 md:pt-6 border-b border-theme-divider relative z-20">
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-tertiary" />
-            <input 
-              type="text" 
-              placeholder="Search tasks..." 
-              value={searchTerm} 
-              onChange={e => setSearchTerm(e.target.value)} 
+            <input
+              type="text"
+              placeholder="Search tasks..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
               className="volumetric-input w-full pl-10 pr-4 py-3 rounded-xl text-sm font-medium text-theme-secondary placeholder:text-theme-tertiary transition-all focus:-translate-y-0.5"
             />
           </div>
-          
+
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
             <div className="flex items-center gap-1 volumetric-input p-1.5 rounded-2xl flex-wrap">
               {(['ALL', 'PENDING', 'IN_PROGRESS', 'COMPLETED'] as const).map(status => (
-                <button 
+                <button
                   key={status}
-                  onClick={() => { setFilterArchived(false); setFilterStatus(status); }} 
+                  onClick={() => { setFilterArchived(false); setFilterStatus(status); }}
                   className={`px-4 py-2 rounded-[10px] text-[10px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth whitespace-nowrap ${!filterArchived && filterStatus === status ? 'volumetric-surface shadow-sm text-theme-primary scale-[1.02]' : 'text-theme-tertiary hover:text-theme-secondary'}`}
                 >
                   {status === 'IN_PROGRESS' ? 'In Progress' : status}
                 </button>
               ))}
               <div className="w-px h-6 bg-theme-divider mx-1" />
-              <button 
-                onClick={() => { setFilterArchived(true); }} 
+              <button
+                onClick={() => { setFilterArchived(true); }}
                 className={`px-4 py-2 rounded-[10px] text-[10px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth flex items-center gap-2 whitespace-nowrap ${filterArchived ? 'volumetric-surface shadow-sm text-theme-primary scale-[1.02]' : 'text-theme-tertiary hover:text-theme-secondary'}`}
               >
                 <Archive className="w-3 h-3" /> Archived
@@ -187,20 +187,19 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 <button
                   key={g}
                   onClick={() => setGroupBy(g)}
-                  className={`px-3 py-1.5 rounded-xl text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all duration-300 ${
-                    groupBy === g
+                  className={`px-3 py-1.5 rounded-xl text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all duration-300 ${groupBy === g
                       ? 'volumetric-surface text-theme-primary shadow-sm'
                       : 'text-theme-tertiary hover:text-theme-secondary hover-surface'
-                  }`}
+                    }`}
                 >
                   {g === 'NONE' ? 'Flat' : g === 'PRIORITY' ? 'Priority' : g === 'CATEGORY' ? 'Category' : 'Status'}
                 </button>
               ))}
             </div>
-            
-            <select 
-              value={sortBy} 
-              onChange={e => setSortBy(e.target.value as any)} 
+
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as any)}
               className="volumetric-input px-4 py-3 rounded-xl text-[10px] font-semibold uppercase tracking-wider text-theme-tertiary outline-none cursor-pointer min-w-[140px]"
             >
               <option value="DUE_DATE">Sort by Due Date</option>
@@ -212,26 +211,26 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
         {/* Task List Header */}
         <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 border-b border-theme-divider bg-theme-divider text-[10px] font-semibold uppercase tracking-wider text-theme-tertiary">
-           <div className="col-span-5 flex items-center gap-4">
-              <button onClick={handleSelectAll} className="hover:text-theme-secondary transition-colors">
-                {selectedTaskIds.size === filteredTasks.length && filteredTasks.length > 0 ? <CheckSquare className="w-4 h-4 text-blue-500"/> : <Square className="w-4 h-4"/>}
-              </button>
-              <span>Task Details</span>
-           </div>
-           <div className="col-span-2">Client</div>
-           <div className="col-span-2">Category</div>
-           <div className="col-span-1">Due Date</div>
-           <div className="col-span-1">Priority</div>
-           <div className="col-span-1 text-right">Actions</div>
+          <div className="col-span-5 flex items-center gap-4">
+            <button onClick={handleSelectAll} className="hover:text-theme-secondary transition-colors">
+              {selectedTaskIds.size === filteredTasks.length && filteredTasks.length > 0 ? <CheckSquare className="w-4 h-4 text-blue-500" /> : <Square className="w-4 h-4" />}
+            </button>
+            <span>Task Details</span>
+          </div>
+          <div className="col-span-2">Client</div>
+          <div className="col-span-2">Category</div>
+          <div className="col-span-1">Due Date</div>
+          <div className="col-span-1">Priority</div>
+          <div className="col-span-1 text-right">Actions</div>
         </div>
 
         {/* Task List Body */}
         <div className="flex-1 overflow-y-auto custom-scrollbar p-2 relative">
           {filteredTasks.length === 0 ? (
-             <div className="h-full flex flex-col items-center justify-center text-theme-tertiary opacity-60 animate-fade-in">
-                <Layers className="w-16 h-16 mb-4 opacity-50" />
-                <p className="font-normal text-sm text-theme-tertiary">No tasks found matching your criteria.</p>
-             </div>
+            <div className="h-full flex flex-col items-center justify-center text-theme-tertiary opacity-60 animate-fade-in">
+              <Layers className="w-16 h-16 mb-4 opacity-50" />
+              <p className="font-normal text-sm text-theme-tertiary">No tasks found matching your criteria.</p>
+            </div>
           ) : (
             groupedTasks.map((group, gIdx) => (
               <div key={group.label || 'all'} className="mb-4 last:mb-0">
@@ -249,80 +248,88 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     const isExpanded = expandedTaskId === task.id;
                     const isCompleted = task.status === TaskStatus.COMPLETED;
                     const { label: relDateLabel, urgent: isDateUrgent } = formatRelativeDate(task.dueDate);
-                    
+
                     const totalSubtasks = task.subtasks?.length || 0;
                     const completedSubtasks = task.subtasks?.filter(s => s.done).length || 0;
                     const progressPercent = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
                     const relatedNotes = notes.filter(n => n.linkedTaskId === task.id);
 
                     return (
-                      <div 
-                        key={task.id} 
+                      <div
+                        key={task.id}
                         className={`group flex flex-col p-4 rounded-[20px] transition-all duration-300 ease-smooth hover-surface animate-slide-up ${isSelected ? 'bg-blue-500/10 ring-1 ring-blue-500/30' : ''} ${isExpanded ? 'shadow-sm ring-1' : ''}`}
-                        style={{ 
+                        style={{
                           animationDelay: `${Math.min(idx * 6, 120)}ms`,
                           ...(isExpanded ? { background: 'var(--glass-expanded)', '--tw-ring-color': 'var(--glass-border)' } as React.CSSProperties : {})
                         }}
                       >
-                        <div 
+                        <div
                           className="flex items-center gap-4 cursor-pointer w-full"
                           onClick={() => setExpandedTaskId(prev => prev === task.id ? null : task.id)}
                         >
                           <button onClick={(e) => { e.stopPropagation(); handleToggleSelect(task.id); }} className="text-theme-tertiary hover:text-blue-500 transition-colors shrink-0">
-                            {isSelected ? <CheckSquare className="w-5 h-5 text-blue-500 animate-pop"/> : <Square className="w-5 h-5"/>}
+                            {isSelected ? <CheckSquare className="w-5 h-5 text-blue-500 animate-pop" /> : <Square className="w-5 h-5" />}
                           </button>
-                          
+
                           <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                             <div className="md:col-span-5 flex items-center gap-3">
-                                <button 
-                                  onClick={(e) => { e.stopPropagation(); toggleTaskStatus(task.id); }} 
-                                  className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors shrink-0 ${isCompleted ? 'bg-emerald-500/20 text-emerald-500' : 'volumetric-input text-transparent hover:text-theme-tertiary'}`}
-                                >
-                                  <CheckCircle className={`w-4 h-4 ${isCompleted ? 'animate-pop text-emerald-500' : ''}`} />
-                                </button>
-                                <div className="min-w-0">
-                                  <span className={`font-medium text-[15px] truncate block transition-all ${isCompleted ? 'line-through text-theme-tertiary' : 'text-theme-secondary'}`}>
-                                    {task.title}
+                              <button
+                                onClick={(e) => { e.stopPropagation(); toggleTaskStatus(task.id); }}
+                                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors shrink-0 ${isCompleted ? 'bg-emerald-500/20 text-emerald-500' : 'volumetric-input text-transparent hover:text-theme-tertiary'}`}
+                              >
+                                <CheckCircle className={`w-4 h-4 ${isCompleted ? 'animate-pop text-emerald-500' : ''}`} />
+                              </button>
+                              <div className="min-w-0">
+                                <span className={`font-medium text-[15px] truncate transition-all flex items-center ${isCompleted ? 'line-through text-theme-tertiary' : 'text-theme-secondary'}`}>
+                                  {task.title}
+                                  {task.recurring && (
+                                    <span className="inline-flex items-center ml-1.5 text-theme-tertiary shrink-0" title={`Repeats ${task.recurringInterval}`}>
+                                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M17 2l4 4-4 4" /><path d="M3 11v-1a4 4 0 014-4h14" />
+                                        <path d="M7 22l-4-4 4-4" /><path d="M21 13v1a4 4 0 01-4 4H3" />
+                                      </svg>
+                                    </span>
+                                  )}
+                                </span>
+                                {/* Mobile only details */}
+                                <div className="md:hidden flex flex-wrap gap-2 mt-2">
+                                  {task.clientName && <span className="text-[10px] uppercase font-semibold tracking-wider text-theme-muted">{task.clientName}</span>}
+                                  {task.category && <span className="text-[10px] uppercase font-semibold tracking-wider text-blue-600/70 dark:text-blue-400">{task.category}</span>}
+                                  <span
+                                    className={`text-[10px] font-semibold tracking-wider ${isDateUrgent && !isCompleted ? 'text-red-500/90' : 'text-theme-muted'}`}
+                                    title={new Date(task.dueDate).toLocaleDateString()}
+                                  >
+                                    {relDateLabel}
                                   </span>
-                                  {/* Mobile only details */}
-                                  <div className="md:hidden flex flex-wrap gap-2 mt-2">
-                                     {task.clientName && <span className="text-[10px] uppercase font-semibold tracking-wider text-theme-muted">{task.clientName}</span>}
-                                     {task.category && <span className="text-[10px] uppercase font-semibold tracking-wider text-blue-600/70 dark:text-blue-400">{task.category}</span>}
-                                     <span 
-                                       className={`text-[10px] font-semibold tracking-wider ${isDateUrgent && !isCompleted ? 'text-red-500/90' : 'text-theme-muted'}`}
-                                       title={new Date(task.dueDate).toLocaleDateString()}
-                                     >
-                                       {relDateLabel}
-                                     </span>
-                                  </div>
                                 </div>
+                              </div>
                             </div>
-                            
+
                             <div className="hidden md:block md:col-span-2 truncate">
-                                {task.clientName && <span className="px-2.5 py-1 rounded-[8px] bg-slate-500/5 text-theme-muted border border-slate-500/8 text-[10px] font-semibold uppercase tracking-wider truncate max-w-full inline-block backdrop-blur-sm">{task.clientName}</span>}
+                              {task.clientName && <span className="px-2.5 py-1 rounded-[8px] bg-slate-500/5 text-theme-muted border border-slate-500/8 text-[10px] font-semibold uppercase tracking-wider truncate max-w-full inline-block backdrop-blur-sm">{task.clientName}</span>}
                             </div>
                             <div className="hidden md:block md:col-span-2 truncate">
-                                {task.category && <span className="px-2.5 py-1 rounded-[8px] bg-blue-500/6 text-blue-600/70 dark:text-blue-400 border border-blue-500/8 text-[10px] font-semibold uppercase tracking-wider truncate inline-block backdrop-blur-sm">{task.category}</span>}
+                              {task.category && <span className="px-2.5 py-1 rounded-[8px] bg-blue-500/6 text-blue-600/70 dark:text-blue-400 border border-blue-500/8 text-[10px] font-semibold uppercase tracking-wider truncate inline-block backdrop-blur-sm">{task.category}</span>}
                             </div>
-                            
-                            <div 
+
+                            <div
                               className={`hidden md:flex md:col-span-1 items-center text-xs font-medium ${isDateUrgent && !isCompleted ? 'text-red-500' : 'text-theme-tertiary'}`}
                               title={new Date(task.dueDate).toLocaleDateString()}
                             >
-                                {relDateLabel}
+                              {relDateLabel}
                             </div>
-                            
+
                             <div className="hidden md:flex md:col-span-1 items-center">
-                                <PriorityBadge priority={task.priority} />
+                              <PriorityBadge priority={task.priority} />
                             </div>
 
                             <div className="md:col-span-1 flex items-center justify-end gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                              <button onClick={(e) => { e.stopPropagation(); onEditTask(task); }} className="p-2 rounded-xl text-theme-tertiary hover:text-theme-secondary hover-surface transition-all" title="Edit Task"><Edit2 className="w-4 h-4"/></button>
+                              <button onClick={(e) => { e.stopPropagation(); onEditTask(task); }} className="p-2 rounded-xl text-theme-tertiary hover:text-theme-secondary hover-surface transition-all" title="Edit Task"><Edit2 className="w-4 h-4" /></button>
                               <button onClick={(e) => { e.stopPropagation(); onToggleArchive(task.id); }} className="p-2 rounded-xl text-theme-tertiary hover:text-theme-secondary hover-surface transition-all" title={task.isArchived ? "Restore to Active" : "Move to Archive"}>
-                                <Archive className="w-4 h-4"/>
+                                <Archive className="w-4 h-4" />
                               </button>
                               <button onClick={(e) => { e.stopPropagation(); onDeleteTask(task.id); }} className="p-2 rounded-xl text-theme-tertiary hover:text-red-500 hover:bg-red-500/5 transition-all" title="Delete Task">
-                                <Trash className="w-4 h-4"/>
+                                <Trash className="w-4 h-4" />
                               </button>
                               <ChevronDown className={`w-4 h-4 text-theme-tertiary ml-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                             </div>
@@ -342,20 +349,20 @@ export const TasksView: React.FC<TasksViewProps> = ({
                               <div className="mb-6 space-y-2 mt-4">
                                 {/* Progress Bar */}
                                 <div className="w-full mb-4">
-                                    <div className="flex justify-between items-center text-[11px] font-medium tracking-wider uppercase text-theme-tertiary mb-1.5">
-                                      <span>Progress</span>
-                                      <span className={`transition-colors duration-500 ${completedSubtasks === totalSubtasks ? 'text-emerald-500 animate-pop inline-block' : 'text-theme-tertiary'}`}>
-                                        {completedSubtasks}/{totalSubtasks}
-                                      </span>
+                                  <div className="flex justify-between items-center text-[11px] font-medium tracking-wider uppercase text-theme-tertiary mb-1.5">
+                                    <span>Progress</span>
+                                    <span className={`transition-colors duration-500 ${completedSubtasks === totalSubtasks ? 'text-emerald-500 animate-pop inline-block' : 'text-theme-tertiary'}`}>
+                                      {completedSubtasks}/{totalSubtasks}
+                                    </span>
+                                  </div>
+                                  <div className="h-1.5 w-full volumetric-input rounded-full overflow-hidden p-[1px]">
+                                    <div
+                                      className="h-full rounded-full bg-emerald-500 transition-all duration-1000 ease-smooth shadow-[0_0_10px_rgba(16,185,129,0.5)] relative overflow-hidden"
+                                      style={{ width: `${progressPercent}%` }}
+                                    >
+                                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-[200%] animate-liquid-flow opacity-50" />
                                     </div>
-                                    <div className="h-1.5 w-full volumetric-input rounded-full overflow-hidden p-[1px]">
-                                      <div
-                                        className="h-full rounded-full bg-emerald-500 transition-all duration-1000 ease-smooth shadow-[0_0_10px_rgba(16,185,129,0.5)] relative overflow-hidden"
-                                        style={{ width: `${progressPercent}%` }}
-                                      >
-                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-[200%] animate-liquid-flow opacity-50" />
-                                      </div>
-                                    </div>
+                                  </div>
                                 </div>
 
                                 {task.subtasks?.map((sub, sIdx) => (
@@ -376,23 +383,23 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
                             {relatedNotes.length > 0 && (
                               <div className="mb-6 pt-4 border-t border-theme-divider animate-slide-up">
-                                 <h5 className="text-[11px] font-medium uppercase tracking-wider text-theme-tertiary mb-3 pl-1">Related Notes</h5>
-                                 <div className="space-y-2">
-                                   {relatedNotes.map((note, nIdx) => (
-                                     <button
-                                       key={note.id}
-                                       onClick={(e) => { e.stopPropagation(); onViewNote(note.id); }}
-                                       className="w-full text-left p-3 rounded-xl volumetric-input hover-surface transition-colors group/relnote flex flex-col gap-1 opacity-0 animate-slide-up"
-                                       style={{ animationDelay: `${Math.min(nIdx * 20, 100)}ms` }}
-                                     >
-                                       <div className="flex items-center gap-2">
-                                         <FileText className="w-4 h-4 text-amber-500/70" />
-                                         <span className="font-semibold text-sm text-theme-secondary">{note.title || 'Untitled'}</span>
-                                       </div>
-                                       <p className="text-xs text-theme-tertiary line-clamp-1 ml-6">{note.content}</p>
-                                     </button>
-                                   ))}
-                                 </div>
+                                <h5 className="text-[11px] font-medium uppercase tracking-wider text-theme-tertiary mb-3 pl-1">Related Notes</h5>
+                                <div className="space-y-2">
+                                  {relatedNotes.map((note, nIdx) => (
+                                    <button
+                                      key={note.id}
+                                      onClick={(e) => { e.stopPropagation(); onViewNote(note.id); }}
+                                      className="w-full text-left p-3 rounded-xl volumetric-input hover-surface transition-colors group/relnote flex flex-col gap-1 opacity-0 animate-slide-up"
+                                      style={{ animationDelay: `${Math.min(nIdx * 20, 100)}ms` }}
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <FileText className="w-4 h-4 text-amber-500/70" />
+                                        <span className="font-semibold text-sm text-theme-secondary">{note.title || 'Untitled'}</span>
+                                      </div>
+                                      <p className="text-xs text-theme-tertiary line-clamp-1 ml-6">{note.content}</p>
+                                    </button>
+                                  ))}
+                                </div>
                               </div>
                             )}
 
@@ -433,9 +440,9 @@ export const TasksView: React.FC<TasksViewProps> = ({
             <div className="volumetric-surface px-6 py-4 rounded-[24px] flex items-center gap-6 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15),0_4px_12px_-4px_rgba(0,0,0,0.06)]">
               <span className="text-sm font-semibold bg-blue-500/6 text-blue-600/70 dark:text-blue-400 border border-blue-500/8 px-3 py-1.5 rounded-[8px] backdrop-blur-sm">{selectedTaskIds.size} selected</span>
               <div className="w-px h-8 bg-theme-divider" />
-              <button onClick={() => executeBulkAction('complete')} className="text-sm font-semibold text-emerald-500 hover:text-emerald-600 flex items-center gap-2 transition-transform hover:scale-105 active:scale-95"><CheckCircle className="w-4 h-4"/> Complete</button>
-              <button onClick={() => executeBulkAction('archive')} className="text-sm font-semibold text-blue-500 hover:text-blue-600 flex items-center gap-2 transition-transform hover:scale-105 active:scale-95"><Archive className="w-4 h-4"/> Archive</button>
-              <button onClick={() => executeBulkAction('delete')} className="text-sm font-semibold text-red-500 hover:text-red-600 flex items-center gap-2 transition-transform hover:scale-105 active:scale-95"><Trash className="w-4 h-4"/> Delete</button>
+              <button onClick={() => executeBulkAction('complete')} className="text-sm font-semibold text-emerald-500 hover:text-emerald-600 flex items-center gap-2 transition-transform hover:scale-105 active:scale-95"><CheckCircle className="w-4 h-4" /> Complete</button>
+              <button onClick={() => executeBulkAction('archive')} className="text-sm font-semibold text-blue-500 hover:text-blue-600 flex items-center gap-2 transition-transform hover:scale-105 active:scale-95"><Archive className="w-4 h-4" /> Archive</button>
+              <button onClick={() => executeBulkAction('delete')} className="text-sm font-semibold text-red-500 hover:text-red-600 flex items-center gap-2 transition-transform hover:scale-105 active:scale-95"><Trash className="w-4 h-4" /> Delete</button>
             </div>
           </div>
         )}
