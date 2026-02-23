@@ -542,6 +542,9 @@ function App() {
           onOpenDrawer={() => setIsMobileDrawerOpen(true)}
           onCloseDrawer={() => setIsMobileDrawerOpen(false)}
           onToggleFocusMode={() => setFocusMode(prev => !prev)}
+          tasks={activeTasks}
+          onEditTask={handleEditTask}
+          onNavigateToTasks={() => handleViewChange('TASKS')}
         >
           {currentView === 'DASHBOARD' && (
             <Dashboard

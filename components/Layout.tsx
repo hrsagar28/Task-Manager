@@ -1,7 +1,8 @@
 import React from 'react';
-import { ViewState } from '../types';
+import { ViewState, Task } from '../types';
 import { LayoutDashboard, Calendar, FileText, Layers, Plus, HelpCircle, ChevronLeft, ChevronRight, Search, MoreHorizontal } from './Icons';
 import { MobileDrawer } from './MobileDrawer';
+import { NotificationPanel } from './NotificationPanel';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,6 +21,10 @@ interface LayoutProps {
   onToggleTheme?: () => void;
   isSidebarCollapsed?: boolean;
   onToggleSidebar?: () => void;
+  // Notification Panel props
+  tasks?: Task[];
+  onEditTask?: (task: Task) => void;
+  onNavigateToTasks?: () => void;
 }
 
 export const Layout: React.FC<LayoutProps> = ({
@@ -38,7 +43,10 @@ export const Layout: React.FC<LayoutProps> = ({
   isDark = false,
   onToggleTheme,
   isSidebarCollapsed = false,
-  onToggleSidebar
+  onToggleSidebar,
+  tasks,
+  onEditTask,
+  onNavigateToTasks
 }) => {
   return (
     <div className="relative h-full w-full flex flex-col md:flex-row overflow-hidden transition-all duration-700">
@@ -143,6 +151,13 @@ export const Layout: React.FC<LayoutProps> = ({
                   )}
                 </button>
               )}
+              {tasks && onEditTask && onNavigateToTasks && (
+                <NotificationPanel
+                  tasks={tasks}
+                  onEditTask={onEditTask}
+                  onNavigateToTasks={onNavigateToTasks}
+                />
+              )}
               <button onClick={onOpenHelp} className="volumetric-btn w-12 h-12 rounded-[16px] flex items-center justify-center text-theme-tertiary transition-colors hover:text-theme-primary" title="Keyboard Shortcuts">
                 <HelpCircle className="w-5 h-5" />
               </button>
@@ -164,6 +179,13 @@ export const Layout: React.FC<LayoutProps> = ({
                   <span>New Task</span>
                   <span className="ml-auto text-[10px] tracking-widest opacity-60 font-medium">Alt+N</span>
                 </button>
+                {tasks && onEditTask && onNavigateToTasks && (
+                  <NotificationPanel
+                    tasks={tasks}
+                    onEditTask={onEditTask}
+                    onNavigateToTasks={onNavigateToTasks}
+                  />
+                )}
                 {onToggleTheme && (
                   <button
                     onClick={onToggleTheme}
@@ -219,6 +241,15 @@ export const Layout: React.FC<LayoutProps> = ({
             >
               <Search className="w-[18px] h-[18px]" />
             </button>
+
+            {/* Notification Bell (mobile) */}
+            {tasks && onEditTask && onNavigateToTasks && (
+              <NotificationPanel
+                tasks={tasks}
+                onEditTask={onEditTask}
+                onNavigateToTasks={onNavigateToTasks}
+              />
+            )}
 
             {/* Theme Toggle */}
             {onToggleTheme && (
