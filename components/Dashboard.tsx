@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Task, TaskStatus, TaskPriority, Note } from '../types';
 import { GlassCard } from './GlassCard';
-import { Circle, CheckCircle, Clock, AlertCircle, ChevronDown, Trash, Copy, Edit2, Layers, FileText, HelpCircle } from './Icons';
+import { Circle, CheckCircle, Clock, AlertCircle, ChevronDown, Trash, Copy, Edit2, Layers, FileText, HelpCircle, Calendar } from './Icons';
 import { formatRelativeDate } from '../utils/formatRelativeDate';
 import { toLocalDateString } from '../utils/dateUtils';
 import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
@@ -199,7 +199,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="10"
-                className="text-black/8 dark:text-white/10"
+                className="text-black/[0.08] dark:text-white/10"
               />
               {/* Progress Track */}
               <circle
@@ -256,7 +256,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           {overdueTasks.length > 0 && (
             <GlassCard className="!border-red-500/30 opacity-0 animate-slide-up" style={{ animationDelay: '200ms' }}>
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
+                <div className="volumetric-btn w-10 h-10 rounded-full flex items-center justify-center text-red-500">
                   <AlertCircle className="w-5 h-5" />
                 </div>
                 <h3 className="text-xl font-semibold tracking-tight text-red-600 dark:text-red-400">Overdue Filings</h3>
@@ -286,7 +286,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
           <GlassCard className="opacity-0 animate-slide-up" style={{ animationDelay: '200ms' }}>
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-semibold tracking-tight text-theme-primary">Today's Agenda</h3>
+              <h3 className="text-xl font-semibold tracking-tight flex items-center gap-3 text-theme-primary">
+                <div className="volumetric-btn w-10 h-10 rounded-full flex items-center justify-center text-theme-tertiary">
+                  <Calendar className="w-4 h-4" />
+                </div>
+                Today's Agenda
+              </h3>
               <div className="volumetric-input px-4 py-2 rounded-full text-[11px] font-medium uppercase tracking-wider text-theme-tertiary">
                 {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
               </div>

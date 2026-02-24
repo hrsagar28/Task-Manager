@@ -1,6 +1,6 @@
 import React from 'react';
 import { ViewState, Task } from '../types';
-import { LayoutDashboard, Calendar, FileText, Layers, Plus, HelpCircle, ChevronLeft, ChevronRight, Search, MoreHorizontal, Download, Upload } from './Icons';
+import { LayoutDashboard, Calendar, FileText, ListTodo, Plus, HelpCircle, ChevronLeft, ChevronRight, Search, MoreHorizontal, Download, Upload, Sun, Moon } from './Icons';
 import { MobileDrawer } from './MobileDrawer';
 import { NotificationPanel } from './NotificationPanel';
 
@@ -101,7 +101,7 @@ export const Layout: React.FC<LayoutProps> = ({
           >
             <Search className="w-4 h-4 text-theme-tertiary group-hover:text-theme-secondary transition-colors" />
             <span className="text-sm font-medium text-theme-tertiary group-hover:text-theme-secondary transition-colors flex-1 text-left">Search...</span>
-            <span className="text-[10px] font-mono font-medium text-theme-muted bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded-md">⌘K</span>
+            <span className="text-[10px] font-mono font-medium text-theme-muted bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded-md">{typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl+K'}</span>
           </button>
         ) : (
           <button
@@ -117,7 +117,7 @@ export const Layout: React.FC<LayoutProps> = ({
           <SidebarButton
             active={currentView === 'DASHBOARD'}
             onClick={() => setCurrentView('DASHBOARD')}
-            icon={<LayoutDashboard />}
+            icon={<LayoutDashboard className="w-5 h-5" />}
             label="Dashboard"
             shortcut="Ctrl+1"
             badge={currentView !== 'DASHBOARD' ? badgeCounts?.dashboard : 0}
@@ -126,7 +126,7 @@ export const Layout: React.FC<LayoutProps> = ({
           <SidebarButton
             active={currentView === 'CALENDAR'}
             onClick={() => setCurrentView('CALENDAR')}
-            icon={<Calendar />}
+            icon={<Calendar className="w-5 h-5" />}
             label="Calendar"
             shortcut="Ctrl+2"
             collapsed={isSidebarCollapsed}
@@ -134,7 +134,7 @@ export const Layout: React.FC<LayoutProps> = ({
           <SidebarButton
             active={currentView === 'TASKS'}
             onClick={() => setCurrentView('TASKS')}
-            icon={<Layers />}
+            icon={<ListTodo className="w-5 h-5" />}
             label="Tasks"
             shortcut="Ctrl+3"
             collapsed={isSidebarCollapsed}
@@ -142,7 +142,7 @@ export const Layout: React.FC<LayoutProps> = ({
           <SidebarButton
             active={currentView === 'NOTES'}
             onClick={() => setCurrentView('NOTES')}
-            icon={<FileText />}
+            icon={<FileText className="w-5 h-5" />}
             label="Notes"
             shortcut="Ctrl+4"
             collapsed={isSidebarCollapsed}
@@ -157,15 +157,7 @@ export const Layout: React.FC<LayoutProps> = ({
               </button>
               {onToggleTheme && (
                 <button onClick={onToggleTheme} className="volumetric-btn w-12 h-12 rounded-[16px] flex items-center justify-center text-theme-tertiary transition-colors hover:text-theme-primary" title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
-                  {isDark ? (
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-                    </svg>
-                  ) : (
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                    </svg>
-                  )}
+                  {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
               )}
               {tasks && onEditTask && onNavigateToTasks && (
@@ -211,15 +203,7 @@ export const Layout: React.FC<LayoutProps> = ({
                     style={{ color: 'var(--text-tertiary)' }}
                     title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                   >
-                    {isDark ? (
-                      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-                      </svg>
-                    ) : (
-                      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                      </svg>
-                    )}
+                    {isDark ? <Sun className="w-5 h-5 shrink-0" /> : <Moon className="w-5 h-5 shrink-0" />}
                     <span className="font-semibold text-sm tracking-tight">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
                   </button>
                 )}
@@ -302,15 +286,7 @@ export const Layout: React.FC<LayoutProps> = ({
               className="volumetric-btn w-10 h-10 rounded-[14px] flex items-center justify-center text-theme-tertiary hover:text-theme-secondary transition-colors"
               aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
-              {isDark ? (
-                <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-                </svg>
-              ) : (
-                <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                </svg>
-              )}
+              {isDark ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
             </button>
           )}
 
@@ -359,7 +335,7 @@ export const Layout: React.FC<LayoutProps> = ({
           {/* Center FAB - slightly smaller on mobile */}
           <button
             onClick={onAddNew}
-            className="volumetric-btn volumetric-btn-primary w-12 h-12 rounded-[18px] flex items-center justify-center text-theme-primary -mt-5 shadow-lg"
+            className="volumetric-btn volumetric-btn-primary w-12 h-12 rounded-[18px] flex items-center justify-center text-emerald-700 dark:text-emerald-300 -mt-5 shadow-lg"
             aria-label="Add new task"
           >
             <Plus className="w-5 h-5" />
@@ -367,7 +343,7 @@ export const Layout: React.FC<LayoutProps> = ({
           <NavButton
             active={currentView === 'TASKS'}
             onClick={() => setCurrentView('TASKS')}
-            icon={<Layers />}
+            icon={<ListTodo />}
             label="Tasks"
           />
           <NavButton
@@ -407,19 +383,22 @@ const NavButton = ({ active, onClick, icon, label, badge }: {
   <button
     onClick={onClick}
     className={`flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-[22px] transition-all duration-300 ${active
-      ? 'text-theme-primary'
+      ? 'text-emerald-600 dark:text-emerald-400'
       : 'text-theme-tertiary hover:text-theme-secondary hover-surface'
       }`}
   >
-    <div className={`relative transition-transform duration-300 ${active ? 'scale-110' : ''}`}>
-      {icon}
+    <div className={`relative transition-all duration-300 ${active ? 'scale-110' : ''}`}>
+      {active && (
+        <div className="absolute -inset-1.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-400/10 blur-[2px]" />
+      )}
+      <div className="relative">{icon}</div>
       {badge && badge > 0 ? (
         <div className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center shadow-sm">
           {badge > 99 ? '99+' : badge}
         </div>
       ) : null}
     </div>
-    <span className={`text-[9px] font-semibold tracking-wide transition-colors ${active ? 'text-theme-primary' : 'text-theme-tertiary'
+    <span className={`text-[9px] font-semibold tracking-wide transition-colors ${active ? 'text-emerald-600 dark:text-emerald-400' : 'text-theme-tertiary'
       }`}>
       {label}
     </span>
@@ -429,36 +408,29 @@ const NavButton = ({ active, onClick, icon, label, badge }: {
 const SidebarButton = ({ active, onClick, icon, label, shortcut, badge, collapsed }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string, shortcut?: string, badge?: number, collapsed?: boolean }) => (
   <button
     onClick={onClick}
-    title={collapsed ? label : undefined}
-    className={`flex items-center gap-4 transition-all duration-300 group relative ${collapsed ? 'w-14 h-14 mx-auto justify-center rounded-[20px]' : 'w-full px-5 py-4 rounded-[24px]'
-      } ${active
-        ? 'volumetric-btn text-theme-primary'
-        : 'hover-surface text-theme-secondary'
+    title={collapsed ? `${label}${shortcut ? ` (${shortcut})` : ''}` : undefined}
+    className={`relative w-full flex items-center gap-4 transition-all duration-300 ${collapsed
+      ? `justify-center w-14 h-14 mx-auto rounded-[20px] ${active ? 'volumetric-btn-primary text-emerald-600 dark:text-emerald-400' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`
+      : `px-5 py-4 rounded-[20px] ${active ? 'volumetric-btn-primary text-emerald-600 dark:text-emerald-400' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`
       }`}
   >
-    <div className={`transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>
+    {/* Left accent bar for active state */}
+    {active && !collapsed && (
+      <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+    )}
+    <div className="relative">
       {icon}
+      {badge && badge > 0 ? (
+        <div className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center shadow-sm">
+          {badge > 99 ? '99+' : badge}
+        </div>
+      ) : null}
     </div>
     {!collapsed && (
       <>
-        <span className="font-semibold tracking-tight text-base truncate">{label}</span>
-        {badge && badge > 0 ? (
-          <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-red-500/15 text-red-600/80 dark:text-red-400 text-[10px] font-bold flex items-center justify-center border border-red-500/10 shrink-0">
-            {badge > 99 ? '99+' : badge}
-          </span>
-        ) : shortcut ? (
-          <span className={`ml-auto text-[10px] font-medium tracking-widest transition-opacity shrink-0 ${active ? 'opacity-40' : 'opacity-0 group-hover:opacity-30'
-            }`}>
-            {shortcut}
-          </span>
-        ) : null}
+        <span className="font-semibold text-sm tracking-tight flex-1 text-left">{label}</span>
+        {shortcut && <span className="text-[10px] font-mono font-medium text-theme-muted bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded-md">{shortcut}</span>}
       </>
-    )}
-    {collapsed && badge && badge > 0 && (
-      <div
-        title={`${badge} unread`}
-        className="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm ring-2 ring-white dark:ring-slate-900"
-      />
     )}
   </button>
 );

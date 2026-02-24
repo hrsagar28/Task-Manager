@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Task, Note, ViewState } from '../types';
-import { Search, FileText, CheckCircle, LayoutDashboard, Calendar, Layers, Plus } from './Icons';
+import { Search, FileText, CheckCircle, LayoutDashboard, Calendar, ListTodo, Plus } from './Icons';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 
 interface CommandPaletteProps {
@@ -64,7 +64,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const commands = [
     { label: 'Go to Dashboard', icon: <LayoutDashboard className="w-4 h-4" />, action: () => onNavigate('DASHBOARD') },
     { label: 'Go to Calendar', icon: <Calendar className="w-4 h-4" />, action: () => onNavigate('CALENDAR') },
-    { label: 'Go to Master Tasks', icon: <Layers className="w-4 h-4" />, action: () => onNavigate('TASKS') },
+    { label: 'Go to Master Tasks', icon: <ListTodo className="w-4 h-4" />, action: () => onNavigate('TASKS') },
     { label: 'Go to Notes', icon: <FileText className="w-4 h-4" />, action: () => onNavigate('NOTES') },
     { label: 'Create New Task', icon: <Plus className="w-4 h-4" />, action: () => onNewTask() },
     { label: 'Create New Note', icon: <FileText className="w-4 h-4" />, action: () => onNewNote() },

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Task, TaskStatus, TaskPriority, Note } from '../types';
-import { Search, Archive, CheckCircle, Edit2, Trash, CheckSquare, Square, Layers, ChevronDown, FileText, Copy } from './Icons';
+import { Search, Archive, CheckCircle, Edit2, Trash, CheckSquare, Square, Layers, ListTodo, ChevronDown, FileText, Copy } from './Icons';
 import { formatRelativeDate } from '../utils/formatRelativeDate';
 import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
 
@@ -142,7 +142,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
         <div>
           <h2 className="text-3xl font-semibold tracking-tight flex items-center gap-4 text-theme-primary">
             <div className="volumetric-btn w-14 h-14 rounded-[20px] flex items-center justify-center text-theme-tertiary">
-              <Layers className="w-7 h-7" />
+              <ListTodo className="w-7 h-7" />
             </div>
             Master Tasks
           </h2>

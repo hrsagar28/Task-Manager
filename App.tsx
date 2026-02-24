@@ -199,26 +199,14 @@ function App() {
     };
   }, [activeTasks, currentDateStr]);
 
-  // Dynamic Depth Mapping (Lighting)
+  // Specular highlight tracking — updates CSS vars for glass reflection
   useEffect(() => {
-    let rafId: number;
     const handleMouseMove = (e: MouseEvent) => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        document.querySelectorAll('.volumetric-surface').forEach(el => {
-          const rect = (el as HTMLElement).getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          (el as HTMLElement).style.setProperty('--mouse-x', `${x}px`);
-          (el as HTMLElement).style.setProperty('--mouse-y', `${y}px`);
-        });
-      });
+      document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+      document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
     };
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(rafId);
-    };
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   const showToast = useCallback((message: string, type: 'success' | 'info' | 'error' = 'success', action?: { label: string, onClick: () => void }) => {

@@ -142,7 +142,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                                 className="w-full flex items-center gap-4 px-4 py-4 rounded-[20px] hover-surface transition-all duration-200 group text-left animate-slide-up"
                                 style={{ animationDelay: `${Math.min(idx * 50, 200)}ms` }}
                             >
-                                <div className="w-10 h-10 rounded-[14px] volumetric-input flex items-center justify-center text-theme-tertiary group-hover:text-theme-secondary transition-colors shrink-0">
+                                <div className="w-10 h-10 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.06] flex items-center justify-center text-theme-tertiary group-hover:text-theme-secondary transition-colors shrink-0">
                                     {item.icon}
                                 </div>
                                 <div className="flex-1 min-w-0">
