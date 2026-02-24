@@ -127,7 +127,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
               <div className="!absolute top-[120%] left-0 w-[calc(100vw-3rem)] max-w-[320px] md:w-[340px] md:max-w-none z-50 rounded-[28px] p-5 shadow-2xl animate-scale-in origin-top-left flex flex-col gap-5 bg-[#fcfcfc] dark:bg-[#1a1a1c] border border-black/5 dark:border-white/10">
                 {/* Year Selector row */}
                 <div className="flex items-center justify-between gap-1">
-                  <button onClick={() => setPickerYear(y => y - 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover-surface text-theme-tertiary transition-colors">
+                  <button onClick={() => setPickerYear(y => y - 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-theme-tertiary transition-colors">
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                   <div className="flex-1 flex justify-center gap-1">
@@ -135,13 +135,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
                       <button
                         key={y}
                         onClick={() => setPickerYear(y)}
-                        className={`px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all duration-300 ${pickerYear === y ? 'volumetric-btn volumetric-btn-primary text-theme-primary scale-110 shadow-sm' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`}
+                        className={`px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all duration-300 ${pickerYear === y ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 scale-110 shadow-sm' : 'text-theme-tertiary hover:text-theme-secondary hover:bg-black/5 dark:hover:bg-white/5'}`}
                       >
                         {y}
                       </button>
                     ))}
                   </div>
-                  <button onClick={() => setPickerYear(y => y + 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover-surface text-theme-tertiary transition-colors">
+                  <button onClick={() => setPickerYear(y => y + 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-theme-tertiary transition-colors">
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -154,9 +154,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
                       <button
                         key={m}
                         onClick={() => handleMonthSelect(i)}
-                        className={`py-2 rounded-[14px] text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth hover:-translate-y-0.5 active:scale-95 ${isCurrentView
-                          ? 'volumetric-btn volumetric-btn-primary text-theme-primary scale-[1.02]'
-                          : 'volumetric-input text-theme-tertiary hover:text-theme-secondary'
+                        className={`py-2 rounded-[14px] text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth hover:-translate-y-0.5 active:scale-95 border border-transparent ${isCurrentView
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 scale-[1.02]'
+                          : 'bg-black/5 dark:bg-white/5 text-theme-tertiary hover:text-theme-secondary hover:bg-black/10 dark:hover:bg-white/10'
                           }`}
                       >
                         {m}
