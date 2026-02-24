@@ -101,7 +101,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
               className="flex items-center gap-2 hover:opacity-70 transition-opacity"
               aria-label="Select month and year"
             >
-              <h2 className="text-2xl font-semibold tracking-tight text-theme-primary">
+              <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-theme-primary whitespace-nowrap">
                 {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
               </h2>
               <ChevronDown className={`w-5 h-5 text-theme-tertiary transition-transform duration-300 ${showMonthPicker ? 'rotate-180' : ''}`} />
@@ -111,8 +111,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
             {showMonthPicker && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowMonthPicker(false)} />
-                <div className="absolute top-[120%] left-0 w-[300px] z-50 rounded-[24px] p-5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.25),0_8px_20px_rgba(0,0,0,0.1)] animate-scale-in origin-top-left flex flex-col gap-5"
-                  style={{ background: 'var(--bg-app)', border: '1px solid var(--glass-border)' }}>
+                <div className="absolute top-[120%] left-0 w-[300px] md:w-[340px] z-50 rounded-[24px] p-5 shadow-2xl animate-scale-in origin-top-left flex flex-col gap-5 volumetric-surface bg-theme-app/95"
+                  style={{ border: '1px solid var(--glass-border)' }}>
                   {/* Year Selector row */}
                   <div className="flex items-center justify-between gap-1">
                     <button onClick={() => setPickerYear(y => y - 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover-surface text-theme-tertiary transition-colors">
@@ -322,18 +322,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
         <div className="flex-1 overflow-y-auto pr-3 space-y-4 custom-scrollbar">
           {tasksForSelectedDate.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-theme-tertiary opacity-60 animate-fade-in">
-              {/* Illustrative Volumetric Empty State */}
-              <div className="relative w-40 h-40 mx-auto mb-8 flex items-center justify-center">
-                <div className="absolute inset-0 bg-blue-500/10 blur-[40px] rounded-full" />
-                <div className="absolute top-4 left-4 w-16 h-16 volumetric-surface rounded-2xl rotate-[-15deg] opacity-60 transition-transform duration-700 hover:rotate-[-5deg]" />
-                <div className="absolute bottom-4 right-4 w-20 h-20 volumetric-surface rounded-[20px] rotate-[15deg] opacity-40 transition-transform duration-700 hover:rotate-[5deg]" />
-                <div className="relative z-10 volumetric-surface w-28 h-28 rounded-[32px] flex items-center justify-center transform hover:scale-105 transition-transform duration-500 ease-smooth">
-                  <div className="volumetric-btn w-16 h-16 rounded-[20px] flex items-center justify-center bg-blue-500/10 text-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
-                    <CalendarIcon className="w-8 h-8" />
+              {/* Simplified Clear Icon for Empty State */}
+              <div className="relative w-32 h-32 mx-auto mb-6 flex items-center justify-center">
+                <div className="absolute inset-0 bg-emerald-500/10 blur-[30px] rounded-full" />
+                <div className="relative z-10 volumetric-surface w-24 h-24 rounded-full flex items-center justify-center transform hover:scale-105 transition-transform duration-500 ease-smooth">
+                  <div className="volumetric-btn w-14 h-14 rounded-full flex items-center justify-center text-emerald-500 shadow-sm">
+                    <CheckCircle className="w-7 h-7" />
                   </div>
                 </div>
               </div>
-              <p className="font-medium text-sm text-theme-secondary">No tasks for this date.</p>
+              <p className="font-medium text-sm text-theme-secondary">No tasks scheduled for this date.</p>
             </div>
           ) : (
             tasksForSelectedDate.map((task, index) => {

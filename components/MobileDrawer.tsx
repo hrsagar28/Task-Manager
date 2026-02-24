@@ -96,11 +96,11 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
         { value: 365, label: '1 year' },
     ];
 
-    return createPortal(
+    return (
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 z-[150] bg-black/30 backdrop-blur-sm animate-fade-in md:hidden"
+                className="absolute inset-0 z-[150] bg-black/30 backdrop-blur-sm animate-fade-in md:hidden"
                 onClick={onClose}
                 aria-hidden="true"
             />
@@ -108,7 +108,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
             {/* Drawer */}
             <div
                 ref={drawerRef}
-                className="fixed top-0 right-0 bottom-0 z-[151] w-[300px] max-w-[85vw] volumetric-surface shadow-[-20px_0_60px_-12px_rgba(0,0,0,0.15)] md:hidden flex flex-col"
+                className="absolute top-0 right-0 bottom-0 z-[151] w-[300px] max-w-[85vw] volumetric-surface shadow-[-20px_0_60px_-12px_rgba(0,0,0,0.15)] md:hidden flex flex-col"
                 style={{
                     animation: 'drawer-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                     borderRadius: '28px 0 0 28px',
@@ -189,7 +189,6 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                     </p>
                 </div>
             </div>
-        </>,
-        document.body
+        </>
     );
 };
