@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { ViewState } from '../types';
 import { X, Search, HelpCircle, Moon, Sun, Crosshair, Download, Upload } from './Icons';
+import { APP_VERSION } from '../version';
 
 interface MobileDrawerProps {
     isOpen: boolean;
@@ -14,10 +15,12 @@ interface MobileDrawerProps {
     currentView: ViewState;
     onExportData?: () => void;
     onImportData?: () => void;
+    archiveRetentionDays?: number;
+    onSetArchiveRetention?: (days: number) => void;
 }
 
 export const MobileDrawer: React.FC<MobileDrawerProps> = ({
-    isOpen, onClose, isDark, onToggleTheme, onOpenCommandPalette, onOpenHelp, focusMode, onToggleFocusMode, onExportData, onImportData
+    isOpen, onClose, isDark, onToggleTheme, onOpenCommandPalette, onOpenHelp, focusMode, onToggleFocusMode, onExportData, onImportData, archiveRetentionDays = 90, onSetArchiveRetention
 }) => {
     const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -85,6 +88,13 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
         }] : []),
     ];
 
+    const RETENTION_OPTIONS = [
+        { value: 30, label: '30 days' },
+        { value: 90, label: '90 days' },
+        { value: 180, label: '6 months' },
+        { value: 365, label: '1 year' },
+    ];
+
     return (
         <>
             {/* Backdrop */}
@@ -149,10 +159,32 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                     ))}
                 </div>
 
+                {/* Data Cleanup Setting */}
+                {onSetArchiveRetention && (
+                    <div className="mt-4 pt-4 border-t border-theme-divider px-4">
+                        <p className="text-[10px] font-medium uppercase tracking-widest text-theme-tertiary mb-3">Auto-Delete Archived Tasks</p>
+                        <div className="flex flex-wrap gap-2">
+                            {RETENTION_OPTIONS.map(opt => (
+                                <button
+                                    key={opt.value}
+                                    onClick={() => onSetArchiveRetention(opt.value)}
+                                    className={`px-3 py-2 rounded-[14px] text-[11px] font-semibold tracking-wider transition-all duration-300 ${archiveRetentionDays === opt.value
+                                            ? 'volumetric-btn volumetric-btn-primary text-theme-primary scale-[1.02]'
+                                            : 'volumetric-input text-theme-tertiary hover:text-theme-primary'
+                                        }`}
+                                >
+                                    {opt.label}
+                                </button>
+                            ))}
+                        </div>
+                        <p className="text-[10px] text-theme-muted mt-2 pl-1">Archived tasks older than {archiveRetentionDays} days are automatically removed.</p>
+                    </div>
+                )}
+
                 {/* Drawer Footer */}
-                <div className="p-6 pt-4 border-t border-theme-divider">
+                <div className="p-6 pt-4 border-t border-theme-divider mt-auto">
                     <p className="text-[10px] font-medium text-theme-muted text-center uppercase tracking-widest">
-                        AuraDesk v1.0 — CA Workspace
+                        AuraDesk v{APP_VERSION} — CA Workspace
                     </p>
                 </div>
             </div>

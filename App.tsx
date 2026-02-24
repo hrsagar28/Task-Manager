@@ -17,6 +17,7 @@ import { toLocalDateString } from './utils/dateUtils';
 // Helper: Calculate next due date based on recurrence interval
 function getNextRecurringDate(currentDueDate: string, interval: 'weekly' | 'monthly' | 'quarterly' | 'yearly'): string {
   const date = new Date(currentDueDate + 'T00:00:00');
+  const originalDay = date.getDate();
   switch (interval) {
     case 'weekly':
       date.setDate(date.getDate() + 7);
@@ -30,6 +31,10 @@ function getNextRecurringDate(currentDueDate: string, interval: 'weekly' | 'mont
     case 'yearly':
       date.setFullYear(date.getFullYear() + 1);
       break;
+  }
+  // Clamp to last day of target month if the day overflowed (e.g. Jan 31 → Mar 3 → Feb 28)
+  if (interval !== 'weekly' && date.getDate() !== originalDay) {
+    date.setDate(0); // Rolls back to last day of previous month
   }
   return toLocalDateString(date);
 }
@@ -89,6 +94,18 @@ function App() {
 
   // Focus Mode State - Hoisted for layout-wide dimming
   const [focusMode, setFocusMode] = useState(false);
+
+  // Archive Retention State (user-selectable: 30, 90, 180, 365 days)
+  const [archiveRetentionDays, setArchiveRetentionDays] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('auradesk-archive-retention');
+      return saved ? parseInt(saved, 10) : 90;
+    } catch { return 90; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('auradesk-archive-retention', String(archiveRetentionDays));
+  }, [archiveRetentionDays]);
 
   // Toast & Undo State
   const [toast, setToast] = useState<{ message: string, type?: 'success' | 'info' | 'error', action?: { label: string, onClick: () => void } } | null>(null);
@@ -215,6 +232,24 @@ function App() {
   // Persist state to localStorage with quota guard
   useEffect(() => { try { localStorage.setItem('auradesk-tasks', JSON.stringify(tasks)); } catch (e) { showToast('Storage full — some changes may not be saved. Export your data to avoid data loss.', 'error'); } }, [tasks, showToast]);
   useEffect(() => { try { localStorage.setItem('auradesk-notes', JSON.stringify(notes)); } catch (e) { showToast('Storage full — some changes may not be saved. Export your data to avoid data loss.', 'error'); } }, [notes, showToast]);
+
+  // Auto-cleanup archived tasks older than retention period
+  useEffect(() => {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - archiveRetentionDays);
+    const cutoffISO = cutoff.toISOString();
+    const stale = tasks.filter(t =>
+      t.isArchived && t.updatedAt && t.updatedAt < cutoffISO
+    );
+    if (stale.length > 0) {
+      setTasks(prev => prev.filter(t =>
+        !(t.isArchived && t.updatedAt && t.updatedAt < cutoffISO)
+      ));
+      showToast(`Cleaned up ${stale.length} archived task${stale.length > 1 ? 's' : ''} older than ${archiveRetentionDays} days`, 'info');
+    }
+    // Run only on mount and when retention setting changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [archiveRetentionDays]);
 
   // Global Ctrl+Z / Cmd+Z undo shortcut
   useEffect(() => {
@@ -560,14 +595,22 @@ function App() {
 
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
-  // Data Export
-  const handleExportData = useCallback(() => {
-    const data = {
+  // Data Export with integrity checksum
+  const handleExportData = useCallback(async () => {
+    const payload = {
       version: 1,
       exportedAt: new Date().toISOString(),
       tasks,
       notes,
     };
+    const payloadStr = JSON.stringify(payload);
+    // Compute SHA-256 checksum for integrity verification
+    let checksum = '';
+    try {
+      const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payloadStr));
+      checksum = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch { /* crypto.subtle unavailable (non-HTTPS) — skip checksum */ }
+    const data = { ...payload, checksum };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -593,18 +636,36 @@ function App() {
           showToast('Invalid backup file — missing tasks or notes data.', 'error');
           return;
         }
-        setConfirmDialog({
-          title: 'Import Data',
-          message: `This will replace all your current data with ${data.tasks.length} tasks and ${data.notes.length} notes from the backup. This cannot be undone.`,
-          confirmLabel: 'Import',
-          variant: 'warning',
-          onConfirm: () => {
-            setTasks(data.tasks);
-            setNotes(data.notes);
-            showToast(`Imported ${data.tasks.length} tasks and ${data.notes.length} notes`);
-            setConfirmDialog(null);
+        // Verify checksum integrity if present
+        const doImport = () => {
+          setTasks(data.tasks);
+          setNotes(data.notes);
+          showToast(`Imported ${data.tasks.length} tasks and ${data.notes.length} notes`);
+          setConfirmDialog(null);
+        };
+
+        const verifyAndImport = async () => {
+          let checksumValid = true;
+          if (data.checksum) {
+            try {
+              const { checksum, ...payload } = data;
+              const payloadStr = JSON.stringify(payload);
+              const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payloadStr));
+              const computed = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+              checksumValid = computed === checksum;
+            } catch { checksumValid = true; /* Can't verify — skip */ }
           }
-        });
+
+          const warningPrefix = !checksumValid ? '⚠️ Checksum mismatch — this file may have been modified. ' : '';
+          setConfirmDialog({
+            title: 'Import Data',
+            message: `${warningPrefix}This will replace all your current data with ${data.tasks.length} tasks and ${data.notes.length} notes from the backup. This cannot be undone.`,
+            confirmLabel: 'Import',
+            variant: !checksumValid ? 'danger' : 'warning',
+            onConfirm: doImport
+          });
+        };
+        verifyAndImport();
       } catch {
         showToast('Failed to read backup file — invalid JSON.', 'error');
       }
@@ -651,6 +712,8 @@ function App() {
           onToggleFocusMode={() => setFocusMode(prev => !prev)}
           onExportData={handleExportData}
           onImportData={() => importFileRef.current?.click()}
+          archiveRetentionDays={archiveRetentionDays}
+          onSetArchiveRetention={setArchiveRetentionDays}
           tasks={activeTasks}
           onEditTask={handleEditTask}
           onNavigateToTasks={() => handleViewChange('TASKS')}

@@ -256,7 +256,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                                                     e.stopPropagation();
                                                     dismissNotification(notification.task.id, notification.task.dueDate);
                                                 }}
-                                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 shrink-0"
+                                                className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 shrink-0"
                                                 aria-label="Dismiss notification"
                                                 title="Dismiss"
                                             >

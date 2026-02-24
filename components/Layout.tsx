@@ -28,6 +28,9 @@ interface LayoutProps {
   // Data management
   onExportData?: () => void;
   onImportData?: () => void;
+  // Archive retention
+  archiveRetentionDays?: number;
+  onSetArchiveRetention?: (days: number) => void;
 }
 
 export const Layout: React.FC<LayoutProps> = ({
@@ -51,10 +54,19 @@ export const Layout: React.FC<LayoutProps> = ({
   onEditTask,
   onNavigateToTasks,
   onExportData,
-  onImportData
+  onImportData,
+  archiveRetentionDays,
+  onSetArchiveRetention
 }) => {
   return (
     <div className="relative h-full w-full flex flex-col md:flex-row overflow-hidden transition-all duration-700">
+      {/* Skip to main content — WCAG 2.4.1 */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-6 focus:py-3 focus:rounded-2xl focus:volumetric-surface focus:text-theme-primary focus:text-sm focus:font-semibold focus:shadow-lg focus:animate-fade-in"
+      >
+        Skip to main content
+      </a>
       {/* Ambient light washes — extremely subtle, large scale */}
       <div className={`fixed inset-0 z-0 pointer-events-none transition-opacity duration-1000 ${isFocusMode ? 'opacity-20' : 'opacity-100'}`}>
         <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[60%] rounded-full blur-[120px]" style={{ background: `radial-gradient(ellipse, var(--ambient-cool) 0%, transparent 70%)` }} />
@@ -253,7 +265,7 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
       </aside>
 
-      <main className="relative z-10 flex-1 overflow-y-auto pb-28 md:pb-0 pt-safe h-full no-scrollbar">
+      <main id="main-content" className="relative z-10 flex-1 overflow-y-auto pb-28 md:pb-0 pt-safe h-full no-scrollbar">
         {/* Mobile Top Bar */}
         <div className="md:hidden flex items-center justify-between px-4 pt-4 pb-2">
           <div className="flex items-center gap-3">
@@ -371,6 +383,8 @@ export const Layout: React.FC<LayoutProps> = ({
           currentView={currentView}
           onExportData={onExportData}
           onImportData={onImportData}
+          archiveRetentionDays={archiveRetentionDays}
+          onSetArchiveRetention={onSetArchiveRetention}
         />
       )}
     </div>

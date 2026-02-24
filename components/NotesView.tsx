@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Note, Task } from '../types';
 import { GlassCard } from './GlassCard';
+import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
 import { Plus, FileText, Pin, Trash, Search, BoldIcon, ItalicIcon, ListIcon, EyeIcon, EditIcon, LinkIcon, X, ChevronLeft } from './Icons';
 import { NOTE_COLORS } from '../constants';
 import { marked } from 'marked';
@@ -38,9 +39,30 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
   const [linkSearch, setLinkSearch] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isNewNoteRef = useRef(false);
+  const noteListRoving = useRovingTabIndex();
 
   const [showSaved, setShowSaved] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const deleteDisarmRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Warn before closing tab when editor is in edit mode
+  useEffect(() => {
+    if (isPreview) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isPreview]);
+
+  // Auto-disarm delete confirmation after 3 seconds
+  useEffect(() => {
+    if (deleteDisarmRef.current) clearTimeout(deleteDisarmRef.current);
+    if (pendingDeleteId) {
+      deleteDisarmRef.current = setTimeout(() => setPendingDeleteId(null), 3000);
+    }
+    return () => { if (deleteDisarmRef.current) clearTimeout(deleteDisarmRef.current); };
+  }, [pendingDeleteId]);
 
   const selectedNoteId = activeNoteId || (notes.length > 0 ? notes[0].id : null);
   const selectedNote = notes.find(n => n.id === selectedNoteId) || null;
@@ -180,6 +202,11 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
 
             // Enforce safe link attributes
             if (tagName === 'a') {
+              const href = el.getAttribute('href') || '';
+              // Only allow safe protocols — block data:, blob:, javascript:, etc.
+              if (href && !/^(https?:|mailto:|\/|#)/i.test(href.trim())) {
+                el.removeAttribute('href');
+              }
               el.setAttribute('target', '_blank');
               el.setAttribute('rel', 'noopener noreferrer');
             }
@@ -208,6 +235,8 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
             return (
               <button
                 key={note.id}
+                data-roving-item
+                tabIndex={index === 0 && staggerOffset === 150 ? 0 : -1}
                 onClick={() => {
                   onSelectNote(note.id);
                   setIsPreview(true);
@@ -292,7 +321,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+        <div ref={noteListRoving.containerProps.ref} onKeyDown={noteListRoving.containerProps.onKeyDown} className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
           {renderNoteList(pinnedNotes, "Pinned", 150)}
           {renderNoteList(otherNotes, pinnedNotes.length > 0 ? "Others" : undefined, 150 + (pinnedNotes.length * 10))}
 

@@ -4,6 +4,7 @@ import { GlassCard } from './GlassCard';
 import { Circle, CheckCircle, Clock, AlertCircle, ChevronDown, Trash, Copy, Edit2, Layers, FileText, HelpCircle } from './Icons';
 import { formatRelativeDate } from '../utils/formatRelativeDate';
 import { toLocalDateString } from '../utils/dateUtils';
+import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
 
 const AnimatedNumber: React.FC<{ value: number, className?: string, suffix?: string }> = ({ value, className, suffix = '' }) => {
   const [displayValue, setDisplayValue] = useState(value);
@@ -60,6 +61,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onNavigateToTasks
 }) => {
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const overdueRoving = useRovingTabIndex();
+  const todayRoving = useRovingTabIndex();
 
   const todayStr = toLocalDateString();
 
@@ -258,23 +261,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
                 <h3 className="text-xl font-semibold tracking-tight text-red-600 dark:text-red-400">Overdue Filings</h3>
               </div>
-              <div className="space-y-4">
+              <div {...overdueRoving.containerProps} className="space-y-4">
                 {overdueTasks.map((task, index) => (
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    relatedNotes={notes.filter(n => n.linkedTaskId === task.id)}
-                    index={index}
-                    isExpanded={expandedTaskId === task.id}
-                    onToggleExpand={() => handleToggleExpand(task.id)}
-                    onCycleStatus={() => onCycleStatus(task.id)}
-                    onEdit={() => onEditTask(task)}
-                    onDuplicate={() => onDuplicateTask(task)}
-                    onDelete={() => onDeleteTask(task.id)}
-                    onToggleSubtask={(subId) => onToggleSubtask(task.id, subId)}
-                    onViewNote={onViewNote}
-                    isOverdue
-                  />
+                  <div key={task.id} {...overdueRoving.getItemProps(index)}>
+                    <TaskItem
+                      task={task}
+                      relatedNotes={notes.filter(n => n.linkedTaskId === task.id)}
+                      index={index}
+                      isExpanded={expandedTaskId === task.id}
+                      onToggleExpand={() => handleToggleExpand(task.id)}
+                      onCycleStatus={() => onCycleStatus(task.id)}
+                      onEdit={() => onEditTask(task)}
+                      onDuplicate={() => onDuplicateTask(task)}
+                      onDelete={() => onDeleteTask(task.id)}
+                      onToggleSubtask={(subId) => onToggleSubtask(task.id, subId)}
+                      onViewNote={onViewNote}
+                      isOverdue
+                    />
+                  </div>
                 ))}
               </div>
             </GlassCard>
@@ -303,22 +307,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <p className="text-sm font-medium text-theme-secondary">All caught up. Enjoy the peace.</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div {...todayRoving.containerProps} className="space-y-4">
                 {todayTasks.map((task, index) => (
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    relatedNotes={notes.filter(n => n.linkedTaskId === task.id)}
-                    index={index}
-                    isExpanded={expandedTaskId === task.id}
-                    onToggleExpand={() => handleToggleExpand(task.id)}
-                    onCycleStatus={() => onCycleStatus(task.id)}
-                    onEdit={() => onEditTask(task)}
-                    onDuplicate={() => onDuplicateTask(task)}
-                    onDelete={() => onDeleteTask(task.id)}
-                    onToggleSubtask={(subId) => onToggleSubtask(task.id, subId)}
-                    onViewNote={onViewNote}
-                  />
+                  <div key={task.id} {...todayRoving.getItemProps(index)}>
+                    <TaskItem
+                      task={task}
+                      relatedNotes={notes.filter(n => n.linkedTaskId === task.id)}
+                      index={index}
+                      isExpanded={expandedTaskId === task.id}
+                      onToggleExpand={() => handleToggleExpand(task.id)}
+                      onCycleStatus={() => onCycleStatus(task.id)}
+                      onEdit={() => onEditTask(task)}
+                      onDuplicate={() => onDuplicateTask(task)}
+                      onDelete={() => onDeleteTask(task.id)}
+                      onToggleSubtask={(subId) => onToggleSubtask(task.id, subId)}
+                      onViewNote={onViewNote}
+                    />
+                  </div>
                 ))}
               </div>
             )}

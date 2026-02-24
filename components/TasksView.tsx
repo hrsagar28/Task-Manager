@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Task, TaskStatus, TaskPriority, Note } from '../types';
 import { Search, Archive, CheckCircle, Edit2, Trash, CheckSquare, Square, Layers, ChevronDown, FileText, Copy } from './Icons';
 import { formatRelativeDate } from '../utils/formatRelativeDate';
+import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
 
 interface TasksViewProps {
   tasks: Task[];
@@ -26,6 +27,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const [groupBy, setGroupBy] = useState<'NONE' | 'PRIORITY' | 'CATEGORY' | 'STATUS'>('NONE');
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const taskListRoving = useRovingTabIndex();
 
   const filteredTasks = useMemo(() => {
     let result = tasks.filter(t => filterArchived ? t.isArchived : !t.isArchived);
@@ -242,7 +244,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     <span className="volumetric-input px-2 py-0.5 rounded-md text-[10px] font-bold text-theme-primary">{group.tasks.length}</span>
                   </div>
                 )}
-                <div className="space-y-1">
+                <div {...taskListRoving.containerProps} className="space-y-1">
                   {group.tasks.map((task, idx) => {
                     const isSelected = selectedTaskIds.has(task.id);
                     const isExpanded = expandedTaskId === task.id;
@@ -257,6 +259,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     return (
                       <div
                         key={task.id}
+                        {...taskListRoving.getItemProps(idx)}
                         className={`group flex flex-col p-4 rounded-[20px] transition-all duration-300 ease-smooth hover-surface animate-slide-up ${isSelected ? 'bg-blue-500/10 ring-1 ring-blue-500/30' : ''} ${isExpanded ? 'shadow-sm ring-1' : ''}`}
                         style={{
                           animationDelay: `${Math.min(idx * 6, 120)}ms`,

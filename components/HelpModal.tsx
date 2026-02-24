@@ -1,5 +1,6 @@
 import React from 'react';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import { APP_VERSION } from '../version';
 
 interface HelpModalProps {
   isOpen: boolean;
@@ -69,6 +70,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
         >
           Close
         </button>
+        <p className="text-[10px] font-medium text-theme-muted text-center uppercase tracking-widest mt-4">AuraDesk v{APP_VERSION}</p>
       </div>
     </div>
   );
