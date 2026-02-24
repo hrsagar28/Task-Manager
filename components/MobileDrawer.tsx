@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { ViewState } from '../types';
 import { X, Search, HelpCircle, Moon, Sun, Crosshair, Download, Upload } from './Icons';
 import { APP_VERSION } from '../version';
@@ -95,7 +96,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
         { value: 365, label: '1 year' },
     ];
 
-    return (
+    return createPortal(
         <>
             {/* Backdrop */}
             <div
@@ -169,8 +170,8 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                                     key={opt.value}
                                     onClick={() => onSetArchiveRetention(opt.value)}
                                     className={`px-3 py-2 rounded-[14px] text-[11px] font-semibold tracking-wider transition-all duration-300 ${archiveRetentionDays === opt.value
-                                            ? 'volumetric-btn volumetric-btn-primary text-theme-primary scale-[1.02]'
-                                            : 'volumetric-input text-theme-tertiary hover:text-theme-primary'
+                                        ? 'volumetric-btn volumetric-btn-primary text-theme-primary scale-[1.02]'
+                                        : 'volumetric-input text-theme-tertiary hover:text-theme-primary'
                                         }`}
                                 >
                                     {opt.label}
@@ -188,6 +189,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                     </p>
                 </div>
             </div>
-        </>
+        </>,
+        document.body
     );
 };

@@ -200,7 +200,16 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
 
             {/* Dropdown Panel */}
             {isOpen && (
-                <div className={`absolute ${expanded ? 'bottom-full mb-3 left-0' : 'top-full mt-3 right-0'} w-[380px] max-w-[calc(100vw-2rem)] max-h-[70vh] rounded-[24px] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25),0_8px_20px_rgba(0,0,0,0.1)] overflow-hidden z-50 animate-scale-in ${expanded ? 'origin-bottom-left' : 'origin-top-right'}`}
+                <div
+                    className={`
+                        fixed md:absolute 
+                        top-[80px] left-[50%] -translate-x-1/2 md:translate-x-0 md:left-auto
+                        md:${expanded ? 'bottom-full mb-3 left-0 top-auto' : 'top-full mt-3 right-0'} 
+                        w-[calc(100vw-2rem)] md:w-[380px] max-w-[400px] max-h-[70dvh] 
+                        rounded-[24px] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25),0_8px_20px_rgba(0,0,0,0.1)] 
+                        overflow-hidden z-[200] animate-scale-in 
+                        origin-top md:${expanded ? 'origin-bottom-left' : 'origin-top-right'}
+                    `}
                     style={{ background: 'var(--bg-app)', border: '1px solid var(--glass-border)' }}
                 >
                     {/* Header */}
@@ -211,6 +220,12 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                                 {totalCount} pending
                             </span>
                         )}
+                        <button
+                            className="md:hidden volumetric-btn w-8 h-8 rounded-[12px] flex items-center justify-center text-theme-tertiary"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
                     </div>
 
                     {/* Notification List */}

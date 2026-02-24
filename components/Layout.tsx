@@ -266,7 +266,10 @@ export const Layout: React.FC<LayoutProps> = ({
       </aside>
 
       {/* Mobile Top Bar */}
-      <div className="md:hidden z-30 shrink-0 flex items-center justify-between px-4 pt-safe pt-4 pb-2">
+      <div
+        className="md:hidden z-30 shrink-0 flex items-center justify-between px-4 pb-2"
+        style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top, 0px))' }}
+      >
         <div className="flex items-center gap-3">
           <div className="volumetric-btn w-9 h-9 rounded-[12px] flex items-center justify-center">
             <span className="font-bold text-sm bg-gradient-to-b from-slate-700 to-slate-500 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">A</span>
