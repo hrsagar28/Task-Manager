@@ -78,16 +78,16 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
 
     onSave({
       title: title.trim(),
-      description,
+      description: description.trim(),
       dueDate,
       priority,
       status,
       category,
-      clientName,
+      clientName: clientName.trim(),
       subtasks,
       recurring,
       recurringInterval: recurring ? recurringInterval : undefined,
-      tags
+      tags: tags.map(t => t.trim()).filter(Boolean)
     });
     onClose();
   }, [title, description, dueDate, priority, status, category, clientName, subtasks, recurring, recurringInterval, tags, onSave, onClose]);
@@ -116,7 +116,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
     if (('key' in e && e.key === 'Enter') || e.type === 'click') {
       e.preventDefault();
       if (newSubtask.trim()) {
-        setSubtasks([...subtasks, { id: `sub_${Date.now()}`, text: newSubtask.trim(), done: false }]);
+        setSubtasks([...subtasks, { id: crypto.randomUUID(), text: newSubtask.trim(), done: false }]);
         setNewSubtask('');
       }
     }

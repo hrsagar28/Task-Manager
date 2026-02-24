@@ -10,6 +10,7 @@ import { TasksView } from './components/TasksView';
 import { TaskModal } from './components/TaskModal';
 import { CommandPalette } from './components/CommandPalette';
 import { HelpModal } from './components/HelpModal';
+import { ConfirmDialog } from './components/ConfirmDialog';
 import { CheckCircle, AlertCircle, X } from './components/Icons';
 import { toLocalDateString } from './utils/dateUtils';
 
@@ -63,6 +64,15 @@ function App() {
 
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  // Confirm dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    title: string; message: string; confirmLabel?: string;
+    variant?: 'danger' | 'warning'; onConfirm: () => void;
+  } | null>(null);
+
+  // Hidden file input for import
+  const importFileRef = useRef<HTMLInputElement>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Auto-collapse sidebar on tablet-sized screens
@@ -128,8 +138,7 @@ function App() {
     }
   }, []);
 
-  useEffect(() => { localStorage.setItem('auradesk-tasks', JSON.stringify(tasks)); }, [tasks]);
-  useEffect(() => { localStorage.setItem('auradesk-notes', JSON.stringify(notes)); }, [notes]);
+
 
   // Sync state across browser tabs
   useEffect(() => {
@@ -203,6 +212,10 @@ function App() {
     }, action ? 7000 : 3000);
   }, []);
 
+  // Persist state to localStorage with quota guard
+  useEffect(() => { try { localStorage.setItem('auradesk-tasks', JSON.stringify(tasks)); } catch (e) { showToast('Storage full — some changes may not be saved. Export your data to avoid data loss.', 'error'); } }, [tasks, showToast]);
+  useEffect(() => { try { localStorage.setItem('auradesk-notes', JSON.stringify(notes)); } catch (e) { showToast('Storage full — some changes may not be saved. Export your data to avoid data loss.', 'error'); } }, [notes, showToast]);
+
   // Global Ctrl+Z / Cmd+Z undo shortcut
   useEffect(() => {
     const handleUndo = (e: KeyboardEvent) => {
@@ -244,14 +257,14 @@ function App() {
         const nextDueDate = getNextRecurringDate(task.dueDate, task.recurringInterval);
         const nextTask: Task = {
           ...task,
-          id: `t_${Date.now()}_r`,
+          id: crypto.randomUUID(),
           dueDate: nextDueDate,
           status: TaskStatus.PENDING,
           createdAt: new Date().toISOString(),
           updatedAt: undefined,
           isArchived: false,
           subtasks: task.subtasks
-            ? task.subtasks.map((s, i) => ({ ...s, id: `sub_${Date.now()}_${i}`, done: false }))
+            ? task.subtasks.map(s => ({ ...s, id: crypto.randomUUID(), done: false }))
             : [],
         };
         updatedTasks.push(nextTask);
@@ -284,14 +297,14 @@ function App() {
         const nextDueDate = getNextRecurringDate(task.dueDate, task.recurringInterval);
         const nextTask: Task = {
           ...task,
-          id: `t_${Date.now()}_r`,
+          id: crypto.randomUUID(),
           dueDate: nextDueDate,
           status: TaskStatus.PENDING,
           createdAt: new Date().toISOString(),
           updatedAt: undefined,
           isArchived: false,
           subtasks: task.subtasks
-            ? task.subtasks.map((s, i) => ({ ...s, id: `sub_${Date.now()}_${i}`, done: false }))
+            ? task.subtasks.map(s => ({ ...s, id: crypto.randomUUID(), done: false }))
             : [],
         };
         updatedTasks.push(nextTask);
@@ -349,7 +362,7 @@ function App() {
     } else {
       const newTask: Task = {
         ...(taskData as Task),
-        id: `t_${Date.now()}`,
+        id: crypto.randomUUID(),
         createdAt: new Date().toISOString(),
         status: TaskStatus.PENDING,
         isArchived: false
@@ -368,7 +381,7 @@ function App() {
   const handleDuplicateTask = useCallback((task: Task) => {
     const duplicated: Task = {
       ...task,
-      id: `t_${Date.now()}`,
+      id: crypto.randomUUID(),
       title: `${task.title} (Copy)`,
       status: TaskStatus.PENDING,
       createdAt: new Date().toISOString(),
@@ -376,9 +389,9 @@ function App() {
       isArchived: false,
       // Deep-copy subtasks with new unique IDs, reset completion
       subtasks: task.subtasks
-        ? task.subtasks.map((s, i) => ({
+        ? task.subtasks.map(s => ({
           ...s,
-          id: `sub_${Date.now()}_${i}`,
+          id: crypto.randomUUID(),
           done: false,
         }))
         : [],
@@ -393,12 +406,21 @@ function App() {
     const taskToDelete = tasks.find(t => t.id === id);
     if (!taskToDelete) return;
 
-    setTasks(prev => prev.filter(t => t.id !== id));
-    showToast('Task deleted', 'info', {
-      label: 'Undo',
-      onClick: () => {
-        setTasks(prev => [...prev, taskToDelete]);
-        showToast('Task restored');
+    setConfirmDialog({
+      title: 'Delete Task',
+      message: `Are you sure you want to delete "${taskToDelete.title}"? You can undo this action briefly after deletion.`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      onConfirm: () => {
+        setTasks(prev => prev.filter(t => t.id !== id));
+        showToast('Task deleted', 'info', {
+          label: 'Undo',
+          onClick: () => {
+            setTasks(prev => [...prev, taskToDelete]);
+            showToast('Task restored');
+          }
+        });
+        setConfirmDialog(null);
       }
     });
   }, [tasks, showToast]);
@@ -411,7 +433,7 @@ function App() {
 
   // Notes Actions
   const handleAddNote = useCallback(() => {
-    const newId = `n_${Date.now()}`;
+    const newId = crypto.randomUUID();
     const newNote: Note = { id: newId, title: '', content: '', color: 'default', pinned: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     setNotes(prev => [newNote, ...prev]);
     return newId;
@@ -425,12 +447,21 @@ function App() {
     const noteToDelete = notes.find(n => n.id === id);
     if (!noteToDelete) return;
 
-    setNotes(prev => prev.filter(n => n.id !== id));
-    showToast('Note deleted', 'info', {
-      label: 'Undo',
-      onClick: () => {
-        setNotes(prev => [noteToDelete, ...prev]);
-        showToast('Note restored');
+    setConfirmDialog({
+      title: 'Delete Note',
+      message: `Are you sure you want to delete "${noteToDelete.title || 'Untitled Note'}"?`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      onConfirm: () => {
+        setNotes(prev => prev.filter(n => n.id !== id));
+        showToast('Note deleted', 'info', {
+          label: 'Undo',
+          onClick: () => {
+            setNotes(prev => [noteToDelete, ...prev]);
+            showToast('Note restored');
+          }
+        });
+        setConfirmDialog(null);
       }
     });
   }, [notes, showToast]);
@@ -529,7 +560,61 @@ function App() {
 
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
-  const isAnyModalOpen = isTaskModalOpen || isHelpOpen || isCommandPaletteOpen;
+  // Data Export
+  const handleExportData = useCallback(() => {
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      tasks,
+      notes,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `auradesk-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Data exported successfully');
+  }, [tasks, notes, showToast]);
+
+  // Data Import
+  const handleImportData = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+        if (!data.tasks || !Array.isArray(data.tasks) || !data.notes || !Array.isArray(data.notes)) {
+          showToast('Invalid backup file — missing tasks or notes data.', 'error');
+          return;
+        }
+        setConfirmDialog({
+          title: 'Import Data',
+          message: `This will replace all your current data with ${data.tasks.length} tasks and ${data.notes.length} notes from the backup. This cannot be undone.`,
+          confirmLabel: 'Import',
+          variant: 'warning',
+          onConfirm: () => {
+            setTasks(data.tasks);
+            setNotes(data.notes);
+            showToast(`Imported ${data.tasks.length} tasks and ${data.notes.length} notes`);
+            setConfirmDialog(null);
+          }
+        });
+      } catch {
+        showToast('Failed to read backup file — invalid JSON.', 'error');
+      }
+    };
+    reader.readAsText(file);
+    // Reset input so same file can be re-imported
+    e.target.value = '';
+  }, [showToast]);
+
+  const isAnyModalOpen = isTaskModalOpen || isHelpOpen || isCommandPaletteOpen || !!confirmDialog;
 
   // Prevent body scroll when modals are open
   useEffect(() => {
@@ -564,6 +649,8 @@ function App() {
           onOpenDrawer={() => setIsMobileDrawerOpen(true)}
           onCloseDrawer={() => setIsMobileDrawerOpen(false)}
           onToggleFocusMode={() => setFocusMode(prev => !prev)}
+          onExportData={handleExportData}
+          onImportData={() => importFileRef.current?.click()}
           tasks={activeTasks}
           onEditTask={handleEditTask}
           onNavigateToTasks={() => handleViewChange('TASKS')}
@@ -644,6 +731,26 @@ function App() {
           const newId = handleAddNote();
           handleViewNote(newId);
         }}
+      />
+
+      <ConfirmDialog
+        isOpen={!!confirmDialog}
+        title={confirmDialog?.title || ''}
+        message={confirmDialog?.message || ''}
+        confirmLabel={confirmDialog?.confirmLabel}
+        variant={confirmDialog?.variant}
+        onConfirm={confirmDialog?.onConfirm || (() => { })}
+        onCancel={() => setConfirmDialog(null)}
+      />
+
+      {/* Hidden file input for data import */}
+      <input
+        ref={importFileRef}
+        type="file"
+        accept=".json"
+        onChange={handleImportData}
+        className="hidden"
+        aria-hidden="true"
       />
 
       <HelpModal

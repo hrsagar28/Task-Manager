@@ -136,14 +136,13 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
         'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'del',
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'ul', 'ol', 'li', 'blockquote', 'pre', 'code',
-        'a', 'img', 'hr', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+        'a', 'hr', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
         'span', 'div', 'sup', 'sub', 'details', 'summary',
         'input' // for GFM task lists
       ]);
 
       const ALLOWED_ATTRS: Record<string, Set<string>> = {
         'a': new Set(['href', 'title', 'target', 'rel']),
-        'img': new Set(['src', 'alt', 'title', 'width', 'height']),
         'input': new Set(['type', 'checked', 'disabled']),
         'td': new Set(['align']),
         'th': new Set(['align']),

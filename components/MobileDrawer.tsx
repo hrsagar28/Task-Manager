@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { ViewState } from '../types';
-import { X, Search, HelpCircle, Moon, Sun, Crosshair } from './Icons';
+import { X, Search, HelpCircle, Moon, Sun, Crosshair, Download, Upload } from './Icons';
 
 interface MobileDrawerProps {
     isOpen: boolean;
@@ -12,10 +12,12 @@ interface MobileDrawerProps {
     focusMode: boolean;
     onToggleFocusMode: () => void;
     currentView: ViewState;
+    onExportData?: () => void;
+    onImportData?: () => void;
 }
 
 export const MobileDrawer: React.FC<MobileDrawerProps> = ({
-    isOpen, onClose, isDark, onToggleTheme, onOpenCommandPalette, onOpenHelp, focusMode, onToggleFocusMode
+    isOpen, onClose, isDark, onToggleTheme, onOpenCommandPalette, onOpenHelp, focusMode, onToggleFocusMode, onExportData, onImportData
 }) => {
     const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -69,6 +71,18 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
             subtitle: 'View all shortcuts',
             action: () => { onOpenHelp(); onClose(); },
         },
+        ...(onExportData ? [{
+            icon: <Download className="w-5 h-5" />,
+            label: 'Export Data',
+            subtitle: 'Download a backup (JSON)',
+            action: () => { onExportData(); onClose(); },
+        }] : []),
+        ...(onImportData ? [{
+            icon: <Upload className="w-5 h-5" />,
+            label: 'Import Data',
+            subtitle: 'Restore from a backup',
+            action: () => { onImportData(); onClose(); },
+        }] : []),
     ];
 
     return (
