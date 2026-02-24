@@ -124,8 +124,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
 
             {/* Quick-Nav Month/Year Picker Dropdown */}
             {showMonthPicker && (
-              <div className="!absolute top-[120%] left-0 w-[calc(100vw-3rem)] max-w-[320px] md:w-[340px] md:max-w-none z-50 rounded-[28px] p-5 shadow-2xl animate-scale-in origin-top-left flex flex-col gap-5 volumetric-surface border border-white/20 dark:border-white/10"
-                style={{ background: 'var(--bg-app)' }}>
+              <div className="!absolute top-[120%] left-0 w-[calc(100vw-3rem)] max-w-[320px] md:w-[340px] md:max-w-none z-50 rounded-[28px] p-5 shadow-2xl animate-scale-in origin-top-left flex flex-col gap-5 bg-[#fcfcfc] dark:bg-[#1a1a1c] border border-black/5 dark:border-white/10">
                 {/* Year Selector row */}
                 <div className="flex items-center justify-between gap-1">
                   <button onClick={() => setPickerYear(y => y - 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover-surface text-theme-tertiary transition-colors">
