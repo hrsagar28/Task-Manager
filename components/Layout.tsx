@@ -74,7 +74,7 @@ export const Layout: React.FC<LayoutProps> = ({
       </div>
 
       {/* Sidebar Navigation (Desktop) */}
-      <aside className={`hidden md:flex relative z-20 flex-col volumetric-surface rounded-[28px] m-4 mr-0 h-[calc(100vh-2rem)] transition-all duration-500 ease-smooth ${isSidebarCollapsed ? 'w-[96px] py-6 px-3 items-center' : 'w-80 p-6'
+      <aside className={`hidden md:flex relative z-20 flex-col volumetric-surface rounded-[28px] m-4 mr-0 h-[calc(100dvh-2rem)] transition-all duration-500 ease-smooth ${isSidebarCollapsed ? 'w-[96px] py-6 px-3 items-center' : 'w-80 p-6'
         } ${isFocusMode ? 'opacity-30 blur-[2px] hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'}`}>
 
         <div className={`flex items-center gap-4 mb-12 w-full ${isSidebarCollapsed ? 'justify-center px-0' : 'px-2'}`}>
@@ -265,73 +265,73 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
       </aside>
 
-      <main id="main-content" className="relative z-10 flex-1 overflow-y-auto pb-28 md:pb-0 pt-safe h-full no-scrollbar">
-        {/* Mobile Top Bar */}
-        <div className="md:hidden flex items-center justify-between px-4 pt-4 pb-2">
-          <div className="flex items-center gap-3">
-            <div className="volumetric-btn w-9 h-9 rounded-[12px] flex items-center justify-center">
-              <span className="font-bold text-sm bg-gradient-to-b from-slate-700 to-slate-500 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">A</span>
-            </div>
-            <h1 className="text-base font-semibold text-theme-primary">AuraDesk</h1>
+      {/* Mobile Top Bar */}
+      <div className="md:hidden z-30 shrink-0 flex items-center justify-between px-4 pt-safe pt-4 pb-2">
+        <div className="flex items-center gap-3">
+          <div className="volumetric-btn w-9 h-9 rounded-[12px] flex items-center justify-center">
+            <span className="font-bold text-sm bg-gradient-to-b from-slate-700 to-slate-500 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">A</span>
           </div>
-          <div className="flex items-center gap-2">
-            {/* Search button — opens command palette */}
-            <button
-              onClick={onOpenCommandPalette}
-              className="volumetric-btn w-10 h-10 rounded-[14px] flex items-center justify-center text-theme-tertiary hover:text-theme-secondary transition-colors"
-              aria-label="Search"
-            >
-              <Search className="w-[18px] h-[18px]" />
-            </button>
-
-            {/* Notification Bell (mobile) */}
-            {tasks && onEditTask && onNavigateToTasks && (
-              <NotificationPanel
-                tasks={tasks}
-                onEditTask={onEditTask}
-                onNavigateToTasks={onNavigateToTasks}
-              />
-            )}
-
-            {/* Theme Toggle */}
-            {onToggleTheme && (
-              <button
-                onClick={onToggleTheme}
-                className="volumetric-btn w-10 h-10 rounded-[14px] flex items-center justify-center text-theme-tertiary hover:text-theme-secondary transition-colors"
-                aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              >
-                {isDark ? (
-                  <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-                  </svg>
-                ) : (
-                  <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                  </svg>
-                )}
-              </button>
-            )}
-
-            {/* More / Drawer button */}
-            {onOpenDrawer && (
-              <button
-                onClick={onOpenDrawer}
-                className="volumetric-btn w-10 h-10 rounded-[14px] flex items-center justify-center text-theme-tertiary hover:text-theme-secondary transition-colors"
-                aria-label="More options"
-              >
-                <MoreHorizontal className="w-[18px] h-[18px]" />
-              </button>
-            )}
-          </div>
+          <h1 className="text-base font-semibold text-theme-primary">AuraDesk</h1>
         </div>
+        <div className="flex items-center gap-2">
+          {/* Search button — opens command palette */}
+          <button
+            onClick={onOpenCommandPalette}
+            className="volumetric-btn w-10 h-10 rounded-[14px] flex items-center justify-center text-theme-tertiary hover:text-theme-secondary transition-colors"
+            aria-label="Search"
+          >
+            <Search className="w-[18px] h-[18px]" />
+          </button>
 
-        <div className="max-w-[1200px] mx-auto p-4 md:p-8 min-h-full flex flex-col">
+          {/* Notification Bell (mobile) */}
+          {tasks && onEditTask && onNavigateToTasks && (
+            <NotificationPanel
+              tasks={tasks}
+              onEditTask={onEditTask}
+              onNavigateToTasks={onNavigateToTasks}
+            />
+          )}
+
+          {/* Theme Toggle */}
+          {onToggleTheme && (
+            <button
+              onClick={onToggleTheme}
+              className="volumetric-btn w-10 h-10 rounded-[14px] flex items-center justify-center text-theme-tertiary hover:text-theme-secondary transition-colors"
+              aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDark ? (
+                <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                </svg>
+              ) : (
+                <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              )}
+            </button>
+          )}
+
+          {/* More / Drawer button */}
+          {onOpenDrawer && (
+            <button
+              onClick={onOpenDrawer}
+              className="volumetric-btn w-10 h-10 rounded-[14px] flex items-center justify-center text-theme-tertiary hover:text-theme-secondary transition-colors"
+              aria-label="More options"
+            >
+              <MoreHorizontal className="w-[18px] h-[18px]" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <main id="main-content" className="relative z-10 flex-1 overflow-y-auto pb-28 md:pb-0 h-full no-scrollbar">
+        <div className="max-w-[1200px] mx-auto p-4 md:p-8 min-h-full flex flex-col pt-2 md:pt-8">
           {children}
         </div>
       </main>
 
       {/* Bottom Navigation (Mobile) - Glass Pill */}
-      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 volumetric-surface rounded-t-[28px] px-1 transition-all duration-700 ${isFocusMode ? 'opacity-40 blur-sm hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'}`} style={{ paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}>
+      <nav className={`md:hidden absolute bottom-0 left-0 right-0 z-40 volumetric-surface rounded-t-[28px] px-1 transition-all duration-700 ${isFocusMode ? 'opacity-40 blur-sm hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'}`} style={{ paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}>
         <div className="flex justify-around items-center h-[64px]">
           <NavButton
             active={currentView === 'DASHBOARD'}

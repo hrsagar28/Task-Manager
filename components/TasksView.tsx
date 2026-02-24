@@ -137,7 +137,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
   };
 
   return (
-    <div className="animate-fade-in flex flex-col h-[calc(100vh-10rem)] md:h-[calc(100vh-4rem)] relative">
+    <div className="animate-fade-in flex flex-col h-[calc(100dvh-10rem)] md:h-[calc(100dvh-4rem)] relative">
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-end mb-6 opacity-0 animate-slide-up">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight flex items-center gap-4 text-theme-primary">
