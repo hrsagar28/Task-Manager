@@ -64,7 +64,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
     return () => { if (deleteDisarmRef.current) clearTimeout(deleteDisarmRef.current); };
   }, [pendingDeleteId]);
 
-  const selectedNoteId = activeNoteId || (notes.length > 0 ? notes[0].id : null);
+  const selectedNoteId = activeNoteId;
   const selectedNote = notes.find(n => n.id === selectedNoteId) || null;
 
   const filteredNotes = notes.filter(n =>
@@ -291,7 +291,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
   };
 
   return (
-    <div className="animate-fade-in flex flex-col md:flex-row gap-4 md:gap-6 h-[calc(100vh-10rem)] md:h-[calc(100vh-4rem)]">
+    <div className="animate-fade-in flex flex-col md:flex-row gap-4 md:gap-6 h-[calc(100dvh-10rem)] md:h-[calc(100dvh-4rem)]" style={{ height: 'calc(100dvh - 10rem)' }}>
       {/* Sidebar List - Hidden on mobile when a note is selected */}
       <GlassCard className={`${selectedNote ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-64 lg:w-80 h-full shrink-0`}>
         <div className="flex items-center justify-between mb-8 opacity-0 animate-slide-up">
@@ -335,14 +335,46 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
       <GlassCard className={`${!selectedNote && notes.length > 0 ? 'hidden md:flex' : 'flex'} flex-1 flex-col h-full transition-colors duration-700 ease-smooth ${selectedNote ? (NOTE_COLORS.find(c => c.id === selectedNote.color)?.className || '') : ''}`}>
         {selectedNote ? (
           <div key={selectedNote.id} className="flex flex-col h-full animate-fade-in p-2">
-            <button
-              onClick={() => onSelectNote(null)}
-              className="md:hidden flex items-center gap-2 mb-4 text-sm font-semibold text-theme-secondary hover:text-theme-primary transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              <span>All Notes</span>
-            </button>
-            <div className="flex justify-between items-start mb-4 border-b border-theme-divider pb-4 relative">
+            {/* Mobile top row: back button + action buttons */}
+            <div className="md:hidden flex items-center justify-between mb-3">
+              <button
+                onClick={() => onSelectNote(null)}
+                className="flex items-center gap-2 text-sm font-semibold text-theme-secondary hover:text-theme-primary transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>All Notes</span>
+              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => handleUpdateField('pinned', !selectedNote.pinned)}
+                  className={`volumetric-btn w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ${selectedNote.pinned ? 'text-blue-500 scale-110' : 'text-theme-tertiary hover:scale-105'}`}
+                  title={selectedNote.pinned ? 'Unpin Note' : 'Pin Note'}
+                >
+                  <Pin className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDeleteClick(selectedNote.id)}
+                  className={`transition-all duration-300 flex items-center justify-center ${pendingDeleteId === selectedNote.id
+                    ? 'volumetric-btn bg-red-500/20 !border-red-500/50 text-red-600 dark:text-red-400 px-3 h-9 rounded-xl gap-1.5 hover:bg-red-500/30 ring-2 ring-red-500/20'
+                    : 'volumetric-input w-9 h-9 rounded-full text-theme-tertiary hover:text-red-500'
+                    }`}
+                  title={pendingDeleteId === selectedNote.id ? "Confirm Delete?" : "Delete Note"}
+                >
+                  <Trash className="w-4 h-4" />
+                  {pendingDeleteId === selectedNote.id && <span className="text-[10px] font-bold">Delete</span>}
+                </button>
+                {pendingDeleteId === selectedNote.id && (
+                  <button
+                    onClick={() => setPendingDeleteId(null)}
+                    className="volumetric-input w-9 h-9 rounded-full text-theme-tertiary hover:text-theme-secondary"
+                    title="Cancel"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4 border-b border-theme-divider pb-4 relative gap-3">
               <div className="flex-1">
                 <input
                   type="text"
@@ -412,7 +444,8 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-2 ml-4">
+              {/* Desktop-only pin/delete buttons (mobile gets them in top row above) */}
+              <div className="hidden md:flex items-center gap-2 ml-4 shrink-0">
                 <button
                   onClick={() => handleUpdateField('pinned', !selectedNote.pinned)}
                   className={`volumetric-btn w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${selectedNote.pinned ? 'text-blue-500 scale-110' : 'text-theme-tertiary hover:scale-105'}`}

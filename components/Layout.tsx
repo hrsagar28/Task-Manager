@@ -331,7 +331,7 @@ export const Layout: React.FC<LayoutProps> = ({
       </main>
 
       {/* Bottom Navigation (Mobile) - Glass Pill */}
-      <nav className={`md:hidden fixed bottom-4 left-3 right-3 z-40 volumetric-surface rounded-[28px] pb-safe px-1 transition-all duration-700 ${isFocusMode ? 'opacity-40 blur-sm hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'}`}>
+      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 volumetric-surface rounded-t-[28px] px-1 transition-all duration-700 ${isFocusMode ? 'opacity-40 blur-sm hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'}`} style={{ paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}>
         <div className="flex justify-around items-center h-[64px]">
           <NavButton
             active={currentView === 'DASHBOARD'}
