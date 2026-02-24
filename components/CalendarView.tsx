@@ -110,7 +110,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
       {/* Calendar Widget */}
       <GlassCard className="flex-1 lg:max-w-[420px] h-fit">
         <div className="flex items-center justify-between mb-8 opacity-0 animate-slide-up relative z-30">
-          <div className="relative" ref={pickerRef}>
+          <div className="relative" ref={pickerRef} style={{ isolation: 'isolate' }}>
             <button
               onClick={() => setShowMonthPicker(!showMonthPicker)}
               className="flex items-center gap-2 hover:opacity-70 transition-opacity"
@@ -124,7 +124,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
 
             {/* Quick-Nav Month/Year Picker Dropdown */}
             {showMonthPicker && (
-              <div className="!absolute top-[120%] left-0 w-[calc(100vw-3rem)] max-w-[320px] md:w-[340px] md:max-w-none z-50 rounded-[28px] p-5 shadow-2xl animate-scale-in origin-top-left flex flex-col gap-5 bg-[#fcfcfc] dark:bg-[#1a1a1c] border border-black/5 dark:border-white/10">
+              <div
+                className="!absolute top-[120%] left-0 w-[calc(100vw-3rem)] max-w-[320px] md:w-[340px] md:max-w-none z-50 rounded-[28px] p-5 shadow-2xl animate-scale-in origin-top-left flex flex-col gap-5 border border-black/5 dark:border-white/10"
+                style={{
+                  backgroundColor: 'var(--flyout-bg, #ffffff)',
+                  isolation: 'isolate',
+                  opacity: 1,
+                  backdropFilter: 'none',
+                  WebkitBackdropFilter: 'none',
+                }}
+              >
                 {/* Year Selector row */}
                 <div className="flex items-center justify-between gap-1">
                   <button onClick={() => setPickerYear(y => y - 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-theme-tertiary transition-colors">
