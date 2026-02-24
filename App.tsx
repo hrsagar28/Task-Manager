@@ -76,8 +76,6 @@ function App() {
     variant?: 'danger' | 'warning'; onConfirm: () => void;
   } | null>(null);
 
-  // Hidden file input for import
-  const importFileRef = useRef<HTMLInputElement>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Auto-collapse sidebar on tablet-sized screens
@@ -594,86 +592,6 @@ function App() {
 
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
-  // Data Export with integrity checksum
-  const handleExportData = useCallback(async () => {
-    const payload = {
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      tasks,
-      notes,
-    };
-    const payloadStr = JSON.stringify(payload);
-    // Compute SHA-256 checksum for integrity verification
-    let checksum = '';
-    try {
-      const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payloadStr));
-      checksum = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-    } catch { /* crypto.subtle unavailable (non-HTTPS) — skip checksum */ }
-    const data = { ...payload, checksum };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `auradesk-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('Data exported successfully');
-  }, [tasks, notes, showToast]);
-
-  // Data Import
-  const handleImportData = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const data = JSON.parse(event.target?.result as string);
-        if (!data.tasks || !Array.isArray(data.tasks) || !data.notes || !Array.isArray(data.notes)) {
-          showToast('Invalid backup file — missing tasks or notes data.', 'error');
-          return;
-        }
-        // Verify checksum integrity if present
-        const doImport = () => {
-          setTasks(data.tasks);
-          setNotes(data.notes);
-          showToast(`Imported ${data.tasks.length} tasks and ${data.notes.length} notes`);
-          setConfirmDialog(null);
-        };
-
-        const verifyAndImport = async () => {
-          let checksumValid = true;
-          if (data.checksum) {
-            try {
-              const { checksum, ...payload } = data;
-              const payloadStr = JSON.stringify(payload);
-              const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payloadStr));
-              const computed = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-              checksumValid = computed === checksum;
-            } catch { checksumValid = true; /* Can't verify — skip */ }
-          }
-
-          const warningPrefix = !checksumValid ? '⚠️ Checksum mismatch — this file may have been modified. ' : '';
-          setConfirmDialog({
-            title: 'Import Data',
-            message: `${warningPrefix}This will replace all your current data with ${data.tasks.length} tasks and ${data.notes.length} notes from the backup. This cannot be undone.`,
-            confirmLabel: 'Import',
-            variant: !checksumValid ? 'danger' : 'warning',
-            onConfirm: doImport
-          });
-        };
-        verifyAndImport();
-      } catch {
-        showToast('Failed to read backup file — invalid JSON.', 'error');
-      }
-    };
-    reader.readAsText(file);
-    // Reset input so same file can be re-imported
-    e.target.value = '';
-  }, [showToast]);
-
   const isAnyModalOpen = isTaskModalOpen || isHelpOpen || isCommandPaletteOpen || !!confirmDialog;
 
   // Prevent body scroll when modals are open
@@ -709,8 +627,6 @@ function App() {
           onOpenDrawer={() => setIsMobileDrawerOpen(true)}
           onCloseDrawer={() => setIsMobileDrawerOpen(false)}
           onToggleFocusMode={() => setFocusMode(prev => !prev)}
-          onExportData={handleExportData}
-          onImportData={() => importFileRef.current?.click()}
           archiveRetentionDays={archiveRetentionDays}
           onSetArchiveRetention={setArchiveRetentionDays}
           tasks={activeTasks}
@@ -803,16 +719,6 @@ function App() {
         variant={confirmDialog?.variant}
         onConfirm={confirmDialog?.onConfirm || (() => { })}
         onCancel={() => setConfirmDialog(null)}
-      />
-
-      {/* Hidden file input for data import */}
-      <input
-        ref={importFileRef}
-        type="file"
-        accept=".json"
-        onChange={handleImportData}
-        className="hidden"
-        aria-hidden="true"
       />
 
       <HelpModal

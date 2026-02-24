@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ViewState } from '../types';
-import { X, Search, HelpCircle, Moon, Sun, Crosshair, Download, Upload } from './Icons';
+import { X, Search, HelpCircle, Moon, Sun, Crosshair } from './Icons';
 import { APP_VERSION } from '../version';
 
 interface MobileDrawerProps {
@@ -14,14 +14,12 @@ interface MobileDrawerProps {
     focusMode: boolean;
     onToggleFocusMode: () => void;
     currentView: ViewState;
-    onExportData?: () => void;
-    onImportData?: () => void;
     archiveRetentionDays?: number;
     onSetArchiveRetention?: (days: number) => void;
 }
 
 export const MobileDrawer: React.FC<MobileDrawerProps> = ({
-    isOpen, onClose, isDark, onToggleTheme, onOpenCommandPalette, onOpenHelp, focusMode, onToggleFocusMode, onExportData, onImportData, archiveRetentionDays = 90, onSetArchiveRetention
+    isOpen, onClose, isDark, onToggleTheme, onOpenCommandPalette, onOpenHelp, focusMode, onToggleFocusMode, archiveRetentionDays = 90, onSetArchiveRetention
 }) => {
     const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -75,18 +73,6 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
             subtitle: 'View all shortcuts',
             action: () => { onOpenHelp(); onClose(); },
         },
-        ...(onExportData ? [{
-            icon: <Download className="w-5 h-5" />,
-            label: 'Export Data',
-            subtitle: 'Download a backup (JSON)',
-            action: () => { onExportData(); onClose(); },
-        }] : []),
-        ...(onImportData ? [{
-            icon: <Upload className="w-5 h-5" />,
-            label: 'Import Data',
-            subtitle: 'Restore from a backup',
-            action: () => { onImportData(); onClose(); },
-        }] : []),
     ];
 
     const RETENTION_OPTIONS = [

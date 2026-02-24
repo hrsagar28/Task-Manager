@@ -1,6 +1,6 @@
 import React from 'react';
 import { ViewState, Task } from '../types';
-import { LayoutDashboard, Calendar, FileText, ListTodo, Plus, HelpCircle, ChevronLeft, ChevronRight, Search, MoreHorizontal, Download, Upload, Sun, Moon } from './Icons';
+import { LayoutDashboard, Calendar, FileText, ListTodo, Plus, HelpCircle, ChevronLeft, ChevronRight, Search, MoreHorizontal, Sun, Moon } from './Icons';
 import { MobileDrawer } from './MobileDrawer';
 import { NotificationPanel } from './NotificationPanel';
 
@@ -26,8 +26,6 @@ interface LayoutProps {
   onEditTask?: (task: Task) => void;
   onNavigateToTasks?: () => void;
   // Data management
-  onExportData?: () => void;
-  onImportData?: () => void;
   // Archive retention
   archiveRetentionDays?: number;
   onSetArchiveRetention?: (days: number) => void;
@@ -53,8 +51,6 @@ export const Layout: React.FC<LayoutProps> = ({
   tasks,
   onEditTask,
   onNavigateToTasks,
-  onExportData,
-  onImportData,
   archiveRetentionDays,
   onSetArchiveRetention
 }) => {
@@ -216,28 +212,6 @@ export const Layout: React.FC<LayoutProps> = ({
                   <HelpCircle className="w-5 h-5 shrink-0" />
                   <span className="font-semibold text-sm tracking-tight">Keyboard Shortcuts</span>
                 </button>
-                {onExportData && (
-                  <button
-                    onClick={onExportData}
-                    className="volumetric-btn w-full py-3.5 px-5 rounded-[20px] flex items-center gap-4 transition-colors hover:text-theme-primary"
-                    style={{ color: 'var(--text-tertiary)' }}
-                    title="Export all data as JSON"
-                  >
-                    <Download className="w-5 h-5 shrink-0" />
-                    <span className="font-semibold text-sm tracking-tight">Export Data</span>
-                  </button>
-                )}
-                {onImportData && (
-                  <button
-                    onClick={onImportData}
-                    className="volumetric-btn w-full py-3.5 px-5 rounded-[20px] flex items-center gap-4 transition-colors hover:text-theme-primary"
-                    style={{ color: 'var(--text-tertiary)' }}
-                    title="Import data from a JSON backup"
-                  >
-                    <Upload className="w-5 h-5 shrink-0" />
-                    <span className="font-semibold text-sm tracking-tight">Import Data</span>
-                  </button>
-                )}
               </div>
               {onToggleSidebar && (
                 <button onClick={onToggleSidebar} className="volumetric-input w-full py-2.5 rounded-xl text-[11px] font-semibold uppercase tracking-wider text-theme-tertiary flex items-center justify-center gap-2 hover:text-theme-primary transition-colors">
@@ -367,8 +341,6 @@ export const Layout: React.FC<LayoutProps> = ({
           focusMode={isFocusMode}
           onToggleFocusMode={onToggleFocusMode}
           currentView={currentView}
-          onExportData={onExportData}
-          onImportData={onImportData}
           archiveRetentionDays={archiveRetentionDays}
           onSetArchiveRetention={onSetArchiveRetention}
         />
