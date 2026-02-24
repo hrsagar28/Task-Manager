@@ -410,14 +410,10 @@ const SidebarButton = ({ active, onClick, icon, label, shortcut, badge, collapse
     onClick={onClick}
     title={collapsed ? `${label}${shortcut ? ` (${shortcut})` : ''}` : undefined}
     className={`relative w-full flex items-center gap-4 transition-all duration-300 ${collapsed
-      ? `justify-center w-14 h-14 mx-auto rounded-[20px] ${active ? 'volumetric-btn-primary text-emerald-600 dark:text-emerald-400' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`
-      : `px-5 py-4 rounded-[20px] ${active ? 'volumetric-btn-primary text-emerald-600 dark:text-emerald-400' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`
+      ? `justify-center w-14 h-14 mx-auto rounded-[20px] ${active ? 'volumetric-btn-primary text-theme-primary' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`
+      : `px-5 py-4 rounded-[20px] ${active ? 'volumetric-btn-primary text-theme-primary' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`
       }`}
   >
-    {/* Left accent bar for active state */}
-    {active && !collapsed && (
-      <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
-    )}
     <div className="relative">
       {icon}
       {badge && badge > 0 ? (
