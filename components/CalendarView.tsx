@@ -250,8 +250,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
                   className={`
                     relative aspect-square flex flex-col items-center justify-center rounded-2xl transition-all duration-300 ease-smooth font-semibold text-sm opacity-0 animate-scale-in
                     ${!dayObj.isCurrentMonth ? 'text-theme-muted' : 'text-theme-secondary'}
-                    ${isSelected ? 'volumetric-btn volumetric-btn-primary !text-theme-primary scale-110 z-10' : 'volumetric-input hover-surface hover:scale-105'}
-                    ${isToday && !isSelected ? 'ring-2 ring-emerald-500/30 dark:ring-emerald-400/25' : ''}
+                    ${isSelected
+                      ? 'volumetric-btn volumetric-btn-primary !text-theme-primary scale-105 z-10'
+                      : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.04] hover:scale-105 active:scale-95'}
+                    ${isToday && !isSelected ? 'bg-emerald-500/[0.06] dark:bg-emerald-400/[0.08] text-emerald-600 dark:text-emerald-400' : ''}
                   `}
                 >
                   <span>{dayObj.date.getDate()}</span>

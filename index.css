@@ -268,7 +268,7 @@
   --scrollbar-border: rgba(255, 255, 255, 0.3);
 
   /* Overlay / Backdrop for modals */
-  --modal-backdrop: rgba(100, 116, 139, 0.2);
+  --modal-backdrop: rgba(200, 200, 200, 0.15);
 }
 
 /* ============================== */
@@ -365,7 +365,7 @@ html.dark {
   --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
   --scrollbar-border: rgba(255, 255, 255, 0.05);
 
-  --modal-backdrop: rgba(0, 0, 0, 0.5);
+  --modal-backdrop: rgba(0, 0, 0, 0.3);
 }
 
 /* Base Setup */
@@ -431,10 +431,9 @@ body::after {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(600px ellipse at var(--mouse-x) var(--mouse-y),
+  background: radial-gradient(600px ellipse at var(--mouse-x, 50%) var(--mouse-y, 50%),
       var(--specular-intensity) 0%,
       transparent 70%);
-  background-attachment: fixed;
   pointer-events: none;
   z-index: 0;
   mix-blend-mode: var(--specular-blend);
@@ -443,6 +442,25 @@ body::after {
 .volumetric-surface>* {
   position: relative;
   z-index: 1;
+}
+
+.volumetric-chip {
+  position: relative;
+  background: linear-gradient(180deg, var(--glass-surface-from) 0%, var(--glass-surface-to) 100%);
+  border: 0.5px solid var(--glass-border);
+  box-shadow:
+    0 0.5px 0 0 var(--edge-top) inset,
+    0 1px 2px -1px rgba(0, 0, 0, 0.03),
+    0 2px 8px -4px rgba(0, 0, 0, 0.04);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.volumetric-chip:hover {
+  box-shadow:
+    0 0.5px 0 0 var(--edge-top) inset,
+    0 2px 4px -1px rgba(0, 0, 0, 0.04),
+    0 4px 16px -4px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
 }
 
 /* Level 2: Interactive raised elements (buttons, pills) */
@@ -502,6 +520,25 @@ body::after {
   background: var(--glass-input-focus-bg);
   border-color: var(--input-focus-border);
   box-shadow: var(--shadow-input-focus);
+}
+
+.glass-shelf {
+  position: relative;
+}
+
+.glass-shelf::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 0.5px;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      var(--edge-glow) 20%,
+      var(--edge-glow) 80%,
+      transparent 100%);
+  z-index: 10;
 }
 
 /* Seamless View Transition for Theme Toggle */

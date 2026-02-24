@@ -201,13 +201,24 @@ function App() {
 
   // Dynamic Depth Mapping (Lighting)
   useEffect(() => {
+    let rafId: number;
     const handleMouseMove = (e: MouseEvent) => {
-      // Maps the mouse coordinates globally so that radial gradients inside volumetric elements follow the cursor
-      document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
-      document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        document.querySelectorAll('.volumetric-surface').forEach(el => {
+          const rect = (el as HTMLElement).getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          (el as HTMLElement).style.setProperty('--mouse-x', `${x}px`);
+          (el as HTMLElement).style.setProperty('--mouse-y', `${y}px`);
+        });
+      });
     };
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   const showToast = useCallback((message: string, type: 'success' | 'info' | 'error' = 'success', action?: { label: string, onClick: () => void }) => {

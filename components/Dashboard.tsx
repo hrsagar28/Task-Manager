@@ -393,7 +393,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
 const StatPill: React.FC<{ title: string, value: number, icon: React.ReactNode, isAlert?: boolean, delay: number }> = ({ title, value, icon, isAlert, delay }) => (
   <div
-    className={`volumetric-surface rounded-[20px] p-4 flex items-center justify-between transition-transform duration-500 ease-smooth hover:-translate-y-1 ${isAlert ? '!border-red-500/30 bg-red-500/5' : ''}`}
+    className={`volumetric-chip rounded-[20px] p-4 flex items-center justify-between transition-transform duration-500 ease-smooth hover:-translate-y-1 ${isAlert ? '!border-red-500/30 bg-red-500/5' : ''}`}
     style={{ animationDelay: `${delay}ms` }}
   >
     <div className="flex items-center gap-4">
