@@ -101,7 +101,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
               className="flex items-center gap-2 hover:opacity-70 transition-opacity"
               aria-label="Select month and year"
             >
-              <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-theme-primary whitespace-nowrap">
+              <h2 className="text-lg md:text-xl font-semibold tracking-tight text-theme-primary">
                 {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
               </h2>
               <ChevronDown className={`w-5 h-5 text-theme-tertiary transition-transform duration-300 ${showMonthPicker ? 'rotate-180' : ''}`} />
@@ -111,8 +111,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
             {showMonthPicker && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowMonthPicker(false)} />
-                <div className="absolute top-[120%] left-0 w-[300px] md:w-[340px] z-50 rounded-[24px] p-5 shadow-2xl animate-scale-in origin-top-left flex flex-col gap-5 volumetric-surface bg-theme-app/95"
-                  style={{ border: '1px solid var(--glass-border)' }}>
+                <div className="fixed md:absolute top-1/4 md:top-[120%] left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 w-[calc(100vw-3rem)] max-w-[320px] md:w-[340px] md:max-w-none z-50 rounded-[28px] p-5 shadow-2xl animate-scale-in origin-center md:origin-top-left flex flex-col gap-5 volumetric-surface bg-theme-app/95 border border-white/20 dark:border-white/10"
+                  style={{ backdropFilter: 'blur(16px)' }}>
                   {/* Year Selector row */}
                   <div className="flex items-center justify-between gap-1">
                     <button onClick={() => setPickerYear(y => y - 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover-surface text-theme-tertiary transition-colors">
