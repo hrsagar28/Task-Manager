@@ -22,6 +22,21 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [pickerYear, setPickerYear] = useState(currentDate.getFullYear());
   const [mobileView, setMobileView] = useState<'week' | 'month'>('week');
+  const pickerRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+        setShowMonthPicker(false);
+      }
+    }
+    if (showMonthPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMonthPicker]);
 
   // Sync picker year when calendar changes externally
   useEffect(() => {
@@ -95,7 +110,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
       {/* Calendar Widget */}
       <GlassCard className="flex-1 lg:max-w-[420px] h-fit">
         <div className="flex items-center justify-between mb-8 opacity-0 animate-slide-up relative z-30">
-          <div className="relative">
+          <div className="relative" ref={pickerRef}>
             <button
               onClick={() => setShowMonthPicker(!showMonthPicker)}
               className="flex items-center gap-2 hover:opacity-70 transition-opacity"
@@ -109,51 +124,48 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
 
             {/* Quick-Nav Month/Year Picker Dropdown */}
             {showMonthPicker && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowMonthPicker(false)} />
-                <div className="fixed md:absolute top-1/4 md:top-[120%] left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 w-[calc(100vw-3rem)] max-w-[320px] md:w-[340px] md:max-w-none z-50 rounded-[28px] p-5 shadow-2xl animate-scale-in origin-center md:origin-top-left flex flex-col gap-5 volumetric-surface bg-theme-app/95 border border-white/20 dark:border-white/10"
-                  style={{ backdropFilter: 'blur(16px)' }}>
-                  {/* Year Selector row */}
-                  <div className="flex items-center justify-between gap-1">
-                    <button onClick={() => setPickerYear(y => y - 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover-surface text-theme-tertiary transition-colors">
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <div className="flex-1 flex justify-center gap-1">
-                      {yearRange.map(y => (
-                        <button
-                          key={y}
-                          onClick={() => setPickerYear(y)}
-                          className={`px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all duration-300 ${pickerYear === y ? 'volumetric-btn volumetric-btn-primary text-theme-primary scale-110 shadow-sm' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`}
-                        >
-                          {y}
-                        </button>
-                      ))}
-                    </div>
-                    <button onClick={() => setPickerYear(y => y + 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover-surface text-theme-tertiary transition-colors">
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
+              <div className="!absolute top-[120%] left-0 w-[calc(100vw-3rem)] max-w-[320px] md:w-[340px] md:max-w-none z-50 rounded-[28px] p-5 shadow-2xl animate-scale-in origin-top-left flex flex-col gap-5 volumetric-surface bg-theme-app/95 border border-white/20 dark:border-white/10"
+                style={{ backdropFilter: 'blur(16px)' }}>
+                {/* Year Selector row */}
+                <div className="flex items-center justify-between gap-1">
+                  <button onClick={() => setPickerYear(y => y - 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover-surface text-theme-tertiary transition-colors">
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <div className="flex-1 flex justify-center gap-1">
+                    {yearRange.map(y => (
+                      <button
+                        key={y}
+                        onClick={() => setPickerYear(y)}
+                        className={`px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all duration-300 ${pickerYear === y ? 'volumetric-btn volumetric-btn-primary text-theme-primary scale-110 shadow-sm' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`}
+                      >
+                        {y}
+                      </button>
+                    ))}
                   </div>
-
-                  {/* Month Grid */}
-                  <div className="grid grid-cols-3 gap-2">
-                    {MONTHS.map((m, i) => {
-                      const isCurrentView = pickerYear === currentDate.getFullYear() && i === currentDate.getMonth();
-                      return (
-                        <button
-                          key={m}
-                          onClick={() => handleMonthSelect(i)}
-                          className={`py-2 rounded-[14px] text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth hover:-translate-y-0.5 active:scale-95 ${isCurrentView
-                            ? 'volumetric-btn volumetric-btn-primary text-theme-primary scale-[1.02]'
-                            : 'volumetric-input text-theme-tertiary hover:text-theme-secondary'
-                            }`}
-                        >
-                          {m}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <button onClick={() => setPickerYear(y => y + 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover-surface text-theme-tertiary transition-colors">
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
-              </>
+
+                {/* Month Grid */}
+                <div className="grid grid-cols-3 gap-2">
+                  {MONTHS.map((m, i) => {
+                    const isCurrentView = pickerYear === currentDate.getFullYear() && i === currentDate.getMonth();
+                    return (
+                      <button
+                        key={m}
+                        onClick={() => handleMonthSelect(i)}
+                        className={`py-2 rounded-[14px] text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth hover:-translate-y-0.5 active:scale-95 ${isCurrentView
+                          ? 'volumetric-btn volumetric-btn-primary text-theme-primary scale-[1.02]'
+                          : 'volumetric-input text-theme-tertiary hover:text-theme-secondary'
+                          }`}
+                      >
+                        {m}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </div>
 
