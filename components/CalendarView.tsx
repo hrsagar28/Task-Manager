@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Task, TaskStatus, TaskPriority } from '../types';
 import { GlassCard } from './GlassCard';
 import { ChevronLeft, ChevronRight, ChevronDown, Circle, CheckCircle, Calendar as CalendarIcon, Plus, Edit2, Trash } from './Icons';
@@ -22,6 +23,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [pickerYear, setPickerYear] = useState(currentDate.getFullYear());
   const [mobileView, setMobileView] = useState<'week' | 'month'>('week');
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const [pickerPos, setPickerPos] = useState<{ top: number; left: number } | null>(null);
   const pickerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,6 +39,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, [showMonthPicker]);
+
+  useEffect(() => {
+    if (showMonthPicker && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPickerPos({
+        top: rect.bottom + 8,
+        left: rect.left,
+      });
+    }
   }, [showMonthPicker]);
 
   // Sync picker year when calendar changes externally
@@ -110,8 +123,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
       {/* Calendar Widget */}
       <GlassCard className="flex-1 lg:max-w-[420px] h-fit">
         <div className="flex items-center justify-between mb-8 opacity-0 animate-slide-up relative z-30">
-          <div className="relative" ref={pickerRef} style={{ isolation: 'isolate' }}>
+          <div className="relative">
             <button
+              ref={triggerRef}
               onClick={() => setShowMonthPicker(!showMonthPicker)}
               className="flex items-center gap-2 hover:opacity-70 transition-opacity"
               aria-label="Select month and year"
@@ -121,60 +135,6 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
               </h2>
               <ChevronDown className={`w-5 h-5 text-theme-tertiary transition-transform duration-300 ${showMonthPicker ? 'rotate-180' : ''}`} />
             </button>
-
-            {/* Quick-Nav Month/Year Picker Dropdown */}
-            {showMonthPicker && (
-              <div
-                className="!absolute top-[120%] left-0 w-[calc(100vw-3rem)] max-w-[320px] md:w-[340px] md:max-w-none z-50 rounded-[28px] p-5 shadow-2xl animate-scale-in origin-top-left flex flex-col gap-5 border border-black/5 dark:border-white/10"
-                style={{
-                  backgroundColor: 'var(--flyout-bg, #ffffff)',
-                  isolation: 'isolate',
-                  opacity: 1,
-                  backdropFilter: 'none',
-                  WebkitBackdropFilter: 'none',
-                }}
-              >
-                {/* Year Selector row */}
-                <div className="flex items-center justify-between gap-1">
-                  <button onClick={() => setPickerYear(y => y - 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-theme-tertiary transition-colors">
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <div className="flex-1 flex justify-center gap-1">
-                    {yearRange.map(y => (
-                      <button
-                        key={y}
-                        onClick={() => setPickerYear(y)}
-                        className={`px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all duration-300 ${pickerYear === y ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 scale-110 shadow-sm' : 'text-theme-tertiary hover:text-theme-secondary hover:bg-black/5 dark:hover:bg-white/5'}`}
-                      >
-                        {y}
-                      </button>
-                    ))}
-                  </div>
-                  <button onClick={() => setPickerYear(y => y + 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-theme-tertiary transition-colors">
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* Month Grid */}
-                <div className="grid grid-cols-3 gap-2">
-                  {MONTHS.map((m, i) => {
-                    const isCurrentView = pickerYear === currentDate.getFullYear() && i === currentDate.getMonth();
-                    return (
-                      <button
-                        key={m}
-                        onClick={() => handleMonthSelect(i)}
-                        className={`py-2 rounded-[14px] text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth hover:-translate-y-0.5 active:scale-95 border border-transparent ${isCurrentView
-                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 scale-[1.02]'
-                          : 'bg-black/5 dark:bg-white/5 text-theme-tertiary hover:text-theme-secondary hover:bg-black/10 dark:hover:bg-white/10'
-                          }`}
-                      >
-                        {m}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="flex gap-2 relative z-20">
@@ -430,6 +390,61 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
           )}
         </div>
       </GlassCard>
+
+      {/* Quick-Nav Month/Year Picker Dropdown Portal */}
+      {showMonthPicker && pickerPos && createPortal(
+        <div
+          ref={pickerRef}
+          className="fixed w-[calc(100vw-3rem)] max-w-[320px] md:w-[340px] md:max-w-none rounded-[28px] p-5 shadow-2xl animate-scale-in origin-top-left flex flex-col gap-5 border border-black/5 dark:border-white/10"
+          style={{
+            top: pickerPos.top,
+            left: pickerPos.left,
+            zIndex: 9999,
+            backgroundColor: 'var(--flyout-bg, #ffffff)',
+          }}
+        >
+          {/* Year Selector row */}
+          <div className="flex items-center justify-between gap-1">
+            <button onClick={() => setPickerYear(y => y - 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-theme-tertiary transition-colors">
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <div className="flex-1 flex justify-center gap-1">
+              {yearRange.map(y => (
+                <button
+                  key={y}
+                  onClick={() => setPickerYear(y)}
+                  className={`px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all duration-300 ${pickerYear === y ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 scale-110 shadow-sm' : 'text-theme-tertiary hover:text-theme-secondary hover:bg-black/5 dark:hover:bg-white/5'}`}
+                >
+                  {y}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => setPickerYear(y => y + 1)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-theme-tertiary transition-colors">
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Month Grid */}
+          <div className="grid grid-cols-3 gap-2">
+            {MONTHS.map((m, i) => {
+              const isCurrentView = pickerYear === currentDate.getFullYear() && i === currentDate.getMonth();
+              return (
+                <button
+                  key={m}
+                  onClick={() => handleMonthSelect(i)}
+                  className={`py-2 rounded-[14px] text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth hover:-translate-y-0.5 active:scale-95 border border-transparent ${isCurrentView
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 scale-[1.02]'
+                    : 'bg-black/5 dark:bg-white/5 text-theme-tertiary hover:text-theme-secondary hover:bg-black/10 dark:hover:bg-white/10'
+                    }`}
+                >
+                  {m}
+                </button>
+              );
+            })}
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
