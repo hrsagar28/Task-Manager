@@ -188,20 +188,29 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
                     <button
                       key={dateStr}
                       onClick={() => setSelectedDate(day)}
-                      className={`snap-center flex flex-col items-center min-w-[56px] min-h-[64px] py-3 px-2 rounded-2xl transition-all duration-300 ${isSelected
-                        ? 'volumetric-surface shadow-sm scale-105'
+                      style={isSelected ? {
+                        boxShadow: '0 0.5px 0 0 var(--edge-top) inset, 0 -0.5px 0 0 var(--edge-bottom) inset, 0 4px 12px -2px rgba(16, 185, 129, 0.15), 0 8px 24px -4px rgba(0,0,0,0.08)',
+                        background: 'linear-gradient(180deg, var(--glass-primary-from), var(--glass-primary-to))'
+                      } : {}}
+                      className={`relative snap-center flex flex-col items-center min-w-[56px] min-h-[64px] py-3 px-2 rounded-2xl transition-all duration-300 ease-smooth ${isSelected
+                        ? 'volumetric-surface scale-[1.08] ring-1 ring-emerald-500/20 z-10'
                         : 'hover-surface'
                         }`}
                     >
-                      <span className="text-[10px] font-medium uppercase tracking-wider text-theme-tertiary">
+                      {isSelected && (
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-4 bg-gradient-to-b from-white/30 to-transparent rounded-full blur-sm pointer-events-none" />
+                      )}
+                      <span className="text-[10px] font-medium uppercase tracking-wider text-theme-tertiary relative z-10">
                         {day.toLocaleDateString('en-US', { weekday: 'short' })}
                       </span>
-                      <span className={`text-lg font-semibold mt-1 ${isToday ? 'text-emerald-500' : isSelected ? 'text-theme-primary' : 'text-theme-secondary'
-                        }`}>
+                      <span className={`text-lg font-semibold mt-1 relative z-10 ${isSelected ? 'text-theme-primary' : 'text-theme-secondary'}`}>
                         {day.getDate()}
                       </span>
+                      {isToday && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_4px_rgba(16,185,129,0.5)] mt-1 relative z-10" />
+                      )}
                       {dayTasks.length > 0 && (
-                        <div className="flex gap-0.5 mt-1.5">
+                        <div className="flex gap-0.5 mt-1.5 relative z-10">
                           {dayTasks.slice(0, 3).map((t, idx) => {
                             const dotColor = t.priority === TaskPriority.URGENT ? 'bg-red-400' : t.priority === TaskPriority.HIGH ? 'bg-orange-400' : 'bg-blue-400';
                             return <div key={idx} className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />;
@@ -246,19 +255,32 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
                     const dateStr = toLocalDateString(dayObj.date);
                     onAddTaskForDate(dateStr);
                   }}
-                  style={{ animationDelay: `${Math.min(50 + (i * 5), 150)}ms` }}
+                  style={{
+                    animationDelay: `${Math.min(50 + (i * 5), 150)}ms`,
+                    ...(isSelected ? {
+                      boxShadow: '0 0.5px 0 0 var(--edge-top) inset, 0 -0.5px 0 0 var(--edge-bottom) inset, 0 4px 12px -2px rgba(16, 185, 129, 0.15), 0 8px 24px -4px rgba(0,0,0,0.08)',
+                      background: 'linear-gradient(180deg, var(--glass-primary-from), var(--glass-primary-to))'
+                    } : {})
+                  }}
                   className={`
                     relative aspect-square flex flex-col items-center justify-center rounded-2xl transition-all duration-300 ease-smooth font-semibold text-sm opacity-0 animate-scale-in
                     ${!dayObj.isCurrentMonth ? 'text-theme-muted' : 'text-theme-secondary'}
                     ${isSelected
-                      ? 'volumetric-btn volumetric-btn-primary !text-theme-primary scale-105 z-10'
+                      ? 'volumetric-surface scale-[1.08] ring-1 ring-emerald-500/20 z-10 !text-theme-primary'
                       : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.04] hover:scale-105 active:scale-95'}
-                    ${isToday && !isSelected ? 'bg-emerald-500/[0.06] dark:bg-emerald-400/[0.08] text-emerald-600 dark:text-emerald-400' : ''}
                   `}
                 >
-                  <span>{dayObj.date.getDate()}</span>
+                  {isSelected && (
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-4 bg-gradient-to-b from-white/30 to-transparent rounded-full blur-sm pointer-events-none" />
+                  )}
+                  <span className="relative z-10">{dayObj.date.getDate()}</span>
+
+                  {isToday && (
+                    <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_4px_rgba(16,185,129,0.5)] relative z-10" />
+                  )}
+
                   {sortedForDots.length > 0 && (
-                    <div className="absolute bottom-1.5 flex items-center gap-0.5 max-h-3 overflow-hidden md:max-h-none md:overflow-visible">
+                    <div className="absolute bottom-1.5 flex items-center gap-0.5 max-h-3 overflow-hidden md:max-h-none md:overflow-visible z-10">
                       {sortedForDots.map((t, idx) => (
                         <div key={idx} className={`w-1 h-1 rounded-full transition-colors duration-300 ${getDotColor(t, isSelected)}`} />
                       ))}
@@ -303,17 +325,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
 
         <div className="flex-1 overflow-y-auto pr-3 space-y-4 custom-scrollbar">
           {tasksForSelectedDate.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-theme-tertiary opacity-60 animate-fade-in">
-              {/* Simplified Clear Icon for Empty State */}
-              <div className="relative w-32 h-32 mx-auto mb-6 flex items-center justify-center">
-                <div className="absolute inset-0 bg-emerald-500/10 blur-[30px] rounded-full" />
-                <div className="relative z-10 volumetric-surface w-24 h-24 rounded-full flex items-center justify-center transform hover:scale-105 transition-transform duration-500 ease-smooth">
-                  <div className="volumetric-btn w-14 h-14 rounded-full flex items-center justify-center text-emerald-500 shadow-sm">
-                    <CheckCircle className="w-7 h-7" />
+            <div className="h-full flex flex-col items-center justify-center text-center animate-fade-in pb-10">
+              <div className="relative w-36 h-36 mx-auto mb-8 flex items-center justify-center">
+                <div className="absolute inset-0 bg-emerald-500/8 blur-[40px] rounded-full" />
+                <div className="absolute top-3 left-3 w-14 h-14 volumetric-surface rounded-2xl rotate-[-12deg] opacity-50" />
+                <div className="absolute bottom-3 right-3 w-16 h-16 volumetric-surface rounded-[18px] rotate-[12deg] opacity-35" />
+                <div className="relative z-10 volumetric-surface w-24 h-24 rounded-[28px] flex items-center justify-center">
+                  <div className="volumetric-btn w-14 h-14 rounded-[18px] flex items-center justify-center text-emerald-500/60">
+                    <CalendarIcon className="w-7 h-7" />
                   </div>
                 </div>
               </div>
-              <p className="font-medium text-sm text-theme-secondary">No tasks scheduled for this date.</p>
+              <p className="text-sm font-semibold text-theme-secondary">No tasks on {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+              <p className="text-xs font-medium text-theme-tertiary mt-2">Tap + to add one</p>
             </div>
           ) : (
             tasksForSelectedDate.map((task, index) => {

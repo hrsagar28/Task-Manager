@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Task, TaskStatus, TaskPriority, Note } from '../types';
-import { Search, Archive, CheckCircle, Edit2, Trash, CheckSquare, Square, Layers, ListTodo, ChevronDown, FileText, Copy, MoreVertical } from './Icons';
+import { Search, Archive, CheckCircle, Edit2, Trash, CheckSquare, Square, Layers, ListTodo, ChevronDown, FileText, Copy, MoreVertical, Filter } from './Icons';
 import { formatRelativeDate } from '../utils/formatRelativeDate';
 import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
 
@@ -230,10 +230,37 @@ export const TasksView: React.FC<TasksViewProps> = ({
         {/* Task List Body */}
         <div className="flex-1 overflow-y-auto custom-scrollbar p-2 relative">
           {filteredTasks.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-theme-tertiary opacity-60 animate-fade-in">
-              <Layers className="w-16 h-16 mb-4 opacity-50" />
-              <p className="font-normal text-sm text-theme-tertiary">No tasks found matching your criteria.</p>
-            </div>
+            tasks.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-center animate-fade-in pb-10">
+                <div className="relative w-36 h-36 mx-auto mb-8 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-emerald-500/8 blur-[40px] rounded-full" />
+                  <div className="absolute top-3 left-3 w-14 h-14 volumetric-surface rounded-2xl rotate-[-12deg] opacity-50" />
+                  <div className="absolute bottom-3 right-3 w-16 h-16 volumetric-surface rounded-[18px] rotate-[12deg] opacity-35" />
+                  <div className="relative z-10 volumetric-surface w-24 h-24 rounded-[28px] flex items-center justify-center">
+                    <div className="volumetric-btn w-14 h-14 rounded-[18px] flex items-center justify-center text-emerald-500/60">
+                      <CheckCircle className="w-7 h-7" />
+                    </div>
+                  </div>
+                </div>
+                <p className="text-sm font-semibold text-theme-secondary">No tasks yet</p>
+                <p className="text-xs font-medium text-theme-tertiary mt-2">Create your first task to get started</p>
+              </div>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-center animate-fade-in pb-10">
+                <div className="relative w-36 h-36 mx-auto mb-8 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-emerald-500/8 blur-[40px] rounded-full" />
+                  <div className="absolute top-3 left-3 w-14 h-14 volumetric-surface rounded-2xl rotate-[-12deg] opacity-50" />
+                  <div className="absolute bottom-3 right-3 w-16 h-16 volumetric-surface rounded-[18px] rotate-[12deg] opacity-35" />
+                  <div className="relative z-10 volumetric-surface w-24 h-24 rounded-[28px] flex items-center justify-center">
+                    <div className="volumetric-btn w-14 h-14 rounded-[18px] flex items-center justify-center text-emerald-500/60">
+                      <Filter className="w-7 h-7" />
+                    </div>
+                  </div>
+                </div>
+                <p className="text-sm font-semibold text-theme-secondary">No tasks match your filters</p>
+                <p className="text-xs font-medium text-theme-tertiary mt-2">Try adjusting your search or filters</p>
+              </div>
+            )
           ) : (
             groupedTasks.map((group, gIdx) => (
               <div key={group.label || 'all'} className="mb-4 last:mb-0">

@@ -550,18 +550,28 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
             </div>
           </div>
         ) : (
-          <div className="h-full flex flex-col items-center justify-center text-theme-tertiary opacity-60 animate-fade-in">
-            <div className="relative w-40 h-40 mx-auto mb-8 flex items-center justify-center">
-              <div className="absolute inset-0 bg-amber-500/10 blur-[40px] rounded-full" />
-              <div className="absolute top-4 left-4 w-16 h-16 volumetric-surface rounded-2xl rotate-[-15deg] opacity-60 transition-transform duration-700 ease-smooth hover:rotate-[-5deg]" />
-              <div className="absolute bottom-4 right-4 w-20 h-20 volumetric-surface rounded-[20px] rotate-[15deg] opacity-40 transition-transform duration-700 ease-smooth hover:rotate-[5deg]" />
-              <div className="relative z-10 volumetric-surface w-28 h-28 rounded-[32px] flex items-center justify-center transform hover:scale-105 transition-transform duration-500 ease-smooth">
-                <div className="volumetric-btn w-16 h-16 rounded-[20px] flex items-center justify-center bg-amber-500/10 text-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
-                  <FileText className="w-8 h-8" />
+          <div className="h-full flex flex-col items-center justify-center text-center animate-fade-in pb-10">
+            <div className="relative w-36 h-36 mx-auto mb-8 flex items-center justify-center">
+              <div className="absolute inset-0 bg-emerald-500/8 blur-[40px] rounded-full" />
+              <div className="absolute top-3 left-3 w-14 h-14 volumetric-surface rounded-2xl rotate-[-12deg] opacity-50" />
+              <div className="absolute bottom-3 right-3 w-16 h-16 volumetric-surface rounded-[18px] rotate-[12deg] opacity-35" />
+              <div className="relative z-10 volumetric-surface w-24 h-24 rounded-[28px] flex items-center justify-center">
+                <div className="volumetric-btn w-14 h-14 rounded-[18px] flex items-center justify-center text-emerald-500/60">
+                  <FileText className="w-7 h-7" />
                 </div>
               </div>
             </div>
-            <p className="font-medium text-sm text-theme-secondary">Select a note to view or edit.</p>
+            {notes.length === 0 ? (
+              <>
+                <p className="text-sm font-semibold text-theme-secondary">No notes yet</p>
+                <p className="text-xs font-medium text-theme-tertiary mt-2">Create a note to capture your thoughts</p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-semibold text-theme-secondary">No note selected</p>
+                <p className="text-xs font-medium text-theme-tertiary mt-2">Select a note to view or edit</p>
+              </>
+            )}
           </div>
         )}
       </GlassCard>
