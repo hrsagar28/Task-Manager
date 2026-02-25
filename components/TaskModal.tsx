@@ -160,7 +160,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
 
       <div
         ref={focusTrapRef}
-        className="relative w-full max-w-2xl max-h-[100dvh] md:max-h-[90dvh] flex flex-col volumetric-surface rounded-none md:rounded-[32px] overflow-hidden animate-scale-in"
+        className="relative w-full max-w-2xl max-h-[100dvh] md:max-h-[90dvh] flex flex-col glass-tier-2 rounded-none md:rounded-[32px] overflow-hidden animate-glass-materialize"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"

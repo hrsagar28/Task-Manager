@@ -100,7 +100,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
       <div
         ref={focusTrapRef as any}
-        className="relative w-full max-w-2xl volumetric-surface rounded-[32px] shadow-2xl overflow-hidden animate-scale-in flex flex-col max-h-[70vh]"
+        className="relative w-full max-w-2xl glass-tier-2 rounded-[32px] shadow-2xl overflow-hidden animate-glass-materialize flex flex-col max-h-[70vh]"
         onClick={e => e.stopPropagation()}
         role="dialog"
         aria-modal="true"

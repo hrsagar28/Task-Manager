@@ -54,6 +54,38 @@ export const Layout: React.FC<LayoutProps> = ({
   archiveRetentionDays,
   onSetArchiveRetention
 }) => {
+  const [isNavCompact, setIsNavCompact] = React.useState(false);
+  const prevScrollY = React.useRef(0);
+
+  React.useEffect(() => {
+    const handleScroll = (e: Event) => {
+      const target = e.target as HTMLElement;
+      const currentScrollY = target.scrollTop;
+      const delta = currentScrollY - prevScrollY.current;
+
+      // Only toggle if scrolled past threshold to prevent flicker
+      if (Math.abs(delta) > 10) {
+        if (delta > 0 && currentScrollY > 50) {
+          setIsNavCompact(true);
+        } else if (delta < 0) {
+          setIsNavCompact(false);
+        }
+        prevScrollY.current = currentScrollY;
+      }
+    };
+
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) {
+      mainContent.addEventListener('scroll', handleScroll, { passive: true });
+    }
+
+    return () => {
+      if (mainContent) {
+        mainContent.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
+
   return (
     <div className="relative h-full w-full flex flex-col md:flex-row overflow-hidden transition-all duration-700">
       {/* Skip to main content — WCAG 2.4.1 */}
@@ -70,7 +102,7 @@ export const Layout: React.FC<LayoutProps> = ({
       </div>
 
       {/* Sidebar Navigation (Desktop) */}
-      <aside className={`hidden md:flex relative z-20 flex-col volumetric-surface rounded-[28px] m-4 mr-0 h-[calc(100dvh-2rem)] transition-all duration-500 ease-smooth ${isSidebarCollapsed ? 'w-[96px] py-6 px-3 items-center' : 'w-80 p-6'
+      <aside className={`hidden md:flex relative z-20 flex-col volumetric-surface liquid-glass-sidebar rounded-[28px] m-4 mr-0 h-[calc(100dvh-2rem)] transition-all duration-500 ease-smooth ${isSidebarCollapsed ? 'w-[96px] py-6 px-3 items-center' : 'w-80 p-6'
         } ${isFocusMode ? 'opacity-30 blur-[2px] hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'}`}>
 
         <div className={`flex items-center gap-4 mb-12 w-full ${isSidebarCollapsed ? 'justify-center px-0' : 'px-2'}`}>
@@ -109,7 +141,23 @@ export const Layout: React.FC<LayoutProps> = ({
           </button>
         )}
 
-        <nav className="flex-1 space-y-3 w-full">
+        <nav className="flex-1 space-y-3 w-full relative">
+          {/* Glass Pill Indicator (Desktop) */}
+          <div
+            className="absolute left-0 right-0 z-0 transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none"
+            style={{
+              top: `${['DASHBOARD', 'CALENDAR', 'TASKS', 'NOTES'].indexOf(currentView) * (isSidebarCollapsed ? 68 : 64)}px`,
+              height: isSidebarCollapsed ? '56px' : '52px',
+              width: isSidebarCollapsed ? '56px' : '100%',
+              margin: isSidebarCollapsed ? '0 auto' : '0',
+              borderRadius: isSidebarCollapsed ? '20px' : '20px',
+              background: 'linear-gradient(180deg, rgba(16,185,129,0.15), rgba(5,150,105,0.05))',
+              border: '0.5px solid rgba(16,185,129,0.3)',
+              boxShadow: '0 2px 8px -2px rgba(16, 185, 129, 0.2), inset 0 0.5px 0 0 rgba(180, 230, 190, 0.3)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)'
+            }}
+          />
           <SidebarButton
             active={currentView === 'DASHBOARD'}
             onClick={() => setCurrentView('DASHBOARD')}
@@ -285,46 +333,67 @@ export const Layout: React.FC<LayoutProps> = ({
 
       {/* Bottom Navigation (Mobile) - Glass Pill */}
       <nav
-        className={`md:hidden absolute bottom-0 left-0 right-0 z-40 volumetric-surface glass-shelf rounded-t-[28px] px-1 transition-all duration-700 ${isFocusMode ? 'opacity-40 blur-sm hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'}`}
+        className={`md:hidden absolute bottom-0 left-0 right-0 z-40 volumetric-surface glass-shelf transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,height,padding] ${isNavCompact ? 'mx-6 mb-6 rounded-[32px] px-2' : 'rounded-t-[28px] px-1'
+          } ${isFocusMode ? 'opacity-40 blur-sm hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'}`}
         style={{
-          paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))',
-          backdropFilter: 'blur(40px) saturate(1.8) brightness(1.05)',
-          WebkitBackdropFilter: 'blur(40px) saturate(1.8) brightness(1.05)',
+          paddingBottom: isNavCompact ? '0' : 'calc(0.5rem + env(safe-area-inset-bottom, 0px))',
+          backdropFilter: isNavCompact ? 'blur(64px) saturate(1.8) brightness(1.05)' : 'blur(48px) saturate(1.8) brightness(1.05)',
+          WebkitBackdropFilter: isNavCompact ? 'blur(64px) saturate(1.8) brightness(1.05)' : 'blur(48px) saturate(1.8) brightness(1.05)',
         }}
       >
-        <div className="flex justify-around items-center h-[64px]">
+        <div className={`flex justify-around items-center transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] relative ${isNavCompact ? 'h-[56px]' : 'h-[64px]'}`}>
+          {/* Glass Pill Indicator (Mobile) */}
+          <div
+            className="absolute top-1/2 -translate-y-1/2 z-0 transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none"
+            style={{
+              width: isNavCompact ? '40px' : '56px',
+              height: isNavCompact ? '40px' : '56px',
+              borderRadius: isNavCompact ? '16px' : '22px',
+              left: `calc(${((['DASHBOARD', 'CALENDAR', 'TASKS', 'NOTES'].indexOf(currentView) > 1 ? ['DASHBOARD', 'CALENDAR', 'TASKS', 'NOTES'].indexOf(currentView) + 1 : ['DASHBOARD', 'CALENDAR', 'TASKS', 'NOTES'].indexOf(currentView)) * 20) + 10}% - ${isNavCompact ? 20 : 28}px)`,
+              background: 'linear-gradient(180deg, rgba(16,185,129,0.15), rgba(5,150,105,0.05))',
+              border: '0.5px solid rgba(16,185,129,0.3)',
+              boxShadow: '0 2px 8px -2px rgba(16, 185, 129, 0.2), inset 0 0.5px 0 0 rgba(180, 230, 190, 0.3)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)'
+            }}
+          />
           <NavButton
             active={currentView === 'DASHBOARD'}
             onClick={() => setCurrentView('DASHBOARD')}
             icon={<LayoutDashboard />}
             label="Home"
             badge={currentView !== 'DASHBOARD' ? badgeCounts?.dashboard : 0}
+            isCompact={isNavCompact}
           />
           <NavButton
             active={currentView === 'CALENDAR'}
             onClick={() => setCurrentView('CALENDAR')}
             icon={<Calendar />}
             label="Calendar"
+            isCompact={isNavCompact}
           />
           {/* Center FAB - slightly smaller on mobile */}
           <button
             onClick={onAddNew}
-            className="volumetric-btn volumetric-btn-primary w-12 h-12 rounded-[18px] flex items-center justify-center text-emerald-700 dark:text-emerald-300 -mt-5 shadow-lg"
+            className={`relative z-10 volumetric-btn volumetric-btn-primary flex items-center justify-center text-emerald-700 dark:text-emerald-300 shadow-lg transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${isNavCompact ? 'w-10 h-10 rounded-[14px] mt-0' : 'w-12 h-12 rounded-[18px] -mt-5'
+              }`}
             aria-label="Add new task"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className={`transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${isNavCompact ? 'w-4 h-4' : 'w-5 h-5'}`} />
           </button>
           <NavButton
             active={currentView === 'TASKS'}
             onClick={() => setCurrentView('TASKS')}
             icon={<ListTodo />}
             label="Tasks"
+            isCompact={isNavCompact}
           />
           <NavButton
             active={currentView === 'NOTES'}
             onClick={() => setCurrentView('NOTES')}
             icon={<FileText />}
             label="Notes"
+            isCompact={isNavCompact}
           />
         </div>
       </nav>
@@ -349,28 +418,26 @@ export const Layout: React.FC<LayoutProps> = ({
   );
 };
 
-const NavButton = ({ active, onClick, icon, label, badge }: {
-  active: boolean, onClick: () => void, icon: React.ReactNode, label: string, badge?: number
+const NavButton = ({ active, onClick, icon, label, badge, isCompact }: {
+  active: boolean, onClick: () => void, icon: React.ReactNode, label: string, badge?: number, isCompact?: boolean
 }) => (
   <button
     onClick={onClick}
-    className={`flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-[22px] transition-all duration-300 ${active
-      ? 'text-emerald-600 dark:text-emerald-400'
-      : 'text-theme-tertiary hover:text-theme-secondary hover-surface'
+    className={`relative z-10 flex flex-col items-center justify-center transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${isCompact ? 'w-10 h-10 gap-0' : 'w-14 h-14 gap-1'
+      } rounded-[22px] ${active
+        ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+        : 'text-theme-tertiary hover:text-theme-secondary hover-surface'
       }`}
   >
-    <div className={`relative transition-all duration-300 ${active ? 'scale-110' : ''}`}>
-      {active && (
-        <div className="absolute -inset-1.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-400/10 blur-[2px]" />
-      )}
+    <div className={`relative transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${active && !isCompact ? 'scale-110' : ''}`}>
       <div className="relative">{icon}</div>
       {badge && badge > 0 ? (
-        <div className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center shadow-sm">
+        <div className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center shadow-sm transition-all duration-[400ms] ${isCompact ? 'scale-75 -right-2' : ''}`}>
           {badge > 99 ? '99+' : badge}
         </div>
       ) : null}
     </div>
-    <span className={`text-[9px] font-semibold tracking-wide transition-colors ${active ? 'text-emerald-600 dark:text-emerald-400' : 'text-theme-tertiary'
+    <span className={`text-[9px] font-semibold tracking-wide transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${isCompact ? 'opacity-0 max-h-0 transform scale-y-0 translate-y-2' : 'opacity-100 max-h-4 transform scale-y-100 translate-y-0'
       }`}>
       {label}
     </span>
@@ -381,9 +448,9 @@ const SidebarButton = ({ active, onClick, icon, label, shortcut, badge, collapse
   <button
     onClick={onClick}
     title={collapsed ? `${label}${shortcut ? ` (${shortcut})` : ''}` : undefined}
-    className={`relative w-full flex items-center gap-4 transition-all duration-300 ${collapsed
-      ? `justify-center w-14 h-14 mx-auto rounded-[20px] ${active ? 'volumetric-btn-primary text-theme-primary' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`
-      : `px-5 py-4 rounded-[20px] ${active ? 'volumetric-btn-primary text-theme-primary' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`
+    className={`relative z-10 w-full flex items-center gap-4 transition-all duration-300 ${collapsed
+      ? `justify-center w-14 h-14 mx-auto rounded-[20px] ${active ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`
+      : `px-5 py-4 h-[52px] rounded-[20px] ${active ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`
       }`}
   >
     <div className="relative">
@@ -396,7 +463,7 @@ const SidebarButton = ({ active, onClick, icon, label, shortcut, badge, collapse
     </div>
     {!collapsed && (
       <>
-        <span className="font-semibold text-sm tracking-tight flex-1 text-left">{label}</span>
+        <span className="text-sm tracking-tight flex-1 text-left">{label}</span>
         {shortcut && <span className="text-[10px] font-mono font-medium text-theme-muted bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded-md">{shortcut}</span>}
       </>
     )}

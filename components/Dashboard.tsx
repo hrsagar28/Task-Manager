@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Task, TaskStatus, TaskPriority, Note } from '../types';
 import { GlassCard } from './GlassCard';
-import { Circle, CheckCircle, Clock, AlertCircle, ChevronDown, Trash, Copy, Edit2, Layers, FileText, HelpCircle, Calendar } from './Icons';
+import { Circle, CheckCircle, Clock, AlertCircle, ChevronDown, Trash, Copy, Edit2, Layers, FileText, HelpCircle, Calendar, MoreVertical } from './Icons';
 import { formatRelativeDate } from '../utils/formatRelativeDate';
 import { toLocalDateString } from '../utils/dateUtils';
 import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
@@ -432,6 +432,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   const isCompleted = task.status === TaskStatus.COMPLETED;
   const isInProgress = task.status === TaskStatus.IN_PROGRESS;
   const [isRippling, setIsRippling] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const priorityColors = {
     [TaskPriority.URGENT]: 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.25)]',
@@ -500,56 +501,51 @@ const TaskItem: React.FC<TaskItemProps> = ({
             <div className="flex items-center gap-3">
               <h4 className={`font-semibold text-base truncate transition-all duration-500 ease-smooth ${isCompleted ? 'line-through text-theme-tertiary' : 'text-theme-primary'}`}>
                 {task.title}
-                {task.recurring && (
-                  <span className="inline-flex items-center ml-1.5 text-theme-tertiary" title={`Repeats ${task.recurringInterval}`}>
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17 2l4 4-4 4" /><path d="M3 11v-1a4 4 0 014-4h14" />
-                      <path d="M7 22l-4-4 4-4" /><path d="M21 13v1a4 4 0 01-4 4H3" />
-                    </svg>
-                  </span>
-                )}
               </h4>
+            </div>
+
+            <div className="flex flex-wrap items-center mt-1.5 text-[11px] font-medium text-theme-tertiary">
               {!isCompleted && (
-                isInProgress ? (
-                  <div className="w-2.5 h-2.5 rounded-full border-2 border-indigo-500 animate-pulse flex-shrink-0" title="In Progress" />
-                ) : (
-                  <div className={`w-2 h-2 rounded-full flex-shrink-0 transition-transform duration-300 group-hover/task:scale-125 ${priorityColors[task.priority]}`} title={`Priority: ${task.priority}`} />
-                )
+                <>
+                  {isInProgress ? (
+                    <div className="w-2.5 h-2.5 rounded-full border-2 border-indigo-500 animate-pulse flex-shrink-0 mr-2" title="In Progress" />
+                  ) : (
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 mr-2 ${priorityColors[task.priority]}`} title={`Priority: ${task.priority}`} />
+                  )}
+                </>
+              )}
+              {task.clientName && (
+                <>
+                  <span className="truncate max-w-[120px]">{task.clientName}</span>
+                  <span className="mx-1.5 text-theme-muted">·</span>
+                </>
+              )}
+              {task.category && (
+                <>
+                  <span className="truncate max-w-[100px]">{task.category}</span>
+                  <span className="mx-1.5 text-theme-muted">·</span>
+                </>
+              )}
+              <span className={`whitespace-nowrap ${isOverdue && !isCompleted ? 'text-red-500' : ''}`} title={new Date(task.dueDate).toLocaleDateString()}>
+                {relDateLabel}
+              </span>
+              {task.recurring && (
+                <span className="ml-1.5 text-theme-tertiary" title={`Repeats ${task.recurringInterval}`}>
+                  <svg className="w-3 h-3 inline pb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17 2l4 4-4 4" /><path d="M3 11v-1a4 4 0 014-4h14" />
+                    <path d="M7 22l-4-4 4-4" /><path d="M21 13v1a4 4 0 01-4 4H3" />
+                  </svg>
+                </span>
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 mt-2 text-[10px] font-semibold tracking-wider uppercase">
-              {isInProgress && !isCompleted && (
-                <span className="text-indigo-600/90 dark:text-indigo-400 flex items-center gap-1 bg-indigo-500/10 px-2.5 py-1 rounded-[8px] border border-indigo-500/20 backdrop-blur-sm shadow-sm">
-                  <Clock className="w-3 h-3" /> In Progress
-                </span>
-              )}
-              {task.category && (
-                <span className="bg-blue-500/6 text-blue-600/70 dark:text-blue-400 border border-blue-500/8 px-2.5 py-1 rounded-[8px] backdrop-blur-sm transition-colors duration-300 hover:bg-blue-500/10">
-                  {task.category}
-                </span>
-              )}
-              {task.clientName && (
-                <span className="volumetric-btn px-2.5 py-1 rounded-[8px] text-theme-muted">
-                  {task.clientName}
-                </span>
-              )}
-              {task.recurring && (
-                <span className="bg-purple-500/6 text-purple-600/70 dark:text-purple-400 border border-purple-500/8 px-2.5 py-1 rounded-[8px] backdrop-blur-sm">
-                  {task.recurringInterval}
-                </span>
-              )}
-              {task.tags && task.tags.map(tag => (
-                <span key={tag} className="bg-slate-500/6 text-theme-muted border border-theme-divider px-2.5 py-1 rounded-[8px] backdrop-blur-sm">
-                  #{tag}
-                </span>
-              ))}
-              {isOverdue && !isCompleted && (
-                <span className="text-red-600/80 dark:text-red-400 flex items-center gap-1 bg-red-500/8 px-2.5 py-1 rounded-[8px] border border-red-500/10 backdrop-blur-sm" title={new Date(task.dueDate).toLocaleDateString()}>
-                  <AlertCircle className="w-3 h-3" /> {relDateLabel}
-                </span>
-              )}
-            </div>
+            {task.tags && task.tags.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 mt-1 text-[10px] text-theme-muted">
+                {task.tags.map(tag => (
+                  <span key={tag}>#{tag}</span>
+                ))}
+              </div>
+            )}
 
             {/* Liquid Fill Subtask Progress Bar */}
             {totalSubtasks > 0 && (
@@ -572,11 +568,37 @@ const TaskItem: React.FC<TaskItemProps> = ({
             )}
           </div>
 
-          <button
-            className={`mt-2 p-2 rounded-full text-theme-tertiary hover:text-theme-primary transition-all duration-500 ease-smooth ${isExpanded ? 'rotate-180 bg-theme-divider text-theme-primary' : ''}`}
-          >
-            <ChevronDown className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1 relative z-10">
+            <button
+              onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}
+              className="md:hidden min-w-[44px] min-h-[44px] p-2 rounded-full flex items-center justify-center text-theme-tertiary hover:bg-theme-divider transition-all"
+              aria-label="Task actions"
+            >
+              <MoreVertical className="w-5 h-5" />
+            </button>
+            <button
+              className={`p-2 rounded-full text-theme-tertiary hover:text-theme-primary transition-all duration-500 ease-smooth ${isExpanded ? 'rotate-180 bg-theme-divider text-theme-primary' : ''}`}
+            >
+              <ChevronDown className="w-5 h-5" />
+            </button>
+
+            {isMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-[90]" onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); }} />
+                <div className="absolute right-0 top-12 z-[100] glass-tier-3 rounded-[20px] p-2 min-w-[180px] shadow-lg animate-scale-in origin-top-right flex flex-col">
+                  <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); onEdit(); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-theme-secondary text-sm font-semibold transition-colors">
+                    <Edit2 className="w-4 h-4" /> Edit
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); onDuplicate(); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-theme-secondary text-sm font-semibold transition-colors">
+                    <Copy className="w-4 h-4" /> Duplicate
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); onDelete(); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-red-500 text-sm font-semibold transition-colors mt-1 border-t border-theme-divider">
+                    <Trash className="w-4 h-4" /> Delete
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Expanded Content Area */}

@@ -51,7 +51,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             />
             <div
                 ref={focusTrapRef}
-                className="relative w-full max-w-sm volumetric-surface rounded-[28px] overflow-hidden animate-scale-in"
+                className="relative w-full max-w-sm glass-tier-2 rounded-[28px] overflow-hidden animate-glass-materialize"
                 role="alertdialog"
                 aria-modal="true"
                 aria-labelledby="confirm-title"

@@ -201,10 +201,9 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                         md:${expanded ? 'bottom-full mb-3 left-0 top-auto' : 'top-full mt-3 right-0'} 
                         w-[calc(100vw-2rem)] md:w-[380px] max-w-[400px] max-h-[70dvh] 
                         rounded-[24px] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25),0_8px_20px_rgba(0,0,0,0.1)] 
-                        overflow-hidden z-[200] animate-scale-in 
+                        overflow-hidden z-[200] animate-glass-materialize glass-tier-3
                         origin-top md:${expanded ? 'origin-bottom-left' : 'origin-top-right'}
                     `}
-                    style={{ background: 'var(--bg-app)', border: '1px solid var(--glass-border)' }}
                 >
                     {/* Header */}
                     <div className="flex items-center justify-between px-6 py-4 border-b border-theme-divider">

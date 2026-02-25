@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Task, TaskStatus, TaskPriority, Note } from '../types';
-import { Search, Archive, CheckCircle, Edit2, Trash, CheckSquare, Square, Layers, ListTodo, ChevronDown, FileText, Copy } from './Icons';
+import { Search, Archive, CheckCircle, Edit2, Trash, CheckSquare, Square, Layers, ListTodo, ChevronDown, FileText, Copy, MoreVertical } from './Icons';
 import { formatRelativeDate } from '../utils/formatRelativeDate';
 import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
 
@@ -27,6 +27,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const [groupBy, setGroupBy] = useState<'NONE' | 'PRIORITY' | 'CATEGORY' | 'STATUS'>('NONE');
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const [activeMenuTaskId, setActiveMenuTaskId] = useState<string | null>(null);
   const taskListRoving = useRovingTabIndex();
 
   const filteredTasks = useMemo(() => {
@@ -285,26 +286,73 @@ export const TasksView: React.FC<TasksViewProps> = ({
                               <div className="min-w-0">
                                 <span className={`font-medium text-[15px] truncate transition-all flex items-center ${isCompleted ? 'line-through text-theme-tertiary' : 'text-theme-secondary'}`}>
                                   {task.title}
+                                </span>
+                                {/* Mobile only details */}
+                                <div className="md:hidden flex flex-wrap items-center mt-1.5 text-[11px] font-medium text-theme-tertiary">
+                                  {!isCompleted && (
+                                    <>
+                                      {task.status === TaskStatus.IN_PROGRESS ? (
+                                        <div className="w-2.5 h-2.5 rounded-full border-2 border-indigo-500 animate-pulse flex-shrink-0 mr-2" title="In Progress" />
+                                      ) : (
+                                        <div className={`w-2 h-2 rounded-full flex-shrink-0 mr-2 ${task.priority === TaskPriority.URGENT ? 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.25)]' :
+                                          task.priority === TaskPriority.HIGH ? 'bg-orange-400 shadow-[0_0_6px_rgba(251,146,60,0.2)]' :
+                                            task.priority === TaskPriority.MEDIUM ? 'bg-blue-400 shadow-[0_0_6px_rgba(96,165,250,0.2)]' :
+                                              'bg-slate-300'
+                                          }`} title={`Priority: ${task.priority}`} />
+                                      )}
+                                    </>
+                                  )}
+                                  {task.clientName && (
+                                    <>
+                                      <span className="truncate max-w-[120px]">{task.clientName}</span>
+                                      <span className="mx-1.5 text-theme-muted">·</span>
+                                    </>
+                                  )}
+                                  {task.category && (
+                                    <>
+                                      <span className="truncate max-w-[100px]">{task.category}</span>
+                                      <span className="mx-1.5 text-theme-muted">·</span>
+                                    </>
+                                  )}
+                                  <span className={`whitespace-nowrap ${isDateUrgent && !isCompleted ? 'text-red-500' : ''}`} title={new Date(task.dueDate).toLocaleDateString()}>
+                                    {relDateLabel}
+                                  </span>
                                   {task.recurring && (
-                                    <span className="inline-flex items-center ml-1.5 text-theme-tertiary shrink-0" title={`Repeats ${task.recurringInterval}`}>
-                                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <span className="ml-1.5 text-theme-tertiary" title={`Repeats ${task.recurringInterval}`}>
+                                      <svg className="w-3 h-3 inline pb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M17 2l4 4-4 4" /><path d="M3 11v-1a4 4 0 014-4h14" />
                                         <path d="M7 22l-4-4 4-4" /><path d="M21 13v1a4 4 0 01-4 4H3" />
                                       </svg>
                                     </span>
                                   )}
-                                </span>
-                                {/* Mobile only details */}
-                                <div className="md:hidden flex flex-wrap gap-2 mt-2">
-                                  {task.clientName && <span className="text-[10px] uppercase font-semibold tracking-wider text-theme-muted">{task.clientName}</span>}
-                                  {task.category && <span className="text-[10px] uppercase font-semibold tracking-wider text-blue-600/70 dark:text-blue-400">{task.category}</span>}
-                                  <span
-                                    className={`text-[10px] font-semibold tracking-wider ${isDateUrgent && !isCompleted ? 'text-red-500/90' : 'text-theme-muted'}`}
-                                    title={new Date(task.dueDate).toLocaleDateString()}
-                                  >
-                                    {relDateLabel}
-                                  </span>
                                 </div>
+                                {task.tags && task.tags.length > 0 && (
+                                  <div className="md:hidden flex flex-wrap items-center gap-1.5 mt-1 text-[10px] text-theme-muted">
+                                    {task.tags.map(tag => (
+                                      <span key={tag}>#{tag}</span>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* Liquid Fill Subtask Progress Bar (Collapsed State) */}
+                                {totalSubtasks > 0 && (
+                                  <div className="w-full mt-3 pr-4">
+                                    <div className="flex justify-between items-center text-[10px] font-medium tracking-wider uppercase text-theme-tertiary mb-1">
+                                      <span>Progress</span>
+                                      <span className={`transition-colors duration-500 ${completedSubtasks === totalSubtasks ? 'text-emerald-500 animate-pop inline-block' : 'text-theme-tertiary'}`}>
+                                        {completedSubtasks}/{totalSubtasks}
+                                      </span>
+                                    </div>
+                                    <div className="h-1.5 w-full volumetric-input rounded-full overflow-hidden p-[1px]">
+                                      <div
+                                        className="h-full rounded-full bg-emerald-500 transition-all duration-1000 ease-smooth shadow-[0_0_10px_rgba(16,185,129,0.5)] relative overflow-hidden"
+                                        style={{ width: `${progressPercent}%` }}
+                                      >
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-[200%] animate-liquid-flow opacity-50" />
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
 
@@ -326,14 +374,48 @@ export const TasksView: React.FC<TasksViewProps> = ({
                               <PriorityBadge priority={task.priority} />
                             </div>
 
-                            <div className="md:col-span-1 flex items-center justify-end gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                              <button onClick={(e) => { e.stopPropagation(); onEditTask(task); }} className="p-2 rounded-xl text-theme-tertiary hover:text-theme-secondary hover-surface transition-all" title="Edit Task"><Edit2 className="w-4 h-4" /></button>
-                              <button onClick={(e) => { e.stopPropagation(); onToggleArchive(task.id); }} className="p-2 rounded-xl text-theme-tertiary hover:text-theme-secondary hover-surface transition-all" title={task.isArchived ? "Restore to Active" : "Move to Archive"}>
-                                <Archive className="w-4 h-4" />
+                            <div className="md:col-span-1 flex items-center justify-end gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity relative">
+                              {/* Desktop Actions */}
+                              <div className="hidden md:flex items-center gap-1">
+                                <button onClick={(e) => { e.stopPropagation(); onEditTask(task); }} className="p-2 rounded-xl text-theme-tertiary hover:text-theme-secondary hover-surface transition-all" title="Edit Task"><Edit2 className="w-4 h-4" /></button>
+                                <button onClick={(e) => { e.stopPropagation(); onToggleArchive(task.id); }} className="p-2 rounded-xl text-theme-tertiary hover:text-theme-secondary hover-surface transition-all" title={task.isArchived ? "Restore to Active" : "Move to Archive"}>
+                                  <Archive className="w-4 h-4" />
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); onDeleteTask(task.id); }} className="p-2 rounded-xl text-theme-tertiary hover:text-red-500 hover:bg-red-500/5 transition-all" title="Delete Task">
+                                  <Trash className="w-4 h-4" />
+                                </button>
+                              </div>
+
+                              {/* Mobile Action Menu Toggle */}
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(activeMenuTaskId === task.id ? null : task.id); }}
+                                className="md:hidden p-2 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-theme-tertiary hover:text-theme-secondary hover-surface transition-all"
+                                aria-label="Task actions"
+                              >
+                                <MoreVertical className="w-5 h-5" />
                               </button>
-                              <button onClick={(e) => { e.stopPropagation(); onDeleteTask(task.id); }} className="p-2 rounded-xl text-theme-tertiary hover:text-red-500 hover:bg-red-500/5 transition-all" title="Delete Task">
-                                <Trash className="w-4 h-4" />
-                              </button>
+
+                              {/* Mobile Action Menu Dropdown */}
+                              {activeMenuTaskId === task.id && (
+                                <>
+                                  <div className="fixed inset-0 z-[90]" onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); }} />
+                                  <div className="absolute right-8 top-10 z-[100] glass-tier-3 rounded-[20px] p-2 min-w-[180px] shadow-lg animate-scale-in origin-top-right flex flex-col">
+                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); onEditTask(task); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-theme-secondary text-sm font-semibold transition-colors">
+                                      <Edit2 className="w-4 h-4" /> Edit
+                                    </button>
+                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); onDuplicateTask(task); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-theme-secondary text-sm font-semibold transition-colors">
+                                      <Copy className="w-4 h-4" /> Duplicate
+                                    </button>
+                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); onToggleArchive(task.id); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-theme-secondary text-sm font-semibold transition-colors">
+                                      <Archive className="w-4 h-4" /> {task.isArchived ? 'Unarchive' : 'Archive'}
+                                    </button>
+                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); onDeleteTask(task.id); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-red-500 text-sm font-semibold transition-colors mt-1 border-t border-theme-divider">
+                                      <Trash className="w-4 h-4" /> Delete
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+
                               <ChevronDown className={`w-4 h-4 text-theme-tertiary ml-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                             </div>
                           </div>
@@ -350,24 +432,6 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
                             {totalSubtasks > 0 && (
                               <div className="mb-6 space-y-2 mt-4">
-                                {/* Progress Bar */}
-                                <div className="w-full mb-4">
-                                  <div className="flex justify-between items-center text-[11px] font-medium tracking-wider uppercase text-theme-tertiary mb-1.5">
-                                    <span>Progress</span>
-                                    <span className={`transition-colors duration-500 ${completedSubtasks === totalSubtasks ? 'text-emerald-500 animate-pop inline-block' : 'text-theme-tertiary'}`}>
-                                      {completedSubtasks}/{totalSubtasks}
-                                    </span>
-                                  </div>
-                                  <div className="h-1.5 w-full volumetric-input rounded-full overflow-hidden p-[1px]">
-                                    <div
-                                      className="h-full rounded-full bg-emerald-500 transition-all duration-1000 ease-smooth shadow-[0_0_10px_rgba(16,185,129,0.5)] relative overflow-hidden"
-                                      style={{ width: `${progressPercent}%` }}
-                                    >
-                                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-[200%] animate-liquid-flow opacity-50" />
-                                    </div>
-                                  </div>
-                                </div>
-
                                 {task.subtasks?.map((sub, sIdx) => (
                                   <div key={sub.id} className="flex items-center gap-3 group/sub opacity-0 animate-slide-up" style={{ animationDelay: `${Math.min(sIdx * 30, 150)}ms` }}>
                                     <button
