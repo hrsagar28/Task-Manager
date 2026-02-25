@@ -47,6 +47,19 @@ function App() {
     try { const local = localStorage.getItem('auradesk-notes'); return local ? JSON.parse(local) : INITIAL_NOTES; } catch { return INITIAL_NOTES; }
   });
   const [currentView, setCurrentView] = useState<ViewState>('DASHBOARD');
+  const [displayView, setDisplayView] = useState<ViewState>('DASHBOARD');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useEffect(() => {
+    if (currentView !== displayView) {
+      setIsTransitioning(true);
+      const timer = setTimeout(() => {
+        setDisplayView(currentView);
+        setIsTransitioning(false);
+      }, 150); // 150ms delay for a snappy transition
+      return () => clearTimeout(timer);
+    }
+  }, [currentView, displayView]);
 
   // Date refresh state to ensure app updates at midnight if left open
   const [currentDateStr, setCurrentDateStr] = useState(toLocalDateString());
@@ -199,12 +212,129 @@ function App() {
 
   // Specular highlight tracking — updates CSS vars for glass reflection
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
-      document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+    let rawMouseX = window.innerWidth / 2;
+    let rawMouseY = window.innerHeight / 2;
+    let rawScrollY = 0;
+
+    // Smooth variables for lerping
+    let smoothMouseX = window.innerWidth / 2;
+    let smoothMouseY = window.innerHeight / 2;
+    // Lower lerp factor = more "sluggish" / syrupy movement (0.05 - 0.15 is good for glass)
+    const LERP_FACTOR = 0.1;
+
+    let ticking = false;
+    let animationFrameId: number;
+    let isTouch = false;
+
+    // Check purely on mount
+    if (typeof window !== 'undefined') {
+      isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    }
+
+    // Common update loop for both paths using linear interpolation
+    const updateVariables = () => {
+      ticking = false;
+
+      // Calculate smooth interpolation
+      smoothMouseX += (rawMouseX - smoothMouseX) * LERP_FACTOR;
+      smoothMouseY += (rawMouseY - smoothMouseY) * LERP_FACTOR;
+
+      const doc = document.documentElement;
+
+      if (isTouch) {
+        // Touch behavior uses percentages relative to viewport size
+        // We use viewport units because CSS radial-gradient parses them gracefully
+        const vhVal = (smoothMouseY / window.innerHeight) * 100;
+        const vwVal = (smoothMouseX / window.innerWidth) * 100;
+        doc.style.setProperty('--mouse-x', `${vwVal}vw`);
+        doc.style.setProperty('--mouse-y', `${vhVal}vh`);
+      } else {
+        // Desktop behavior uses absolute pixel values
+        doc.style.setProperty('--mouse-x', `${smoothMouseX}px`);
+        doc.style.setProperty('--mouse-y', `${smoothMouseY}px`);
+      }
+
+      // Keep running the loop if we haven't reached the target
+      if (Math.abs(rawMouseX - smoothMouseX) > 0.1 || Math.abs(rawMouseY - smoothMouseY) > 0.1) {
+        animationFrameId = requestAnimationFrame(updateVariables);
+      }
     };
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+
+    const requestVariableUpdate = () => {
+      if (!ticking) {
+        ticking = true;
+        animationFrameId = requestAnimationFrame(updateVariables);
+      }
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // For desktop: direct mapping to pixel coordinates
+      rawMouseX = e.clientX;
+      rawMouseY = e.clientY;
+      requestVariableUpdate();
+    };
+
+    const handleTouchScroll = () => {
+      // Touch/Mobile: scroll position mapping
+      // Get scroll position from main document or scrolling element
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+
+      if (scrollHeight > 0) {
+        rawScrollY = scrollTop;
+
+        // Map Y position to drift slowly down the surface
+        rawMouseY = (scrollTop / scrollHeight) * window.innerHeight;
+
+        // Add gentle gentle sine-wave drift to X position across scroll
+        rawMouseX = (window.innerWidth / 2) + Math.sin(scrollTop / 500) * (window.innerWidth * 0.15);
+
+        requestVariableUpdate();
+      }
+    };
+
+    // Note for device orientation: This uses absolute angles instead of relying entirely 
+    // on scroll if orientation data is active and changing. We blend it slightly if possible.
+    const handleDeviceOrientation = (e: DeviceOrientationEvent) => {
+      if (e.gamma !== null && e.beta !== null) {
+        // Gamma is left-to-right (-90 to 90)
+        // Map -90 to 0% and 90 to 100% of screen width
+        const mappedX = (window.innerWidth / 2) + (e.gamma / 90) * (window.innerWidth * 0.4);
+
+        // Beta is front-to-back tilt (-180 to 180, mostly using 0 to 90 held upright)
+        // Center around 45 degrees holding angle
+        const mappedY = (window.innerHeight / 2) + ((e.beta - 45) / 90) * (window.innerHeight * 0.4);
+
+        rawMouseX = mappedX;
+        rawMouseY = mappedY;
+        requestVariableUpdate();
+      }
+    };
+
+    if (isTouch) {
+      window.addEventListener('scroll', handleTouchScroll, { passive: true, capture: true });
+      window.addEventListener('deviceorientation', handleDeviceOrientation as EventListener, { passive: true });
+
+      // Initial trigger for touch state to set base value
+      handleTouchScroll();
+    } else {
+      window.addEventListener('mousemove', handleMouseMove, { passive: true });
+
+      // Seed with initial center
+      rawMouseX = window.innerWidth / 2;
+      rawMouseY = window.innerHeight / 2;
+      requestVariableUpdate();
+    }
+
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      if (isTouch) {
+        window.removeEventListener('scroll', handleTouchScroll, { capture: true });
+        window.removeEventListener('deviceorientation', handleDeviceOrientation as EventListener);
+      } else {
+        window.removeEventListener('mousemove', handleMouseMove);
+      }
+    };
   }, []);
 
   const showToast = useCallback((message: string, type: 'success' | 'info' | 'error' = 'success', action?: { label: string, onClick: () => void }) => {
@@ -500,31 +630,13 @@ function App() {
 
   // View Transitions
   const handleViewChange = useCallback((view: ViewState) => {
-    if ('startViewTransition' in document) {
-      (document as any).startViewTransition(() => {
-        flushSync(() => {
-          setCurrentView(view);
-          if (view !== 'NOTES') setActiveNoteId(null);
-        });
-      });
-    } else {
-      setCurrentView(view);
-      if (view !== 'NOTES') setActiveNoteId(null);
-    }
+    setCurrentView(view);
+    if (view !== 'NOTES') setActiveNoteId(null);
   }, []);
 
   const handleViewNote = useCallback((noteId: string) => {
-    if ('startViewTransition' in document) {
-      (document as any).startViewTransition(() => {
-        flushSync(() => {
-          setActiveNoteId(noteId);
-          setCurrentView('NOTES');
-        });
-      });
-    } else {
-      setActiveNoteId(noteId);
-      setCurrentView('NOTES');
-    }
+    setActiveNoteId(noteId);
+    setCurrentView('NOTES');
   }, []);
 
   // Keyboard Shortcuts Handler
@@ -633,57 +745,62 @@ function App() {
           onEditTask={handleEditTask}
           onNavigateToTasks={() => handleViewChange('TASKS')}
         >
-          {currentView === 'DASHBOARD' && (
-            <Dashboard
-              tasks={activeTasks}
-              notes={notes}
-              toggleTaskStatus={handleToggleTaskStatus}
-              onCycleStatus={handleCycleTaskStatus}
-              onEditTask={handleEditTask}
-              onDuplicateTask={handleDuplicateTask}
-              onDeleteTask={handleDeleteTask}
-              onToggleSubtask={handleToggleSubtask}
-              onViewNote={handleViewNote}
-              onOpenHelp={() => setIsHelpOpen(true)}
-              focusMode={focusMode}
-              setFocusMode={setFocusMode}
-              onNavigateToTasks={() => handleViewChange('TASKS')}
-            />
-          )}
-          {currentView === 'CALENDAR' && (
-            <CalendarView
-              tasks={activeTasks}
-              toggleTaskStatus={handleToggleTaskStatus}
-              onAddTaskForDate={handleAddNewTask}
-              onEditTask={handleEditTask}
-              onDeleteTask={handleDeleteTask}
-            />
-          )}
-          {currentView === 'TASKS' && (
-            <TasksView
-              tasks={tasks}
-              notes={notes}
-              toggleTaskStatus={handleToggleTaskStatus}
-              onEditTask={handleEditTask}
-              onDuplicateTask={handleDuplicateTask}
-              onDeleteTask={handleDeleteTask}
-              onToggleArchive={handleToggleArchive}
-              onBulkAction={handleBulkAction}
-              onToggleSubtask={handleToggleSubtask}
-              onViewNote={handleViewNote}
-            />
-          )}
-          {currentView === 'NOTES' && (
-            <NotesView
-              notes={notes}
-              tasks={tasks}
-              onAddNote={handleAddNote}
-              onUpdateNote={handleUpdateNote}
-              onDeleteNote={handleDeleteNote}
-              activeNoteId={activeNoteId}
-              onSelectNote={setActiveNoteId}
-            />
-          )}
+          <div className={`h-full w-full transition-all duration-150 ease-smooth ${isTransitioning
+              ? 'opacity-0 scale-[0.99] blur-[4px]'
+              : 'opacity-100 scale-100 blur-0'
+            }`}>
+            {displayView === 'DASHBOARD' && (
+              <Dashboard
+                tasks={activeTasks}
+                notes={notes}
+                toggleTaskStatus={handleToggleTaskStatus}
+                onCycleStatus={handleCycleTaskStatus}
+                onEditTask={handleEditTask}
+                onDuplicateTask={handleDuplicateTask}
+                onDeleteTask={handleDeleteTask}
+                onToggleSubtask={handleToggleSubtask}
+                onViewNote={handleViewNote}
+                onOpenHelp={() => setIsHelpOpen(true)}
+                focusMode={focusMode}
+                setFocusMode={setFocusMode}
+                onNavigateToTasks={() => handleViewChange('TASKS')}
+              />
+            )}
+            {displayView === 'CALENDAR' && (
+              <CalendarView
+                tasks={activeTasks}
+                toggleTaskStatus={handleToggleTaskStatus}
+                onAddTaskForDate={handleAddNewTask}
+                onEditTask={handleEditTask}
+                onDeleteTask={handleDeleteTask}
+              />
+            )}
+            {displayView === 'TASKS' && (
+              <TasksView
+                tasks={tasks}
+                notes={notes}
+                toggleTaskStatus={handleToggleTaskStatus}
+                onEditTask={handleEditTask}
+                onDuplicateTask={handleDuplicateTask}
+                onDeleteTask={handleDeleteTask}
+                onToggleArchive={handleToggleArchive}
+                onBulkAction={handleBulkAction}
+                onToggleSubtask={handleToggleSubtask}
+                onViewNote={handleViewNote}
+              />
+            )}
+            {displayView === 'NOTES' && (
+              <NotesView
+                notes={notes}
+                tasks={tasks}
+                onAddNote={handleAddNote}
+                onUpdateNote={handleUpdateNote}
+                onDeleteNote={handleDeleteNote}
+                activeNoteId={activeNoteId}
+                onSelectNote={setActiveNoteId}
+              />
+            )}
+          </div>
         </Layout>
       </div>
 
