@@ -3,6 +3,7 @@ import { ViewState, Task } from '../types';
 import { LayoutDashboard, Calendar, FileText, ListTodo, Plus, HelpCircle, ChevronLeft, ChevronRight, Search, MoreHorizontal, Sun, Moon } from './Icons';
 import { MobileDrawer } from './MobileDrawer';
 import { NotificationPanel } from './NotificationPanel';
+import { getModifierKey, getAltKey } from '../utils/osUtils';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -86,6 +87,9 @@ export const Layout: React.FC<LayoutProps> = ({
     };
   }, []);
 
+  const modKey = getModifierKey();
+  const altKey = getAltKey();
+
   return (
     <div className="relative h-full w-full flex flex-col md:flex-row overflow-hidden transition-all duration-700">
       {/* Skip to main content — WCAG 2.4.1 */}
@@ -129,13 +133,13 @@ export const Layout: React.FC<LayoutProps> = ({
           >
             <Search className="w-4 h-4 text-theme-tertiary group-hover:text-theme-secondary transition-colors" />
             <span className="text-sm font-medium text-theme-tertiary group-hover:text-theme-secondary transition-colors flex-1 text-left">Search...</span>
-            <span className="text-[10px] font-mono font-medium text-theme-muted bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded-md">{typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl+K'}</span>
+            <span className="text-[10px] font-mono font-medium text-theme-muted bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded-md">{modKey}K</span>
           </button>
         ) : (
           <button
             onClick={onOpenCommandPalette}
             className="w-14 h-14 mx-auto mb-6 rounded-[20px] volumetric-input hover-surface flex items-center justify-center text-theme-tertiary hover:text-theme-secondary transition-colors"
-            title="Search (Ctrl+K)"
+            title={`Search (${modKey}K)`}
           >
             <Search className="w-5 h-5" />
           </button>
@@ -230,7 +234,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 >
                   <Plus className="w-5 h-5" />
                   <span>New Task</span>
-                  <span className="ml-auto text-[10px] tracking-widest opacity-60 font-medium">Alt+N</span>
+                  <span className="ml-auto text-[10px] tracking-widest opacity-60 font-medium">{altKey}N</span>
                 </button>
                 {tasks && onEditTask && onNavigateToTasks && (
                   <NotificationPanel

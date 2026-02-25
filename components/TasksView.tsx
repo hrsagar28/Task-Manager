@@ -288,12 +288,18 @@ export const TasksView: React.FC<TasksViewProps> = ({
                       <div
                         key={task.id}
                         {...taskListRoving.getItemProps(idx)}
-                        className={`group flex flex-col p-4 rounded-[20px] transition-all duration-300 ease-smooth hover-surface animate-slide-up ${isSelected ? 'bg-blue-500/10 ring-1 ring-blue-500/30' : ''} ${isExpanded ? 'shadow-sm ring-1' : ''}`}
+                        className={`group relative flex flex-col p-4 rounded-[20px] transition-all duration-300 ease-smooth hover-surface animate-slide-up overflow-hidden ${isSelected ? 'bg-blue-500/10 ring-1 ring-blue-500/30' : ''} ${isExpanded ? 'shadow-sm ring-1' : ''}`}
                         style={{
                           animationDelay: `${Math.min(idx * 6, 120)}ms`,
                           ...(isExpanded ? { background: 'var(--glass-expanded)', '--tw-ring-color': 'var(--glass-border)' } as React.CSSProperties : {})
                         }}
                       >
+                        {/* Completion Flare (Triggered by CSS when transitioning to completed) */}
+                        {isCompleted && (
+                          <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden rounded-[20px]">
+                            <div className="absolute top-0 bottom-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent animate-completion-flare" />
+                          </div>
+                        )}
                         <div
                           className="flex items-center gap-4 cursor-pointer w-full"
                           onClick={() => setExpandedTaskId(prev => prev === task.id ? null : task.id)}
@@ -519,7 +525,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                               </div>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-3 pt-4 mt-4 border-t border-theme-divider">
+                            <div className="hidden md:flex flex-wrap items-center gap-3 pt-4 mt-4 border-t border-theme-divider">
                               <button
                                 onClick={(e) => { e.stopPropagation(); onEditTask(task); }}
                                 className="volumetric-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center gap-2 text-theme-secondary transition-transform hover:-translate-y-0.5"
@@ -563,6 +569,6 @@ export const TasksView: React.FC<TasksViewProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };

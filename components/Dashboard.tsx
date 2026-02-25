@@ -470,9 +470,15 @@ const TaskItem: React.FC<TaskItemProps> = ({
       `} />
 
       <div
-        className={`group flex flex-col gap-4 p-4 rounded-3xl volumetric-input transition-all duration-500 ease-smooth ${isCompleted ? 'opacity-50' : ''} ${isExpanded ? 'ring-1 scale-[1.01]' : ''}`}
+        className={`group flex flex-col gap-4 p-4 rounded-3xl volumetric-input transition-all duration-500 ease-smooth overflow-hidden ${isCompleted ? 'opacity-50' : ''} ${isExpanded ? 'ring-1 scale-[1.01]' : ''}`}
         style={isExpanded ? { background: 'var(--glass-expanded)', '--tw-ring-color': 'var(--glass-border)' } as React.CSSProperties : undefined}
       >
+        {/* Completion Flare */}
+        {isRippling && (
+          <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden rounded-3xl">
+            <div className="absolute top-0 bottom-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-completion-flare" />
+          </div>
+        )}
 
         {/* Task Header row */}
         <div className="flex items-start gap-4 cursor-pointer" onClick={onToggleExpand}>
@@ -672,7 +678,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 pt-4 mt-4 border-t border-theme-divider">
+            <div className="hidden md:flex flex-wrap items-center gap-3 pt-4 mt-4 border-t border-theme-divider">
               <button
                 onClick={(e) => { e.stopPropagation(); onEdit(); }}
                 className="volumetric-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center gap-2 text-theme-secondary transition-transform hover:-translate-y-0.5"
