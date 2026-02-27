@@ -254,9 +254,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Main Column */}
         <div className="lg:col-span-2 space-y-6 md:space-y-8">
           {overdueTasks.length > 0 && (
-            <GlassCard className="!border-red-500/30 opacity-0 animate-slide-up" style={{ animationDelay: '200ms' }}>
+            <GlassCard className="ring-1 ring-inset ring-red-500/30 border-transparent opacity-0 animate-slide-up" style={{ animationDelay: '200ms' }}>
               <div className="flex items-center gap-3 mb-6">
-                <div className="volumetric-btn w-10 h-10 rounded-full flex items-center justify-center text-red-500">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-red-500 bg-red-500/10 dark:bg-red-500/20">
                   <AlertCircle className="w-5 h-5" />
                 </div>
                 <h3 className="text-xl font-semibold tracking-tight text-red-600 dark:text-red-400">Overdue Filings</h3>
@@ -398,7 +398,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
 const StatPill: React.FC<{ title: string, value: number, icon: React.ReactNode, isAlert?: boolean, delay: number }> = ({ title, value, icon, isAlert, delay }) => (
   <div
-    className={`volumetric-chip rounded-[20px] p-4 flex items-center justify-between transition-transform duration-500 ease-smooth hover:-translate-y-1 ${isAlert ? '!border-red-500/30 bg-red-500/5' : ''}`}
+    className={`volumetric-chip rounded-[20px] p-4 flex items-center justify-between transition-transform duration-500 ease-smooth hover:-translate-y-1 ${isAlert ? 'ring-1 ring-inset ring-red-500/30 !border-transparent bg-red-500/5' : ''}`}
     style={{ animationDelay: `${delay}ms` }}
   >
     <div className="flex items-center gap-4">
@@ -461,16 +461,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
       className="relative group/task opacity-0 animate-slide-up"
       style={{ animationDelay: `${Math.min(index * 10, 150)}ms` }}
     >
-      {/* Contextual Ambient Glow Layer */}
-      <div className={`absolute -inset-1 rounded-[28px] blur-[20px] transition-all duration-700 ease-smooth -z-10
-        ${isCompleted ? 'bg-emerald-500/10 group-hover/task:bg-emerald-500/20'
-          : isInProgress ? 'bg-indigo-500/10 group-hover/task:bg-indigo-500/20'
-            : isOverdue ? 'bg-red-500/10 group-hover/task:bg-red-500/20'
-              : 'bg-transparent group-hover/task:bg-white/10 dark:group-hover/task:bg-white/5'}
-      `} />
-
       <div
-        className={`group flex flex-col gap-4 p-4 rounded-3xl volumetric-input transition-all duration-500 ease-smooth overflow-hidden ${isCompleted ? 'opacity-50' : ''} ${isExpanded ? 'ring-1 scale-[1.01]' : ''}`}
+        className={`group flex flex-col gap-4 p-4 rounded-3xl volumetric-input transition-all duration-500 ease-smooth overflow-hidden ${isCompleted ? 'opacity-50 bg-emerald-500/5' : ''} ${isExpanded ? 'ring-1 scale-[1.01]' : ''} ${!isCompleted && isInProgress ? 'bg-indigo-500/5' : ''} ${!isCompleted && !isInProgress && isOverdue ? 'bg-red-500/5' : ''}`}
         style={isExpanded ? { background: 'var(--glass-expanded)', '--tw-ring-color': 'var(--glass-border)' } as React.CSSProperties : undefined}
       >
         {/* Completion Flare */}
@@ -481,14 +473,14 @@ const TaskItem: React.FC<TaskItemProps> = ({
         )}
 
         {/* Task Header row */}
-        <div className="flex items-start gap-4 cursor-pointer" onClick={onToggleExpand}>
+        <div className="flex items-center gap-4 cursor-pointer" onClick={onToggleExpand}>
           <button
             onClick={handleToggle}
-            className={`mt-1 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isRippling ? 'animate-glass-ripple text-emerald-500' : ''} ${isCompleted
-              ? 'volumetric-input text-emerald-500 bg-emerald-500/10'
+            className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isRippling ? 'animate-glass-ripple text-emerald-500' : ''} ${isCompleted
+              ? 'text-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/20'
               : isInProgress
-                ? 'volumetric-btn text-indigo-500 bg-indigo-500/10'
-                : 'volumetric-btn text-theme-tertiary hover:text-theme-secondary'
+                ? 'text-indigo-500 bg-indigo-500/10 dark:bg-indigo-500/20'
+                : 'bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] shadow-sm hover:bg-black/[0.05] dark:hover:bg-white/[0.08] text-theme-tertiary'
               }`}
             aria-label={`Cycle status for task ${task.title}`}
           >
@@ -499,11 +491,11 @@ const TaskItem: React.FC<TaskItemProps> = ({
             ) : isInProgress ? (
               <Clock className="w-4 h-4 animate-pulse text-indigo-500" />
             ) : (
-              <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-500 opacity-50 transition-transform group-hover/task:scale-110" />
+              <div className="w-3 h-3 rounded-full bg-slate-400 dark:bg-slate-300 opacity-60 transition-transform group-hover/task:scale-110" />
             )}
           </button>
 
-          <div className="flex-1 min-w-0 pt-1">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3">
               <h4 className={`font-semibold text-base truncate transition-all duration-500 ease-smooth ${isCompleted ? 'line-through text-theme-tertiary' : 'text-theme-primary'}`}>
                 {task.title}
