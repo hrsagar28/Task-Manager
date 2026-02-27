@@ -200,6 +200,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 stroke="currentColor"
                 strokeWidth="10"
                 className="text-black/[0.08] dark:text-white/[0.06]"
+                style={{ stroke: 'var(--glass-expanded)' }}
               />
               {/* Progress Track */}
               <circle
@@ -235,7 +236,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </span>
             )}
             {todayProgress.total === 0 && (
-              <span className="inline-block mt-4 px-3 py-1.5 bg-slate-500/10 text-theme-tertiary rounded-xl text-xs font-semibold uppercase tracking-wider border border-slate-500/20 shadow-sm">
+              <span className="inline-block mt-4 px-3 py-1.5 bg-slate-500/10 dark:bg-slate-500/5 text-theme-tertiary rounded-xl text-xs font-semibold uppercase tracking-wider border border-slate-500/20 dark:border-white/[0.04] shadow-sm">
                 No tasks today
               </span>
             )}

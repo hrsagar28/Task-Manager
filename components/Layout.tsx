@@ -107,7 +107,9 @@ export const Layout: React.FC<LayoutProps> = ({
 
       {/* Sidebar Navigation (Desktop) */}
       <aside className={`hidden md:flex relative z-20 flex-col volumetric-surface glass-noise liquid-glass-sidebar rounded-[28px] m-4 mr-0 h-[calc(100dvh-2rem)] transition-all duration-500 ease-smooth ${isSidebarCollapsed ? 'w-[96px] py-6 px-3 items-center' : 'w-80 p-6'
-        } ${isFocusMode ? 'opacity-30 blur-[2px] hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'}`}>
+        } ${isFocusMode ? 'opacity-30 blur-[2px] hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'}`}
+        style={isDark ? { '--glass-surface-from': 'rgba(255, 255, 255, 0.03)', '--glass-surface-mid': 'rgba(255, 255, 255, 0.03)', '--glass-surface-to': 'rgba(255, 255, 255, 0.01)' } as React.CSSProperties : undefined}
+      >
 
         <div className={`flex items-center gap-4 mb-12 w-full ${isSidebarCollapsed ? 'justify-center px-0' : 'px-2'}`}>
           <div className="relative shrink-0">

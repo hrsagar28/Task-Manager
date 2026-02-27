@@ -655,7 +655,7 @@ html.dark .volumetric-surface {
       rgba(120, 160, 255, 0.04) 35%,
       rgba(180, 120, 255, 0.03) 65%,
       rgba(120, 160, 255, 0.0) 100%),
-    linear-gradient(180deg, var(--glass-surface-from) 0%, var(--glass-surface-to) 100%);
+    linear-gradient(180deg, var(--glass-surface-from) 0%, var(--glass-surface-mid) 50%, var(--glass-surface-to) 100%);
   background-blend-mode: multiply, color-dodge, normal;
   border: 0.5px solid rgba(255, 255, 255, 0.04);
 }
@@ -830,8 +830,24 @@ html.dark .volumetric-input:hover {
 html.dark .volumetric-chip,
 html.dark .volumetric-btn,
 html.dark .volumetric-btn-primary {
-  backdrop-filter: blur(32px) saturate(1.7) brightness(0.92) contrast(1.08);
-  -webkit-backdrop-filter: blur(32px) saturate(1.7) brightness(0.92) contrast(1.08);
+  backdrop-filter: blur(40px) saturate(1.7) brightness(0.92) contrast(1.08);
+  -webkit-backdrop-filter: blur(40px) saturate(1.7) brightness(0.92) contrast(1.08);
+}
+
+html.dark .volumetric-chip {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.02),
+    inset -1px 0 0 0 rgba(255, 255, 255, 0.02),
+    0 4px 12px -4px rgba(0, 0, 0, 0.5);
+}
+
+html.dark .volumetric-chip:hover {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.03),
+    inset -1px 0 0 0 rgba(255, 255, 255, 0.03),
+    0 6px 16px -4px rgba(0, 0, 0, 0.6);
 }
 
 .glass-shelf {
