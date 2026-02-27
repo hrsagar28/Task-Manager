@@ -21,6 +21,14 @@
 <body class="overflow-hidden fixed inset-0 w-full h-[100dvh]" style="color: var(--text-primary);">
   <div id="root" class="relative w-full h-full"></div>
   <script type="module" src="/index.tsx"></script>
+  <svg style="position:absolute;width:0;height:0;pointer-events:none" aria-hidden="true">
+    <defs>
+      <filter id="glass-lens">
+        <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" result="noise" seed="1"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
 </body>
 
 </html>
