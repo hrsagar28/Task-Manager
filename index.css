@@ -404,7 +404,7 @@ html.dark {
   --glass-input-focus-bg: rgba(255, 255, 255, 0.05);
   --input-focus-border: rgba(120, 170, 255, 0.2);
 
-  --edge-top: rgba(255, 255, 255, 0.15);
+  --edge-top: rgba(255, 255, 255, 0.12);
   --edge-bottom: rgba(255, 255, 255, 0.03);
   --edge-glow: rgba(255, 255, 255, 0.18);
 
@@ -422,7 +422,7 @@ html.dark {
 
   --shadow-surface:
     /* Top lip — brighter in dark mode for visibility */
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 0 var(--edge-top),
     /* Inner glow ring */
     inset 0 0 0 0.5px rgba(255, 255, 255, 0.1),
     /* Bottom lip */

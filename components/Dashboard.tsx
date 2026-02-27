@@ -351,7 +351,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 {upcomingTasks.map((task, index) => {
                   const { label: relDateLabel, urgent: isDateUrgent } = formatRelativeDate(task.dueDate);
                   return (
-                    <div key={task.id} className="group flex flex-col gap-1 volumetric-input p-4 rounded-2xl opacity-0 animate-slide-up" style={{ animationDelay: `${Math.min(index * 12, 200)}ms` }}>
+                    <div key={task.id} className="group flex flex-col gap-1 volumetric-input p-4 rounded-xl opacity-0 animate-slide-up" style={{ animationDelay: `${Math.min(index * 12, 200)}ms` }}>
                       <div className="flex justify-between items-start">
                         <p className="font-semibold text-sm line-clamp-1 text-theme-secondary flex items-center">
                           {task.title}
