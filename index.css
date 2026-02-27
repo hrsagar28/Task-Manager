@@ -1069,7 +1069,7 @@ html.dark input[type="date"] {
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.15s !important;
+    transition-duration: 0.01ms !important;
   }
 
   .animate-slide-up,
@@ -1082,7 +1082,8 @@ html.dark input[type="date"] {
   }
 
   body::before,
-  body::after {
+  body::after,
+  .liquid-glass-sidebar::after {
     animation: none !important;
     opacity: 1 !important;
   }
@@ -1092,29 +1093,130 @@ html.dark input[type="date"] {
     animation: none !important;
   }
 
-  .volumetric-surface {
+  .volumetric-surface,
+  .glass-tier-2,
+  .glass-tier-3,
+  html.dark .volumetric-surface,
+  html.dark .glass-tier-2,
+  html.dark .glass-tier-3 {
     backdrop-filter: blur(12px) saturate(1.2) !important;
     -webkit-backdrop-filter: blur(12px) saturate(1.2) !important;
-  }
-
-  .volumetric-btn {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .volumetric-surface {
     filter: none !important;
   }
 
-  .glass-noise::after {
+  .volumetric-surface::before,
+  .volumetric-surface::after,
+  .glass-tier-2::before,
+  .glass-tier-3::before,
+  html.dark .volumetric-surface::before,
+  html.dark .glass-tier-2::before,
+  html.dark .glass-tier-3::before {
+    display: none !important;
+  }
+
+  .volumetric-btn,
+  html.dark .volumetric-btn {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .glass-noise::after,
+  html.dark .glass-noise::after {
     opacity: 0 !important;
   }
 }
 
-@media (max-width: 767px) {
-  .volumetric-surface {
-    filter: none;
+/* ============================== */
+/* GPU & MOBILE PERF OPTIMIZATIONS*/
+/* ============================== */
+
+/* Fix 1 & 6: Hardware acceleration and layout containment */
+.volumetric-surface,
+.glass-tier-2,
+.glass-tier-3,
+.volumetric-chip,
+.volumetric-btn,
+.volumetric-btn-primary,
+.volumetric-input,
+.liquid-glass-sidebar {
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.volumetric-surface,
+.glass-tier-2,
+.glass-tier-3 {
+  contain: layout style paint;
+}
+
+@media (max-width: 768px) {
+
+  /* Fix 2: Reduce backdrop-filter blur on mobile */
+  .volumetric-surface,
+  .glass-tier-2,
+  .glass-tier-3,
+  .volumetric-chip,
+  .volumetric-btn,
+  .volumetric-btn-primary,
+  html.dark .volumetric-surface,
+  html.dark .glass-tier-2,
+  html.dark .glass-tier-3,
+  html.dark .volumetric-chip,
+  html.dark .volumetric-btn,
+  html.dark .volumetric-btn-primary {
+    backdrop-filter: blur(20px) saturate(1.2) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(1.2) !important;
+    filter: none !important;
+  }
+
+  /* Fix 7: Optimize sidebar for mobile */
+  .liquid-glass-sidebar,
+  html.dark .liquid-glass-sidebar {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(15, 20, 30, 0.95) !important;
+  }
+
+  /* Fix 3: Simplify box-shadows on mobile */
+  .volumetric-surface,
+  .glass-tier-2,
+  .glass-tier-3,
+  html.dark .volumetric-surface,
+  html.dark .glass-tier-2,
+  html.dark .glass-tier-3 {
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+      0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  /* Fix 5: Eliminate pseudo-element glass layers on mobile */
+  .volumetric-surface::before,
+  .volumetric-surface::after,
+  .glass-tier-2::before,
+  .glass-tier-3::before,
+  .liquid-glass-sidebar::after,
+  html.dark .volumetric-surface::before,
+  html.dark .glass-tier-2::before,
+  html.dark .glass-tier-3::before {
+    display: none !important;
+  }
+
+  .volumetric-surface,
+  .glass-tier-2,
+  .glass-tier-3 {
+    background: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  html.dark .volumetric-surface,
+  html.dark .glass-tier-2,
+  html.dark .glass-tier-3 {
+    background: rgba(255, 255, 255, 0.04) !important;
+  }
+
+  /* Fix 4: Pause background animations on mobile */
+  body::before,
+  body::after {
+    animation-play-state: paused !important;
   }
 }
