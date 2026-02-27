@@ -100,7 +100,7 @@ export const Layout: React.FC<LayoutProps> = ({
         Skip to main content
       </a>
       {/* Ambient light washes — extremely subtle, large scale */}
-      <div className={`fixed inset-0 z-0 pointer-events-none transition-opacity duration-1000 ${isFocusMode ? 'opacity-20' : 'opacity-100'}`}>
+      <div className={`fixed inset-0 z-0 pointer-events-none transition-opacity duration-1000 ${isDark ? 'opacity-40' : 'opacity-100'} ${isFocusMode ? (isDark ? 'opacity-20' : 'opacity-20') : ''}`}>
         <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[60%] rounded-full blur-[120px]" style={{ background: `radial-gradient(ellipse, var(--ambient-cool) 0%, transparent 70%)` }} />
         <div className="absolute -bottom-[20%] -right-[10%] w-[60%] h-[50%] rounded-full blur-[120px]" style={{ background: `radial-gradient(ellipse, var(--ambient-warm) 0%, transparent 70%)` }} />
       </div>

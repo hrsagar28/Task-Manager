@@ -392,9 +392,12 @@ html.dark {
   --ambient-cool: rgba(59, 130, 246, 0.10);
   --ambient-warm: rgba(168, 85, 247, 0.07);
 
-  --glass-surface-from: rgba(255, 255, 255, 0.05);
-  --glass-surface-to: rgba(255, 255, 255, 0.03);
+  --glass-surface-from: rgba(255, 255, 255, 0.04);
+  --glass-surface-mid: rgba(255, 255, 255, 0.025);
+  --glass-surface-to: rgba(255, 255, 255, 0.015);
   --glass-blur: blur(48px) saturate(1.7) brightness(0.92) contrast(1.08);
+  --specular-intensity: rgba(255, 255, 255, 0.03);
+  --specular-blend: screen;
   /* 48px blur */
   --glass-border: rgba(255, 255, 255, 0.04);
   --glass-expanded: rgba(255, 255, 255, 0.06);
@@ -433,18 +436,12 @@ html.dark {
   --primary-edge-bottom: rgba(0, 0, 0, 0.15);
 
   --shadow-surface:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
-    /* top edge — primary specular highlight */
-    inset 1px 0 0 0 rgba(255, 255, 255, 0.04),
-    /* left edge — subtle */
-    inset -1px 0 0 0 rgba(255, 255, 255, 0.04),
-    /* right edge — subtle */
-    inset 0 -1px 0 0 rgba(255, 255, 255, 0.02),
-    /* bottom edge — near invisible */
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.10),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.03),
+    inset -1px 0 0 0 rgba(255, 255, 255, 0.03),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.01),
     0 8px 32px rgba(0, 0, 0, 0.5),
-    /* outer drop shadow for depth */
     0 2px 8px rgba(0, 0, 0, 0.3);
-  /* tighter outer shadow */
 
   --shadow-btn:
     0 1px 3px -1px rgba(0, 0, 0, 0.2),
@@ -542,8 +539,8 @@ body::after {
 }
 
 html.dark .glass-noise::after {
-  opacity: 0.05;
-  mix-blend-mode: soft-light;
+  opacity: 0.03;
+  mix-blend-mode: overlay;
 }
 
 /* --- GLASS MATERIAL LAYERS --- */
@@ -640,6 +637,23 @@ html.dark .liquid-glass-sidebar::after {
   z-index: 0;
   mix-blend-mode: var(--specular-blend);
   transition: background 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.dark .volumetric-surface::before,
+html.dark .glass-tier-2::before,
+html.dark .glass-tier-3::before {
+  background:
+    linear-gradient(var(--specular-angle, 110deg),
+      rgba(255, 255, 255, 0.0) 0%,
+      var(--specular-intensity) 15%,
+      rgba(255, 255, 255, 0.0) 35%,
+      rgba(0, 0, 0, 0.015) 80%,
+      rgba(0, 0, 0, 0.0) 100%),
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.0) 10%,
+      rgba(0, 0, 0, 0.0) 100%);
+  opacity: 0.6;
 }
 
 html.dark .volumetric-surface {
