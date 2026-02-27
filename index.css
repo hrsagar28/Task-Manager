@@ -225,6 +225,17 @@
   .volumetric-input {
     corner-shape: squircle;
   }
+
+  .volumetric-surface::before,
+  .glass-tier-2::before,
+  .glass-tier-3::before,
+  .volumetric-chip::before,
+  .volumetric-btn::before,
+  .volumetric-btn-primary::before,
+  .volumetric-input::before,
+  .glass-noise::after {
+    corner-shape: inherit;
+  }
 }
 
 /* ============================== */
