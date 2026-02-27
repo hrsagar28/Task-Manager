@@ -210,6 +210,23 @@
   }
 }
 
+/* --- CONTINUOUS CORNER CURVES (SQUIRCLE) --- */
+/* Progressive enhancement: applies Apple-style continuous
+   corner curves where browser supports it. Falls back to
+   standard border-radius gracefully. */
+@supports (corner-shape: squircle) {
+
+  .volumetric-surface,
+  .glass-tier-2,
+  .glass-tier-3,
+  .volumetric-chip,
+  .volumetric-btn,
+  .volumetric-btn-primary,
+  .volumetric-input {
+    corner-shape: squircle;
+  }
+}
+
 /* ============================== */
 /* LIQUID GLASS DESIGN TOKENS     */
 /* ============================== */
@@ -326,9 +343,8 @@
     0 1px 0 0 rgba(255, 255, 255, 0.5);
 
   /* Specular */
-  --mouse-x: 50vw;
-  --mouse-y: 50vh;
-  --specular-intensity: rgba(255, 255, 255, 0.1);
+  --specular-angle: 110deg;
+  --specular-intensity: rgba(255, 255, 255, 0.12);
   --specular-blend: soft-light;
 
   /* Text */
@@ -438,7 +454,8 @@ html.dark {
     0 0 0 3px rgba(100, 160, 255, 0.15),
     0 1px 0 0 rgba(255, 255, 255, 0.08);
 
-  --specular-intensity: rgba(255, 255, 255, 0.06);
+  --specular-angle: 110deg;
+  --specular-intensity: rgba(255, 255, 255, 0.08);
   --specular-blend: screen;
 
   --text-primary: #f1f5f9;
@@ -565,13 +582,20 @@ html.dark .liquid-glass-sidebar::after {
 .volumetric-surface {
   position: relative;
   background:
+    /* Layer 1: Edge vignette — darkens perimeter, clear center */
+    radial-gradient(ellipse at 50% 50%,
+      rgba(0, 0, 0, 0.0) 55%,
+      rgba(0, 0, 0, 0.02) 80%,
+      rgba(0, 0, 0, 0.05) 100%),
+    /* Layer 2: Vibrancy color-dodge (from Change 3) */
     linear-gradient(135deg,
       rgba(255, 255, 255, 0.0) 0%,
       rgba(255, 255, 255, 0.03) 40%,
       rgba(255, 255, 255, 0.0) 60%,
       rgba(200, 220, 255, 0.02) 100%),
+    /* Layer 3: Base glass gradient */
     linear-gradient(180deg, var(--glass-surface-from) 0%, var(--glass-surface-to) 100%);
-  background-blend-mode: color-dodge, normal;
+  background-blend-mode: multiply, color-dodge, normal;
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   box-shadow: var(--shadow-surface);
@@ -587,23 +611,40 @@ html.dark .liquid-glass-sidebar::after {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(600px ellipse at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      var(--specular-intensity) 0%,
-      transparent 70%);
+  background:
+    /* Primary environment reflection — broad angled strip */
+    linear-gradient(var(--specular-angle, 110deg),
+      rgba(255, 255, 255, 0.0) 0%,
+      var(--specular-intensity) 25%,
+      rgba(255, 255, 255, 0.0) 50%,
+      rgba(0, 0, 0, 0.015) 80%,
+      rgba(0, 0, 0, 0.0) 100%),
+    /* Secondary subtle rim highlight on top edge */
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.0) 15%,
+      rgba(0, 0, 0, 0.0) 100%);
   pointer-events: none;
   z-index: 0;
   mix-blend-mode: var(--specular-blend);
+  transition: background 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html.dark .volumetric-surface {
   background:
+    /* Edge vignette — slightly stronger in dark mode */
+    radial-gradient(ellipse at 50% 50%,
+      rgba(0, 0, 0, 0.0) 50%,
+      rgba(0, 0, 0, 0.04) 75%,
+      rgba(0, 0, 0, 0.08) 100%),
+    /* Vibrancy (dark mode version from Change 3) */
     linear-gradient(135deg,
       rgba(120, 160, 255, 0.0) 0%,
       rgba(120, 160, 255, 0.04) 35%,
       rgba(180, 120, 255, 0.03) 65%,
       rgba(120, 160, 255, 0.0) 100%),
     linear-gradient(180deg, var(--glass-surface-from) 0%, var(--glass-surface-to) 100%);
-  background-blend-mode: color-dodge, normal;
+  background-blend-mode: multiply, color-dodge, normal;
 }
 
 .volumetric-surface>*,

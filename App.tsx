@@ -241,18 +241,11 @@ function App() {
 
       const doc = document.documentElement;
 
-      if (isTouch) {
-        // Touch behavior uses percentages relative to viewport size
-        // We use viewport units because CSS radial-gradient parses them gracefully
-        const vhVal = (smoothMouseY / window.innerHeight) * 100;
-        const vwVal = (smoothMouseX / window.innerWidth) * 100;
-        doc.style.setProperty('--mouse-x', `${vwVal}vw`);
-        doc.style.setProperty('--mouse-y', `${vhVal}vh`);
-      } else {
-        // Desktop behavior uses absolute pixel values
-        doc.style.setProperty('--mouse-x', `${smoothMouseX}px`);
-        doc.style.setProperty('--mouse-y', `${smoothMouseY}px`);
-      }
+      // Map smoothed conceptual position to a gentle angle shift (100deg to 130deg range)
+      const x = smoothMouseX / window.innerWidth;
+      const y = smoothMouseY / window.innerHeight;
+      const angle = 100 + (x * 20) + (y * 10);
+      doc.style.setProperty('--specular-angle', `${angle}deg`);
 
       // Keep running the loop if we haven't reached the target
       if (Math.abs(rawMouseX - smoothMouseX) > 0.1 || Math.abs(rawMouseY - smoothMouseY) > 0.1) {
@@ -268,10 +261,17 @@ function App() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      // For desktop: direct mapping to pixel coordinates
-      rawMouseX = e.clientX;
-      rawMouseY = e.clientY;
-      requestVariableUpdate();
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          // Map mouse position to a gentle angle shift (100deg to 130deg range)
+          const x = e.clientX / window.innerWidth;  // 0 to 1
+          const y = e.clientY / window.innerHeight; // 0 to 1
+          const angle = 100 + (x * 20) + (y * 10);  // Range: 100deg to 130deg
+          document.documentElement.style.setProperty('--specular-angle', `${angle}deg`);
+          ticking = false;
+        });
+      }
     };
 
     const handleTouchScroll = () => {
@@ -746,8 +746,8 @@ function App() {
           onNavigateToTasks={() => handleViewChange('TASKS')}
         >
           <div className={`h-full w-full transition-all duration-150 ease-smooth ${isTransitioning
-              ? 'opacity-0 scale-[0.99] blur-[4px]'
-              : 'opacity-100 scale-100 blur-0'
+            ? 'opacity-0 scale-[0.99] blur-[4px]'
+            : 'opacity-100 scale-100 blur-0'
             }`}>
             {displayView === 'DASHBOARD' && (
               <Dashboard
