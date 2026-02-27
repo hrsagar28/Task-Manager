@@ -160,7 +160,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
 
       <div
         ref={focusTrapRef}
-        className="relative w-full max-w-2xl max-h-[100dvh] md:max-h-[90dvh] flex flex-col glass-tier-2 rounded-none md:rounded-[32px] overflow-hidden animate-glass-materialize"
+        className="relative w-full max-w-2xl max-h-[100dvh] md:max-h-[90dvh] flex flex-col glass-tier-2 glass-noise rounded-none md:rounded-[32px] overflow-hidden animate-glass-materialize"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
@@ -365,7 +365,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
                     type="button"
                     onClick={() => setStatus(s.val)}
                     className={`flex-1 py-2.5 rounded-[12px] text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth ${status === s.val
-                      ? 'volumetric-surface shadow-sm text-theme-primary scale-[1.02]'
+                      ? 'volumetric-surface glass-noise shadow-sm text-theme-primary scale-[1.02]'
                       : 'text-theme-tertiary hover:text-theme-secondary hover-surface'
                       }`}
                   >

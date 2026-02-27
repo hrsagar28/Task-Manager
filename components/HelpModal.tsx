@@ -17,7 +17,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
       <div className="absolute inset-0 backdrop-blur-2xl saturate-150 animate-fade-in" style={{ background: 'var(--modal-backdrop)' }} aria-hidden="true" />
       <div
         ref={focusTrapRef as any}
-        className="relative volumetric-surface w-full max-w-sm rounded-[32px] p-8 shadow-2xl animate-scale-in"
+        className="relative volumetric-surface glass-noise w-full max-w-sm rounded-[32px] p-8 shadow-2xl animate-scale-in"
         onClick={e => e.stopPropagation()}
         role="dialog"
         aria-modal="true"

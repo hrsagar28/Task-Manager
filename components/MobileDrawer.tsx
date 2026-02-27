@@ -95,7 +95,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
             <div className="fixed inset-0 z-[151] pointer-events-none flex justify-end md:hidden">
                 <div
                     ref={drawerRef}
-                    className="pointer-events-auto w-[300px] max-w-[85vw] h-full volumetric-surface shadow-[-20px_0_60px_-12px_rgba(0,0,0,0.15)] flex flex-col"
+                    className="pointer-events-auto w-[300px] max-w-[85vw] h-full volumetric-surface glass-noise shadow-[-20px_0_60px_-12px_rgba(0,0,0,0.15)] flex flex-col"
                     style={{
                         animation: 'drawer-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         borderRadius: '28px 0 0 28px',

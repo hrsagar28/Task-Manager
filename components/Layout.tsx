@@ -95,7 +95,7 @@ export const Layout: React.FC<LayoutProps> = ({
       {/* Skip to main content — WCAG 2.4.1 */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-6 focus:py-3 focus:rounded-2xl focus:volumetric-surface focus:text-theme-primary focus:text-sm focus:font-semibold focus:shadow-lg focus:animate-fade-in"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-6 focus:py-3 focus:rounded-2xl focus:volumetric-surface glass-noise focus:text-theme-primary focus:text-sm focus:font-semibold focus:shadow-lg focus:animate-fade-in"
       >
         Skip to main content
       </a>
@@ -106,7 +106,7 @@ export const Layout: React.FC<LayoutProps> = ({
       </div>
 
       {/* Sidebar Navigation (Desktop) */}
-      <aside className={`hidden md:flex relative z-20 flex-col volumetric-surface liquid-glass-sidebar rounded-[28px] m-4 mr-0 h-[calc(100dvh-2rem)] transition-all duration-500 ease-smooth ${isSidebarCollapsed ? 'w-[96px] py-6 px-3 items-center' : 'w-80 p-6'
+      <aside className={`hidden md:flex relative z-20 flex-col volumetric-surface glass-noise liquid-glass-sidebar rounded-[28px] m-4 mr-0 h-[calc(100dvh-2rem)] transition-all duration-500 ease-smooth ${isSidebarCollapsed ? 'w-[96px] py-6 px-3 items-center' : 'w-80 p-6'
         } ${isFocusMode ? 'opacity-30 blur-[2px] hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'}`}>
 
         <div className={`flex items-center gap-4 mb-12 w-full ${isSidebarCollapsed ? 'justify-center px-0' : 'px-2'}`}>
@@ -337,7 +337,7 @@ export const Layout: React.FC<LayoutProps> = ({
 
       {/* Bottom Navigation (Mobile) - Glass Pill */}
       <nav
-        className={`md:hidden absolute bottom-0 left-0 right-0 z-40 volumetric-surface glass-shelf transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,height,padding] ${isNavCompact ? 'mx-6 mb-6 rounded-[32px] px-2' : 'rounded-t-[28px] px-1'
+        className={`md:hidden absolute bottom-0 left-0 right-0 z-40 volumetric-surface glass-noise glass-shelf transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,height,padding] ${isNavCompact ? 'mx-6 mb-6 rounded-[32px] px-2' : 'rounded-t-[28px] px-1'
           } ${isFocusMode ? 'opacity-40 blur-sm hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'}`}
         style={{
           paddingBottom: isNavCompact ? '0' : 'calc(0.5rem + env(safe-area-inset-bottom, 0px))',

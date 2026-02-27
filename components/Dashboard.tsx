@@ -154,7 +154,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
           <div className="relative w-48 h-48 mx-auto mb-8 flex items-center justify-center">
             <div className="absolute inset-0 bg-emerald-500/10 blur-[50px] rounded-full" />
-            <div className="relative z-10 volumetric-surface w-32 h-32 rounded-[36px] flex items-center justify-center">
+            <div className="relative z-10 volumetric-surface glass-noise w-32 h-32 rounded-[36px] flex items-center justify-center">
               <span className="text-5xl font-bold bg-gradient-to-b from-slate-700 to-slate-500 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">A</span>
             </div>
           </div>
@@ -188,7 +188,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* Progress & Stats Section */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Hero Progress Card */}
-        <div className="md:col-span-2 volumetric-surface rounded-[32px] p-6 md:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6 md:gap-8 opacity-0 animate-slide-up">
+        <div className="md:col-span-2 volumetric-surface glass-noise rounded-[32px] p-6 md:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6 md:gap-8 opacity-0 animate-slide-up">
           <div className="relative w-32 h-32 shrink-0 flex items-center justify-center">
             {/* Ambient glow behind ring */}
             <div className="absolute inset-2 bg-emerald-500/20 blur-xl rounded-full" />
@@ -301,9 +301,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 {/* Illustrative Volumetric Empty State */}
                 <div className="relative w-40 h-40 mx-auto mb-8 flex items-center justify-center">
                   <div className="absolute inset-0 bg-emerald-500/10 blur-[40px] rounded-full" />
-                  <div className="absolute top-4 left-4 w-16 h-16 volumetric-surface rounded-2xl rotate-[-15deg] opacity-60 transition-transform hover:rotate-[-5deg] duration-500" />
-                  <div className="absolute bottom-4 right-4 w-20 h-20 volumetric-surface rounded-[20px] rotate-[15deg] opacity-40 transition-transform hover:rotate-[5deg] duration-500" />
-                  <div className="relative z-10 volumetric-surface w-28 h-28 rounded-[32px] flex items-center justify-center transform hover:scale-105 transition-transform duration-500 ease-smooth">
+                  <div className="absolute top-4 left-4 w-16 h-16 volumetric-surface glass-noise rounded-2xl rotate-[-15deg] opacity-60 transition-transform hover:rotate-[-5deg] duration-500" />
+                  <div className="absolute bottom-4 right-4 w-20 h-20 volumetric-surface glass-noise rounded-[20px] rotate-[15deg] opacity-40 transition-transform hover:rotate-[5deg] duration-500" />
+                  <div className="relative z-10 volumetric-surface glass-noise w-28 h-28 rounded-[32px] flex items-center justify-center transform hover:scale-105 transition-transform duration-500 ease-smooth">
                     <div className="volumetric-btn w-16 h-16 rounded-[20px] flex items-center justify-center bg-emerald-500/10 text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
                       <CheckCircle className="w-8 h-8" />
                     </div>
@@ -591,7 +591,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
             {isMenuOpen && (
               <>
                 <div className="fixed inset-0 z-[90]" onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); }} />
-                <div className="absolute right-0 top-12 z-[100] glass-tier-3 rounded-[20px] p-2 min-w-[180px] shadow-lg animate-scale-in origin-top-right flex flex-col">
+                <div className="absolute right-0 top-12 z-[100] glass-tier-3 glass-noise rounded-[20px] p-2 min-w-[180px] shadow-lg animate-scale-in origin-top-right flex flex-col">
                   <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); onEdit(); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-theme-secondary text-sm font-semibold transition-colors">
                     <Edit2 className="w-4 h-4" /> Edit
                   </button>
@@ -611,7 +611,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
         {isExpanded && (
           <div className="pl-12 pr-4 pb-2 animate-slide-down origin-top">
             {task.description && (
-              <div className="volumetric-surface p-4 rounded-2xl mb-4 text-sm font-medium text-theme-secondary whitespace-pre-wrap leading-relaxed">
+              <div className="volumetric-surface glass-noise p-4 rounded-2xl mb-4 text-sm font-medium text-theme-secondary whitespace-pre-wrap leading-relaxed">
                 {task.description}
               </div>
             )}

@@ -35,7 +35,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
         if (this.state.hasError) {
             return (
                 <div className="h-[100dvh] w-full flex items-center justify-center p-6" style={{ background: 'var(--bg-app)', color: 'var(--text-primary)' }}>
-                    <div className="volumetric-surface rounded-[32px] p-10 max-w-lg w-full text-center space-y-6">
+                    <div className="volumetric-surface glass-noise rounded-[32px] p-10 max-w-lg w-full text-center space-y-6">
                         <div className="w-16 h-16 mx-auto rounded-full bg-red-500/10 flex items-center justify-center">
                             <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

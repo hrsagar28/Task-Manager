@@ -407,7 +407,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                   })() : (
                     <div className="relative">
                       {isLinking ? (
-                        <div className="absolute top-0 left-0 z-20 w-[280px] volumetric-surface rounded-[16px] p-2 shadow-xl animate-scale-in origin-top-left">
+                        <div className="absolute top-0 left-0 z-20 w-[280px] volumetric-surface glass-noise rounded-[16px] p-2 shadow-xl animate-scale-in origin-top-left">
                           <div className="relative mb-2">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-theme-tertiary" />
                             <input
@@ -433,7 +433,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                               <div className="px-3 py-2 text-xs text-theme-tertiary text-center">No matching tasks</div>
                             )}
                           </div>
-                          <button onClick={() => setIsLinking(false)} className="absolute -top-2 -right-2 w-6 h-6 rounded-full volumetric-surface shadow-sm flex items-center justify-center text-theme-tertiary hover:text-theme-primary transition-transform hover:scale-110"><X className="w-3 h-3" /></button>
+                          <button onClick={() => setIsLinking(false)} className="absolute -top-2 -right-2 w-6 h-6 rounded-full volumetric-surface glass-noise shadow-sm flex items-center justify-center text-theme-tertiary hover:text-theme-primary transition-transform hover:scale-110"><X className="w-3 h-3" /></button>
                         </div>
                       ) : (
                         <button onClick={() => { setIsLinking(true); setLinkSearch(''); }} className="volumetric-input px-3 py-1.5 rounded-xl text-[11px] font-medium text-theme-tertiary hover:text-theme-primary flex items-center gap-1.5 transition-colors">
@@ -553,9 +553,9 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
           <div className="h-full flex flex-col items-center justify-center text-center animate-fade-in pb-10">
             <div className="relative w-36 h-36 mx-auto mb-8 flex items-center justify-center">
               <div className="absolute inset-0 bg-emerald-500/8 blur-[40px] rounded-full" />
-              <div className="absolute top-3 left-3 w-14 h-14 volumetric-surface rounded-2xl rotate-[-12deg] opacity-50" />
-              <div className="absolute bottom-3 right-3 w-16 h-16 volumetric-surface rounded-[18px] rotate-[12deg] opacity-35" />
-              <div className="relative z-10 volumetric-surface w-24 h-24 rounded-[28px] flex items-center justify-center">
+              <div className="absolute top-3 left-3 w-14 h-14 volumetric-surface glass-noise rounded-2xl rotate-[-12deg] opacity-50" />
+              <div className="absolute bottom-3 right-3 w-16 h-16 volumetric-surface glass-noise rounded-[18px] rotate-[12deg] opacity-35" />
+              <div className="relative z-10 volumetric-surface glass-noise w-24 h-24 rounded-[28px] flex items-center justify-center">
                 <div className="volumetric-btn w-14 h-14 rounded-[18px] flex items-center justify-center text-emerald-500/60">
                   <FileText className="w-7 h-7" />
                 </div>

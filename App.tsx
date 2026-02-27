@@ -847,7 +847,7 @@ function App() {
       <div aria-live="polite" aria-atomic="true" className="fixed left-1/2 -translate-x-1/2 z-[200] bottom-28 md:bottom-10 pointer-events-none">
         {toast && (
           <div className="animate-slide-up pointer-events-auto">
-            <div className="volumetric-surface px-6 py-4 rounded-[24px] flex items-center gap-4 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04)]" role="status">
+            <div className="volumetric-surface glass-noise px-6 py-4 rounded-[24px] flex items-center gap-4 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04)]" role="status">
               {toast.type === 'error' ? <AlertCircle className="w-5 h-5 text-red-500" /> : <CheckCircle className="w-5 h-5 text-emerald-500" />}
               <span className="font-semibold text-sm tracking-wide text-theme-primary whitespace-nowrap">{toast.message}</span>
               {toast.action && (
