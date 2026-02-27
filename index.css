@@ -599,9 +599,6 @@ html.dark .liquid-glass-sidebar::after {
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   box-shadow: var(--shadow-surface);
-  filter: url(#glass-lens);
-  transform: translateZ(0);
-  /* Force GPU compositing for the filter */
 }
 
 .volumetric-surface::before,
