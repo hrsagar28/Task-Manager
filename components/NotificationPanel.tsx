@@ -154,8 +154,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
             {expanded ? (
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="relative volumetric-btn w-full py-3.5 px-5 rounded-[20px] flex items-center gap-4 transition-all hover:text-theme-primary"
-                    style={{ color: 'var(--text-tertiary)' }}
+                    className="relative w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-theme-secondary transition-all duration-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] active:scale-[0.98]"
                     aria-label={`Notifications: ${totalCount} pending`}
                     title={`${totalCount} notification${totalCount !== 1 ? 's' : ''}`}
                 >

@@ -301,8 +301,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 {/* Illustrative Volumetric Empty State */}
                 <div className="relative w-40 h-40 mx-auto mb-8 flex items-center justify-center">
                   <div className="absolute inset-0 bg-emerald-500/10 blur-[40px] rounded-full" />
-                  <div className="absolute top-4 left-4 w-16 h-16 volumetric-surface glass-noise rounded-2xl rotate-[-15deg] opacity-60 transition-transform hover:rotate-[-5deg] duration-500" />
-                  <div className="absolute bottom-4 right-4 w-20 h-20 volumetric-surface glass-noise rounded-[20px] rotate-[15deg] opacity-40 transition-transform hover:rotate-[5deg] duration-500" />
+                  <div className="absolute top-4 left-4 w-16 h-16 rounded-2xl rotate-[-15deg] opacity-40 bg-white/[0.07] dark:bg-white/[0.05] shadow-[inset_0_0.5px_0_0_rgba(255,255,255,0.15),0_2px_8px_-2px_rgba(0,0,0,0.1)]" />
+                  <div className="absolute bottom-4 right-4 w-20 h-20 rounded-[20px] rotate-[15deg] opacity-30 bg-white/[0.07] dark:bg-white/[0.05] shadow-[inset_0_0.5px_0_0_rgba(255,255,255,0.15),0_2px_8px_-2px_rgba(0,0,0,0.1)]" />
                   <div className="relative z-10 volumetric-surface glass-noise w-28 h-28 rounded-[32px] flex items-center justify-center transform hover:scale-105 transition-transform duration-500 ease-smooth">
                     <div className="volumetric-btn w-16 h-16 rounded-[20px] flex items-center justify-center bg-emerald-500/10 text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
                       <CheckCircle className="w-8 h-8" />

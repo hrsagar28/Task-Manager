@@ -247,8 +247,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 {onToggleTheme && (
                   <button
                     onClick={onToggleTheme}
-                    className="volumetric-btn w-full py-3.5 px-5 rounded-[20px] flex items-center gap-4 transition-colors hover:text-theme-primary"
-                    style={{ color: 'var(--text-tertiary)' }}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-theme-secondary transition-all duration-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] active:scale-[0.98]"
                     title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                   >
                     {isDark ? <Sun className="w-5 h-5 shrink-0" /> : <Moon className="w-5 h-5 shrink-0" />}
@@ -257,8 +256,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 )}
                 <button
                   onClick={onOpenHelp}
-                  className="volumetric-btn w-full py-3.5 px-5 rounded-[20px] flex items-center gap-4 transition-colors hover:text-theme-primary"
-                  style={{ color: 'var(--text-tertiary)' }}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-theme-secondary transition-all duration-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] active:scale-[0.98]"
                   title="Keyboard Shortcuts"
                 >
                   <HelpCircle className="w-5 h-5 shrink-0" />

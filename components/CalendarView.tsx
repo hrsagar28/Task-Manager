@@ -193,7 +193,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
                         background: 'linear-gradient(180deg, var(--glass-primary-from), var(--glass-primary-to))'
                       } : {}}
                       className={`relative snap-center flex flex-col items-center min-w-[56px] min-h-[64px] py-3 px-2 rounded-2xl transition-all duration-300 ease-smooth ${isSelected
-                        ? 'volumetric-surface glass-noise scale-[1.08] ring-1 ring-emerald-500/20 z-10'
+                        ? 'scale-[1.08] z-10'
                         : 'hover-surface'
                         }`}
                     >
@@ -266,7 +266,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
                     relative aspect-square flex flex-col items-center justify-center rounded-2xl transition-all duration-300 ease-smooth font-semibold text-sm opacity-0 animate-scale-in
                     ${!dayObj.isCurrentMonth ? 'text-theme-muted' : 'text-theme-secondary'}
                     ${isSelected
-                      ? 'volumetric-surface glass-noise scale-[1.08] ring-1 ring-emerald-500/20 z-10 !text-theme-primary'
+                      ? 'scale-[1.08] z-10 !text-theme-primary'
                       : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.04] hover:scale-105 active:scale-95'}
                   `}
                 >
@@ -328,8 +328,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
             <div className="h-full flex flex-col items-center justify-center text-center animate-fade-in pb-10">
               <div className="relative w-36 h-36 mx-auto mb-8 flex items-center justify-center">
                 <div className="absolute inset-0 bg-emerald-500/8 blur-[40px] rounded-full" />
-                <div className="absolute top-3 left-3 w-14 h-14 volumetric-surface glass-noise rounded-2xl rotate-[-12deg] opacity-50" />
-                <div className="absolute bottom-3 right-3 w-16 h-16 volumetric-surface glass-noise rounded-[18px] rotate-[12deg] opacity-35" />
+                <div className="absolute top-3 left-3 w-14 h-14 rounded-2xl rotate-[-12deg] opacity-40 bg-white/[0.07] dark:bg-white/[0.05] shadow-[inset_0_0.5px_0_0_rgba(255,255,255,0.15),0_2px_8px_-2px_rgba(0,0,0,0.1)]" />
+                <div className="absolute bottom-3 right-3 w-16 h-16 rounded-[18px] rotate-[12deg] opacity-30 bg-white/[0.07] dark:bg-white/[0.05] shadow-[inset_0_0.5px_0_0_rgba(255,255,255,0.15),0_2px_8px_-2px_rgba(0,0,0,0.1)]" />
                 <div className="relative z-10 volumetric-surface glass-noise w-24 h-24 rounded-[28px] flex items-center justify-center">
                   <div className="volumetric-btn w-14 h-14 rounded-[18px] flex items-center justify-center text-emerald-500/60">
                     <CalendarIcon className="w-7 h-7" />
