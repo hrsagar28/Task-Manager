@@ -392,9 +392,10 @@ html.dark {
   --ambient-cool: rgba(59, 130, 246, 0.10);
   --ambient-warm: rgba(168, 85, 247, 0.07);
 
-  --glass-surface-from: rgba(255, 255, 255, 0.13);
-  --glass-surface-to: rgba(255, 255, 255, 0.06);
-  --glass-blur: blur(40px) saturate(1.7) brightness(0.92) contrast(1.08);
+  --glass-surface-from: rgba(255, 255, 255, 0.05);
+  --glass-surface-to: rgba(255, 255, 255, 0.03);
+  --glass-blur: blur(48px) saturate(1.7) brightness(0.92) contrast(1.08);
+  /* 48px blur */
   --glass-border: rgba(255, 255, 255, 0.04);
   --glass-expanded: rgba(255, 255, 255, 0.06);
 
@@ -432,20 +433,18 @@ html.dark {
   --primary-edge-bottom: rgba(0, 0, 0, 0.15);
 
   --shadow-surface:
-    /* Top lip — brighter in dark mode for visibility */
-    inset 0 1px 0 0 var(--edge-top),
-    /* Inner glow ring */
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.1),
-    /* Bottom lip */
-    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.3),
-    /* Inner depth */
-    inset 0 2px 4px 0 rgba(255, 255, 255, 0.03),
-    /* Ambient occlusion */
-    0 1px 2px -1px rgba(0, 0, 0, 0.2),
-    /* Mid-range shadow */
-    0 4px 12px -4px rgba(0, 0, 0, 0.3),
-    /* Long ambient shadow */
-    0 16px 40px -12px rgba(0, 0, 0, 0.4);
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+    /* top edge — primary specular highlight */
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.04),
+    /* left edge — subtle */
+    inset -1px 0 0 0 rgba(255, 255, 255, 0.04),
+    /* right edge — subtle */
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.02),
+    /* bottom edge — near invisible */
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    /* outer drop shadow for depth */
+    0 2px 8px rgba(0, 0, 0, 0.3);
+  /* tighter outer shadow */
 
   --shadow-btn:
     0 1px 3px -1px rgba(0, 0, 0, 0.2),
@@ -579,6 +578,11 @@ html.dark .glass-noise::after {
   z-index: 0;
   mix-blend-mode: overlay;
   animation: sidebar-hue-shift 20s linear infinite;
+}
+
+html.dark .liquid-glass-sidebar {
+  backdrop-filter: blur(40px) saturate(1.7) brightness(0.92) contrast(1.08) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(1.7) brightness(0.92) contrast(1.08) !important;
 }
 
 html.dark .liquid-glass-sidebar::after {
@@ -813,12 +817,21 @@ html.dark .volumetric-input {
       rgba(255, 255, 255, 0.04) 0%,
       rgba(255, 255, 255, 0.02) 100%);
   border-color: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(32px) saturate(1.7) brightness(0.92) contrast(1.08);
+  -webkit-backdrop-filter: blur(32px) saturate(1.7) brightness(0.92) contrast(1.08);
 }
 
 html.dark .volumetric-input:hover {
   background: linear-gradient(180deg,
       rgba(255, 255, 255, 0.07) 0%,
       rgba(255, 255, 255, 0.04) 100%);
+}
+
+html.dark .volumetric-chip,
+html.dark .volumetric-btn,
+html.dark .volumetric-btn-primary {
+  backdrop-filter: blur(32px) saturate(1.7) brightness(0.92) contrast(1.08);
+  -webkit-backdrop-filter: blur(32px) saturate(1.7) brightness(0.92) contrast(1.08);
 }
 
 .glass-shelf {

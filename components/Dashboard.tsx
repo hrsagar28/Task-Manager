@@ -199,7 +199,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="10"
-                className="text-black/[0.08] dark:text-white/10"
+                className="text-black/[0.08] dark:text-white/[0.06]"
               />
               {/* Progress Track */}
               <circle
@@ -208,7 +208,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 stroke="currentColor"
                 strokeWidth="10"
                 strokeLinecap="round"
-                className="text-emerald-500 transition-all duration-1000 ease-smooth drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]"
+                className="text-emerald-500 dark:text-emerald-500/70 transition-all duration-1000 ease-smooth drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]"
                 style={{
                   strokeDasharray: circumference,
                   strokeDashoffset: strokeDashoffset
