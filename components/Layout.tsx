@@ -55,37 +55,7 @@ export const Layout: React.FC<LayoutProps> = ({
   archiveRetentionDays,
   onSetArchiveRetention
 }) => {
-  const [isNavCompact, setIsNavCompact] = React.useState(false);
   const prevScrollY = React.useRef(0);
-
-  React.useEffect(() => {
-    const handleScroll = (e: Event) => {
-      const target = e.target as HTMLElement;
-      const currentScrollY = target.scrollTop;
-      const delta = currentScrollY - prevScrollY.current;
-
-      // Only toggle if scrolled past threshold to prevent flicker
-      if (Math.abs(delta) > 10) {
-        if (delta > 0 && currentScrollY > 50) {
-          setIsNavCompact(true);
-        } else if (delta < 0) {
-          setIsNavCompact(false);
-        }
-        prevScrollY.current = currentScrollY;
-      }
-    };
-
-    const mainContent = document.getElementById('main-content');
-    if (mainContent) {
-      mainContent.addEventListener('scroll', handleScroll, { passive: true });
-    }
-
-    return () => {
-      if (mainContent) {
-        mainContent.removeEventListener('scroll', handleScroll);
-      }
-    };
-  }, []);
 
   const modKey = getModifierKey();
   const altKey = getAltKey();
@@ -329,76 +299,100 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
       </div>
 
-      <main id="main-content" className="relative z-10 flex-1 overflow-y-auto pb-28 md:pb-0 h-full no-scrollbar">
+      <main id="main-content" className="relative z-10 flex-1 overflow-y-auto pb-24 md:pb-0 h-full no-scrollbar">
         <div className="max-w-[1200px] mx-auto p-4 md:p-8 min-h-full flex flex-col pt-2 md:pt-8">
           {children}
         </div>
       </main>
 
-      {/* Bottom Navigation (Mobile) - Glass Pill */}
+      {/* Bottom Navigation (Mobile) - iOS 26 Liquid Glass Tab Bar */}
       <nav
-        className={`md:hidden absolute bottom-0 left-0 right-0 z-40 volumetric-surface glass-noise glass-shelf transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,height,padding] ${isNavCompact ? 'mx-6 mb-6 rounded-[32px] px-2' : 'rounded-t-[28px] px-1'
-          } ${isFocusMode ? 'opacity-40 blur-sm hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'}`}
-        style={{
-          paddingBottom: isNavCompact ? '0' : 'calc(0.5rem + env(safe-area-inset-bottom, 0px))',
-          backdropFilter: isNavCompact ? 'blur(64px) saturate(1.8) brightness(1.05)' : 'blur(48px) saturate(1.8) brightness(1.05)',
-          WebkitBackdropFilter: isNavCompact ? 'blur(64px) saturate(1.8) brightness(1.05)' : 'blur(48px) saturate(1.8) brightness(1.05)',
-        }}
+        className={`md:hidden ios26-tab-bar ${isFocusMode ? 'opacity-40 blur-sm hover:opacity-100 hover:blur-none grayscale' : 'opacity-100'
+          }`}
+        role="tablist"
+        aria-label="Main navigation"
       >
-        <div className={`flex justify-around items-center transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] relative ${isNavCompact ? 'h-[56px]' : 'h-[64px]'}`}>
-          {/* Glass Pill Indicator (Mobile) */}
-          <div
-            className="absolute top-1/2 -translate-y-1/2 z-0 transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none"
-            style={{
-              width: isNavCompact ? '40px' : '56px',
-              height: isNavCompact ? '40px' : '56px',
-              borderRadius: isNavCompact ? '16px' : '22px',
-              left: `calc(${((['DASHBOARD', 'CALENDAR', 'TASKS', 'NOTES'].indexOf(currentView) > 1 ? ['DASHBOARD', 'CALENDAR', 'TASKS', 'NOTES'].indexOf(currentView) + 1 : ['DASHBOARD', 'CALENDAR', 'TASKS', 'NOTES'].indexOf(currentView)) * 20) + 10}% - ${isNavCompact ? 20 : 28}px)`,
-              background: 'linear-gradient(180deg, rgba(16,185,129,0.15), rgba(5,150,105,0.05))',
-              border: '0.5px solid rgba(16,185,129,0.3)',
-              boxShadow: '0 2px 8px -2px rgba(16, 185, 129, 0.2), inset 0 0.5px 0 0 rgba(180, 230, 190, 0.3)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)'
-            }}
-          />
-          <NavButton
-            active={currentView === 'DASHBOARD'}
-            onClick={() => setCurrentView('DASHBOARD')}
-            icon={<LayoutDashboard />}
-            label="Home"
-            badge={currentView !== 'DASHBOARD' ? badgeCounts?.dashboard : 0}
-            isCompact={isNavCompact}
-          />
-          <NavButton
-            active={currentView === 'CALENDAR'}
-            onClick={() => setCurrentView('CALENDAR')}
-            icon={<Calendar />}
-            label="Calendar"
-            isCompact={isNavCompact}
-          />
-          {/* Center FAB - slightly smaller on mobile */}
+        <div className="flex items-center relative h-[56px]">
+          {/* Active Tab Indicator — slides to current view */}
+          {(() => {
+            const tabPositionMap: Record<string, number> = {
+              DASHBOARD: 0,
+              CALENDAR: 1,
+              TASKS: 3,
+              NOTES: 4,
+            };
+            const idx = tabPositionMap[currentView];
+            return idx !== undefined ? (
+              <div
+                className="tab-active-indicator"
+                style={{ left: `calc(${idx * 20 + 10}% - 28px)` }}
+                aria-hidden="true"
+              />
+            ) : null;
+          })()}
+
+          {/* Tab: Dashboard */}
           <button
-            onClick={onAddNew}
-            className={`relative z-10 volumetric-btn volumetric-btn-primary flex items-center justify-center text-emerald-700 dark:text-emerald-300 shadow-lg transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${isNavCompact ? 'w-10 h-10 rounded-[14px] mt-0' : 'w-12 h-12 rounded-[18px] -mt-5'
-              }`}
-            aria-label="Add new task"
+            role="tab"
+            aria-selected={currentView === 'DASHBOARD'}
+            onClick={() => setCurrentView('DASHBOARD')}
+            className={`ios26-tab-btn ${currentView === 'DASHBOARD' ? 'is-active' : 'is-inactive'}`}
           >
-            <Plus className={`transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${isNavCompact ? 'w-4 h-4' : 'w-5 h-5'}`} />
+            <div className="relative">
+              <LayoutDashboard />
+              {currentView !== 'DASHBOARD' && badgeCounts?.dashboard && badgeCounts.dashboard > 0 && (
+                <span className="ios26-tab-badge">
+                  {badgeCounts.dashboard > 99 ? '99+' : badgeCounts.dashboard}
+                </span>
+              )}
+            </div>
+            <span className="ios26-tab-label">Home</span>
           </button>
-          <NavButton
-            active={currentView === 'TASKS'}
+
+          {/* Tab: Calendar */}
+          <button
+            role="tab"
+            aria-selected={currentView === 'CALENDAR'}
+            onClick={() => setCurrentView('CALENDAR')}
+            className={`ios26-tab-btn ${currentView === 'CALENDAR' ? 'is-active' : 'is-inactive'}`}
+          >
+            <Calendar />
+            <span className="ios26-tab-label">Calendar</span>
+          </button>
+
+          {/* Tab: New (replaces old protruding FAB) */}
+          <button
+            role="tab"
+            aria-selected={false}
+            onClick={onAddNew}
+            className="ios26-tab-btn is-inactive"
+            aria-label="Create new item"
+          >
+            <Plus />
+            <span className="ios26-tab-label">New</span>
+          </button>
+
+          {/* Tab: Tasks */}
+          <button
+            role="tab"
+            aria-selected={currentView === 'TASKS'}
             onClick={() => setCurrentView('TASKS')}
-            icon={<ListTodo />}
-            label="Tasks"
-            isCompact={isNavCompact}
-          />
-          <NavButton
-            active={currentView === 'NOTES'}
+            className={`ios26-tab-btn ${currentView === 'TASKS' ? 'is-active' : 'is-inactive'}`}
+          >
+            <ListTodo />
+            <span className="ios26-tab-label">Tasks</span>
+          </button>
+
+          {/* Tab: Notes */}
+          <button
+            role="tab"
+            aria-selected={currentView === 'NOTES'}
             onClick={() => setCurrentView('NOTES')}
-            icon={<FileText />}
-            label="Notes"
-            isCompact={isNavCompact}
-          />
+            className={`ios26-tab-btn ${currentView === 'NOTES' ? 'is-active' : 'is-inactive'}`}
+          >
+            <FileText />
+            <span className="ios26-tab-label">Notes</span>
+          </button>
         </div>
       </nav>
 
@@ -422,31 +416,7 @@ export const Layout: React.FC<LayoutProps> = ({
   );
 };
 
-const NavButton = ({ active, onClick, icon, label, badge, isCompact }: {
-  active: boolean, onClick: () => void, icon: React.ReactNode, label: string, badge?: number, isCompact?: boolean
-}) => (
-  <button
-    onClick={onClick}
-    className={`relative z-10 flex flex-col items-center justify-center transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${isCompact ? 'w-10 h-10 gap-0' : 'w-14 h-14 gap-1'
-      } rounded-[22px] ${active
-        ? 'text-emerald-600 dark:text-emerald-400 font-bold'
-        : 'text-theme-tertiary hover:text-theme-secondary hover-surface'
-      }`}
-  >
-    <div className={`relative transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${active && !isCompact ? 'scale-110' : ''}`}>
-      <div className="relative">{icon}</div>
-      {badge && badge > 0 ? (
-        <div className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center shadow-sm transition-all duration-[400ms] ${isCompact ? 'scale-75 -right-2' : ''}`}>
-          {badge > 99 ? '99+' : badge}
-        </div>
-      ) : null}
-    </div>
-    <span className={`text-[9px] font-semibold tracking-wide transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${isCompact ? 'opacity-0 max-h-0 transform scale-y-0 translate-y-2' : 'opacity-100 max-h-4 transform scale-y-100 translate-y-0'
-      }`}>
-      {label}
-    </span>
-  </button>
-);
+
 
 const SidebarButton = ({ active, onClick, icon, label, shortcut, badge, collapsed }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string, shortcut?: string, badge?: number, collapsed?: boolean }) => (
   <button
