@@ -14,7 +14,7 @@ marked.setOptions({
 
 // Create a custom renderer that opens links in new tabs safely
 const renderer = new marked.Renderer();
-renderer.link = ({ href, title, text }: { href: string; title?: string | null; text: string }) => {
+renderer.link = (href: string, title: string | null | undefined, text: string) => {
   const titleAttr = title ? ` title="${title}"` : '';
   return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
 };
