@@ -23,66 +23,123 @@
   <script type="module" src="/index.tsx"></script>
 
   <!--
-    ============================================================
-    LIQUID GLASS SVG FILTERS
-    Authentic Apple-style refraction using SVG displacement maps.
-    These filters distort backdrop content through the glass,
-    simulating real curved glass optics — NOT just blur.
-    
-    Chromium-only: backdrop-filter: url(#...) is a Chromium
-    extension. Safari/Firefox gracefully fall back to standard
-    glassmorphism blur via CSS cascade.
-    ============================================================
+    AUTHENTIC LIQUID GLASS SVG FILTERS
+    These create real refraction (pixel displacement) — not just blur.
+    backdrop-filter: url(#id) is Chromium-only.
+    Safari/Firefox ignore it and keep the CSS blur fallback.
   -->
   <svg style="position:absolute;width:0;height:0;pointer-events:none;overflow:hidden" aria-hidden="true">
     <defs>
       <!--
-        PRIMARY LIQUID GLASS FILTER
-        Used on: main card panels, modals (volumetric-surface)
-        Effect: Organic glass-like refraction with subtle specular highlight
+        PRIMARY: Full refraction + blur + saturation + specular
+        Used on: volumetric-surface (cards, sidebar panels, modals)
       -->
-      <filter id="liquid-glass-refract" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+      <filter id="liquid-glass-refract" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
         <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="3" seed="42" result="noise" />
         <feGaussianBlur in="noise" stdDeviation="2" result="smoothNoise" />
-        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="6" xChannelSelector="R" yChannelSelector="G"
+        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="18" xChannelSelector="R" yChannelSelector="G"
           result="refracted" />
-        <feSpecularLighting in="smoothNoise" surfaceScale="2" specularConstant="0.35" specularExponent="35"
+        <feGaussianBlur in="refracted" stdDeviation="20" result="blurred" />
+        <feColorMatrix in="blurred" type="saturate" values="2.0" result="saturated" />
+        <feSpecularLighting in="smoothNoise" surfaceScale="2" specularConstant="0.3" specularExponent="35"
           lighting-color="#ffffff" result="specular">
           <fePointLight x="200" y="-80" z="400" />
         </feSpecularLighting>
-        <feComposite in="specular" in2="refracted" operator="in" result="specularClipped" />
-        <feBlend in="refracted" in2="specularClipped" mode="screen" />
+        <feComposite in="specular" in2="saturated" operator="in" result="specClipped" />
+        <feBlend in="saturated" in2="specClipped" mode="screen" />
       </filter>
 
       <!--
-        SUBTLE LIQUID GLASS FILTER
-        Used on: tab bar, tier-2/tier-3 cards, popovers
-        Effect: Gentler version — less distortion, no specular
+        PRIMARY DARK: Same refraction but darker luminance + less saturation
+        Used on: volumetric-surface in dark mode
       -->
-      <filter id="liquid-glass-subtle" x="-3%" y="-3%" width="106%" height="106%" color-interpolation-filters="sRGB">
+      <filter id="liquid-glass-refract-dark" x="-10%" y="-10%" width="120%" height="120%"
+        color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="3" seed="42" result="noise" />
+        <feGaussianBlur in="noise" stdDeviation="2" result="smoothNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="18" xChannelSelector="R" yChannelSelector="G"
+          result="refracted" />
+        <feGaussianBlur in="refracted" stdDeviation="24" result="blurred" />
+        <feColorMatrix in="blurred" type="saturate" values="1.7" result="saturated" />
+        <feColorMatrix in="saturated" type="matrix" values="0.92 0 0 0 0  0 0.92 0 0 0  0 0 0.92 0 0  0 0 0 1 0"
+          result="dimmed" />
+        <feSpecularLighting in="smoothNoise" surfaceScale="1.5" specularConstant="0.15" specularExponent="40"
+          lighting-color="#ffffff" result="specular">
+          <fePointLight x="200" y="-80" z="400" />
+        </feSpecularLighting>
+        <feComposite in="specular" in2="dimmed" operator="in" result="specClipped" />
+        <feBlend in="dimmed" in2="specClipped" mode="screen" />
+      </filter>
+
+      <!--
+        SUBTLE: Gentler refraction, no specular
+        Used on: glass-tier-2, glass-tier-3, ios26-tab-bar
+      -->
+      <filter id="liquid-glass-subtle" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
         <feTurbulence type="fractalNoise" baseFrequency="0.012 0.012" numOctaves="2" seed="7" result="noise" />
         <feGaussianBlur in="noise" stdDeviation="3" result="smoothNoise" />
-        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="12" xChannelSelector="R" yChannelSelector="G"
+          result="refracted" />
+        <feGaussianBlur in="refracted" stdDeviation="32" result="blurred" />
+        <feColorMatrix in="blurred" type="saturate" values="2.0" />
       </filter>
 
       <!--
-        LIVING GLASS FILTER (animated)
-        Used on: sidebar only
-        Effect: Slowly shifting turbulence creates "living" glass
+        SUBTLE DARK: Gentler refraction for dark mode secondaries
       -->
-      <filter id="liquid-glass-living" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+      <filter id="liquid-glass-subtle-dark" x="-5%" y="-5%" width="110%" height="110%"
+        color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.012" numOctaves="2" seed="7" result="noise" />
+        <feGaussianBlur in="noise" stdDeviation="3" result="smoothNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="12" xChannelSelector="R" yChannelSelector="G"
+          result="refracted" />
+        <feGaussianBlur in="refracted" stdDeviation="32" result="blurred" />
+        <feColorMatrix in="blurred" type="saturate" values="1.6" result="saturated" />
+        <feColorMatrix in="saturated" type="matrix" values="0.88 0 0 0 0  0 0.88 0 0 0  0 0 0.88 0 0  0 0 0 1 0" />
+      </filter>
+
+      <!--
+        LIVING: Animated refraction for sidebar
+        The seed cycles 1→100 over 60 seconds for organic movement.
+      -->
+      <filter id="liquid-glass-living" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
         <feTurbulence type="fractalNoise" baseFrequency="0.006 0.006" numOctaves="2" seed="1" result="noise">
           <animate attributeName="seed" from="1" to="100" dur="60s" repeatCount="indefinite" />
         </feTurbulence>
         <feGaussianBlur in="noise" stdDeviation="2.5" result="smoothNoise" />
-        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="5" xChannelSelector="R" yChannelSelector="G"
+        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="15" xChannelSelector="R" yChannelSelector="G"
           result="refracted" />
-        <feSpecularLighting in="smoothNoise" surfaceScale="1.5" specularConstant="0.25" specularExponent="40"
+        <feGaussianBlur in="refracted" stdDeviation="20" result="blurred" />
+        <feColorMatrix in="blurred" type="saturate" values="2.0" result="saturated" />
+        <feSpecularLighting in="smoothNoise" surfaceScale="1.5" specularConstant="0.2" specularExponent="40"
           lighting-color="#ffffff" result="specular">
           <fePointLight x="150" y="-60" z="350" />
         </feSpecularLighting>
-        <feComposite in="specular" in2="refracted" operator="in" result="specularClipped" />
-        <feBlend in="refracted" in2="specularClipped" mode="screen" />
+        <feComposite in="specular" in2="saturated" operator="in" result="specClipped" />
+        <feBlend in="saturated" in2="specClipped" mode="screen" />
+      </filter>
+
+      <!--
+        LIVING DARK: Animated sidebar in dark mode
+      -->
+      <filter id="liquid-glass-living-dark" x="-10%" y="-10%" width="120%" height="120%"
+        color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.006" numOctaves="2" seed="1" result="noise">
+          <animate attributeName="seed" from="1" to="100" dur="60s" repeatCount="indefinite" />
+        </feTurbulence>
+        <feGaussianBlur in="noise" stdDeviation="2.5" result="smoothNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="15" xChannelSelector="R" yChannelSelector="G"
+          result="refracted" />
+        <feGaussianBlur in="refracted" stdDeviation="20" result="blurred" />
+        <feColorMatrix in="blurred" type="saturate" values="1.7" result="saturated" />
+        <feColorMatrix in="saturated" type="matrix" values="0.92 0 0 0 0  0 0.92 0 0 0  0 0 0.92 0 0  0 0 0 1 0"
+          result="dimmed" />
+        <feSpecularLighting in="smoothNoise" surfaceScale="1.2" specularConstant="0.12" specularExponent="45"
+          lighting-color="#ffffff" result="specular">
+          <fePointLight x="150" y="-60" z="350" />
+        </feSpecularLighting>
+        <feComposite in="specular" in2="dimmed" operator="in" result="specClipped" />
+        <feBlend in="dimmed" in2="specClipped" mode="screen" />
       </filter>
     </defs>
   </svg>

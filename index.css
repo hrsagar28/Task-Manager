@@ -1478,87 +1478,73 @@ html:not(.dark) .ios26-tab-btn.is-active svg {
 /* AUTHENTIC LIQUID GLASS — SVG DISPLACEMENT REFRACTION          */
 /* ============================================================ */
 /*
-  This section upgrades AuraDesk from "glassmorphism" (blur only)
-  to authentic Apple Liquid Glass (refraction + blur + specular).
+  WHAT CHANGED from glassmorphism:
+  - backdrop-filter now references SVG filters that DISPLACE pixels
+    (real refraction) instead of just blurring them
+  - All effects (displacement + blur + saturation + specular) live
+    inside the SVG filter chain — CSS just points to the filter ID
+  - Chromium-only: Safari/Firefox ignore url() in backdrop-filter
+    and keep the earlier blur-only declaration via CSS cascade
 
-  HOW IT WORKS:
-  - SVG filters in index.html generate displacement maps using
-    fractal noise (feTurbulence → feDisplacementMap)
-  - backdrop-filter: url(#filter-id) applies displacement to
-    content BEHIND glass surfaces, warping it like real glass
-  - feSpecularLighting adds physically-based highlights
-
-  BROWSER SUPPORT:
-  - Chromium (Chrome, Edge, Opera, Brave): Full refraction effect
-  - Safari/Firefox: Graceful fallback — these browsers reject
-    url() in backdrop-filter, so the earlier blur-only declaration
-    applies automatically via CSS cascade. No broken layout.
-
-  PERFORMANCE:
-  - Desktop only (min-width: 769px) — mobile already uses
-    simplified blur via existing !important overrides
-  - SVG displacement is GPU-accelerated and lighter than blur
-    (single pixel lookup vs. multi-pixel averaging)
-  - Reduced-motion users keep simple blur (existing rules handle this)
+  IMPORTANT: These rules MUST come AFTER the base glass rules in
+  the cascade. The mobile @media (max-width: 768px) block with
+  !important overrides still wins on mobile — no changes needed.
 */
 
 @media (min-width: 769px) {
 
-  /* ---- PRIMARY SURFACES: Full refraction + specular ---- */
-  /* Sidebar, main content cards, modals */
+  /* --- PRIMARY SURFACES --- */
   .volumetric-surface {
-    backdrop-filter: url(#liquid-glass-refract) blur(40px) saturate(2.0) brightness(1.05) contrast(0.98);
-    -webkit-backdrop-filter: url(#liquid-glass-refract) blur(40px) saturate(2.0) brightness(1.05) contrast(0.98);
+    backdrop-filter: url(#liquid-glass-refract);
+    -webkit-backdrop-filter: url(#liquid-glass-refract);
   }
 
   html.dark .volumetric-surface {
-    backdrop-filter: url(#liquid-glass-refract) blur(48px) saturate(1.7) brightness(0.92) contrast(1.08);
-    -webkit-backdrop-filter: url(#liquid-glass-refract) blur(48px) saturate(1.7) brightness(0.92) contrast(1.08);
+    backdrop-filter: url(#liquid-glass-refract-dark);
+    -webkit-backdrop-filter: url(#liquid-glass-refract-dark);
   }
 
-  /* ---- SIDEBAR: Living glass with animated turbulence ---- */
-  /* Uses animated seed cycling for organic "breathing" refraction */
+  /* --- SIDEBAR (living animated glass) --- */
   .liquid-glass-sidebar {
-    backdrop-filter: url(#liquid-glass-living) blur(40px) saturate(2.0) brightness(1.05) contrast(0.98);
-    -webkit-backdrop-filter: url(#liquid-glass-living) blur(40px) saturate(2.0) brightness(1.05) contrast(0.98);
+    backdrop-filter: url(#liquid-glass-living);
+    -webkit-backdrop-filter: url(#liquid-glass-living);
   }
 
   html.dark .liquid-glass-sidebar {
-    backdrop-filter: url(#liquid-glass-living) blur(40px) saturate(1.7) brightness(0.92) contrast(1.08) !important;
-    -webkit-backdrop-filter: url(#liquid-glass-living) blur(40px) saturate(1.7) brightness(0.92) contrast(1.08) !important;
+    backdrop-filter: url(#liquid-glass-living-dark) !important;
+    -webkit-backdrop-filter: url(#liquid-glass-living-dark) !important;
   }
 
-  /* ---- SECONDARY SURFACES: Subtle refraction only ---- */
-  /* Tier-2: dropdown menus, expanded cards */
+  /* --- TIER 2 (dropdown menus, expanded cards) --- */
   .glass-tier-2 {
-    backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(2.0) brightness(1.1);
-    -webkit-backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(2.0) brightness(1.1);
+    backdrop-filter: url(#liquid-glass-subtle);
+    -webkit-backdrop-filter: url(#liquid-glass-subtle);
   }
 
   html.dark .glass-tier-2 {
-    backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(1.6) brightness(0.85);
-    -webkit-backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(1.6) brightness(0.85);
+    backdrop-filter: url(#liquid-glass-subtle-dark);
+    -webkit-backdrop-filter: url(#liquid-glass-subtle-dark);
   }
 
-  /* Tier-3: modals, high-elevation popups */
+  /* --- TIER 3 (modals, high-elevation) --- */
   .glass-tier-3 {
-    backdrop-filter: url(#liquid-glass-subtle) blur(80px) saturate(2.2) brightness(1.12);
-    -webkit-backdrop-filter: url(#liquid-glass-subtle) blur(80px) saturate(2.2) brightness(1.12);
+    backdrop-filter: url(#liquid-glass-subtle);
+    -webkit-backdrop-filter: url(#liquid-glass-subtle);
   }
 
   html.dark .glass-tier-3 {
-    backdrop-filter: url(#liquid-glass-subtle) blur(80px) saturate(1.8) brightness(0.9);
-    -webkit-backdrop-filter: url(#liquid-glass-subtle) blur(80px) saturate(1.8) brightness(0.9);
+    backdrop-filter: url(#liquid-glass-subtle-dark);
+    -webkit-backdrop-filter: url(#liquid-glass-subtle-dark);
   }
 
-  /* ---- TAB BAR: Subtle refraction ---- */
+  /* --- TAB BAR --- */
   .ios26-tab-bar {
-    backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(1.8) brightness(0.95);
-    -webkit-backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(1.8) brightness(0.95);
+    backdrop-filter: url(#liquid-glass-subtle);
+    -webkit-backdrop-filter: url(#liquid-glass-subtle);
   }
 
-  html:not(.dark) .ios26-tab-bar {
-    backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(1.9) brightness(1.08);
-    -webkit-backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(1.9) brightness(1.08);
+  html.dark .ios26-tab-bar {
+    backdrop-filter: url(#liquid-glass-subtle-dark);
+    -webkit-backdrop-filter: url(#liquid-glass-subtle-dark);
   }
 }
