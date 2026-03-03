@@ -34,12 +34,16 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
 
+  // Save guard to prevent double-submit
+  const [isSaving, setIsSaving] = useState(false);
+
   // Recurring State
   const [recurring, setRecurring] = useState(false);
   const [recurringInterval, setRecurringInterval] = useState<'weekly' | 'monthly' | 'quarterly' | 'yearly'>('monthly');
 
   useEffect(() => {
     if (isOpen) {
+      setIsSaving(false);
       setTitleError(false);
       if (initialData) {
         setTitle(initialData.title);
@@ -75,6 +79,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
       setTitleError(true);
       return;
     }
+    if (isSaving) return;
+    setIsSaving(true);
 
     onSave({
       title: title.trim(),
@@ -452,9 +458,10 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
             <button
               type="submit"
               form="task-form"
-              className="volumetric-btn volumetric-btn-primary px-8 py-3 md:px-10 md:py-4 rounded-2xl md:rounded-[20px] font-semibold tracking-wide text-theme-primary transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              disabled={isSaving}
+              className={`volumetric-btn volumetric-btn-primary px-8 py-3 md:px-10 md:py-4 rounded-2xl md:rounded-[20px] font-semibold tracking-wide text-theme-primary transition-transform hover:scale-[1.02] active:scale-[0.98] ${isSaving ? 'opacity-50 pointer-events-none' : ''}`}
             >
-              {initialData ? 'Update Task' : 'Save Task'}
+              {isSaving ? 'Saving…' : initialData ? 'Update Task' : 'Save Task'}
             </button>
           </div>
         </div>

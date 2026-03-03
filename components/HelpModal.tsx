@@ -1,6 +1,7 @@
 import React from 'react';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import { APP_VERSION } from '../version';
+import { getModifierKey, getAltKey } from '../utils/osUtils';
 
 interface HelpModalProps {
   isOpen: boolean;
@@ -28,14 +29,14 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
           <h3 id="help-title" className="text-xl font-semibold tracking-tight mb-6 text-theme-primary">⌨️ Keyboard Shortcuts</h3>
           <div className="space-y-4">
             {[
-              ['Ctrl + 1', 'Dashboard View'],
-              ['Ctrl + 2', 'Calendar View'],
-              ['Ctrl + 3', 'Master Tasks View'],
-              ['Ctrl + 4', 'Notes View'],
-              ['Alt + N', 'New Task'],
-              ['Alt + Shift + N', 'New Note'],
-              ['Ctrl + /', 'Search Palette'],
-              ['Ctrl + Shift + D', 'Toggle Dark Mode'],
+              [`${getModifierKey()} + 1`, 'Dashboard View'],
+              [`${getModifierKey()} + 2`, 'Calendar View'],
+              [`${getModifierKey()} + 3`, 'Master Tasks View'],
+              [`${getModifierKey()} + 4`, 'Notes View'],
+              [`${getAltKey()} + N`, 'New Task'],
+              [`${getAltKey()} + Shift + N`, 'New Note'],
+              [`${getModifierKey()} + /`, 'Search Palette'],
+              [`${getModifierKey()} + Shift + D`, 'Toggle Dark Mode'],
               ['Esc', 'Close / Go Back']
             ].map(([keys, label], i) => (
               <div key={keys} className="flex justify-between items-center border-b border-theme-divider pb-3 opacity-0 animate-slide-up" style={{ animationDelay: `${Math.min(i * 10, 200)}ms` }}>

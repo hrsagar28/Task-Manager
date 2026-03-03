@@ -35,6 +35,21 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
         localStorage.setItem('auradesk-dismissed-notifications', JSON.stringify([...dismissedIds]));
     }, [dismissedIds]);
 
+    // Prune stale dismissed IDs on mount — remove entries for tasks that no longer exist
+    useEffect(() => {
+        const taskIds = new Set(tasks.map(t => t.id));
+        setDismissedIds(prev => {
+            const pruned = new Set<string>();
+            prev.forEach(entry => {
+                const taskId = entry.split('-')[0];
+                if (taskIds.has(taskId)) pruned.add(entry);
+            });
+            if (pruned.size < prev.size) return pruned;
+            return prev;
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     // Close on outside click
     useEffect(() => {
         const handler = (e: MouseEvent) => {

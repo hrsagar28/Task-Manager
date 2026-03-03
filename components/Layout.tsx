@@ -55,8 +55,6 @@ export const Layout: React.FC<LayoutProps> = ({
   archiveRetentionDays,
   onSetArchiveRetention
 }) => {
-  const prevScrollY = React.useRef(0);
-
   const modKey = getModifierKey();
   const altKey = getAltKey();
 
