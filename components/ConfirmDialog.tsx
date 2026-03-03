@@ -44,7 +44,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
             <div
-                className="absolute inset-0 backdrop-blur-xl saturate-150 animate-fade-in"
+                className="absolute inset-0 backdrop-blur-xl saturate-150 animate-fade-in liquid-glass-overlay"
                 style={{ background: 'var(--modal-backdrop)' }}
                 onClick={onCancel}
                 aria-hidden="true"

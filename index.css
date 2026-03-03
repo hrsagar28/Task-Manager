@@ -280,16 +280,16 @@
   --flyout-bg: #ffffff;
   /* Light Mode — Warm, airy, sunlit */
   --bg-app: #efecea;
-  --bg-app-gradient-1: rgba(190, 205, 220, 0.5);
-  --bg-app-gradient-2: rgba(215, 200, 185, 0.4);
-  --bg-app-gradient-3: rgba(210, 208, 200, 0.2);
-  --bg-app-gradient-alt-1: rgba(200, 195, 215, 0.45);
-  --bg-app-gradient-alt-2: rgba(210, 210, 195, 0.35);
-  --bg-app-gradient-alt-3: rgba(205, 212, 205, 0.25);
+  --bg-app-gradient-1: rgba(170, 195, 225, 0.6);
+  --bg-app-gradient-2: rgba(225, 190, 170, 0.5);
+  --bg-app-gradient-3: rgba(195, 180, 210, 0.3);
+  --bg-app-gradient-alt-1: rgba(190, 175, 220, 0.55);
+  --bg-app-gradient-alt-2: rgba(220, 200, 175, 0.45);
+  --bg-app-gradient-alt-3: rgba(180, 210, 195, 0.35);
 
-  /* Ambient light washes */
-  --ambient-cool: rgba(191, 219, 254, 0.2);
-  --ambient-warm: rgba(254, 243, 199, 0.15);
+  /* Ambient light washes — boosted for refraction visibility */
+  --ambient-cool: rgba(165, 205, 255, 0.35);
+  --ambient-warm: rgba(255, 225, 170, 0.25);
 
   /* Glass Materials */
   --glass-surface-from: rgba(255, 255, 255, 0.74);
@@ -397,15 +397,15 @@
 html.dark {
   --flyout-bg: #1a1a1c;
   --bg-app: #111113;
-  --bg-app-gradient-1: rgba(59, 130, 246, 0.12);
-  --bg-app-gradient-2: rgba(168, 85, 247, 0.09);
-  --bg-app-gradient-3: rgba(45, 55, 72, 0.35);
-  --bg-app-gradient-alt-1: rgba(99, 102, 241, 0.10);
-  --bg-app-gradient-alt-2: rgba(139, 92, 246, 0.07);
-  --bg-app-gradient-alt-3: rgba(55, 65, 81, 0.30);
+  --bg-app-gradient-1: rgba(59, 130, 246, 0.22);
+  --bg-app-gradient-2: rgba(168, 85, 247, 0.16);
+  --bg-app-gradient-3: rgba(45, 55, 72, 0.45);
+  --bg-app-gradient-alt-1: rgba(99, 102, 241, 0.18);
+  --bg-app-gradient-alt-2: rgba(139, 92, 246, 0.13);
+  --bg-app-gradient-alt-3: rgba(55, 65, 81, 0.38);
 
-  --ambient-cool: rgba(59, 130, 246, 0.10);
-  --ambient-warm: rgba(168, 85, 247, 0.07);
+  --ambient-cool: rgba(59, 130, 246, 0.18);
+  --ambient-warm: rgba(168, 85, 247, 0.12);
 
   --glass-surface-from: rgba(255, 255, 255, 0.04);
   --glass-surface-mid: rgba(255, 255, 255, 0.025);
@@ -500,6 +500,16 @@ body {
   -webkit-tap-highlight-color: transparent;
   color: var(--text-primary);
   position: relative;
+  /* Subtle dot grid — gives glass surfaces structured content to refract */
+  background-image:
+    radial-gradient(circle at center, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+html.dark body {
+  background-image:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
 body::before,
@@ -1478,18 +1488,30 @@ html:not(.dark) .ios26-tab-btn.is-active svg {
 /* AUTHENTIC LIQUID GLASS — SVG DISPLACEMENT REFRACTION          */
 /* ============================================================ */
 /*
-  WHAT CHANGED from glassmorphism:
-  - backdrop-filter now references SVG filters that DISPLACE pixels
-    (real refraction) instead of just blurring them
-  - All effects (displacement + blur + saturation + specular) live
-    inside the SVG filter chain — CSS just points to the filter ID
-  - Chromium-only: Safari/Firefox ignore url() in backdrop-filter
-    and keep the earlier blur-only declaration via CSS cascade
-
-  IMPORTANT: These rules MUST come AFTER the base glass rules in
-  the cascade. The mobile @media (max-width: 768px) block with
-  !important overrides still wins on mobile — no changes needed.
+  All effects (displacement + blur + saturation + specular) live
+  inside the SVG filter chain. CSS just points to the filter ID.
+  
+  Chromium: Gets real refraction
+  Safari/Firefox: Ignores url(), keeps earlier blur-only rules
+  Mobile: Existing !important overrides take precedence
+  Reduced-motion: Existing !important overrides take precedence
 */
+
+/* --- MODAL OVERLAY: Liquid Glass backdrop --- */
+/* This is the highest-impact use — the entire app is behind it */
+.liquid-glass-overlay {
+  backdrop-filter: url(#liquid-glass-modal);
+  -webkit-backdrop-filter: url(#liquid-glass-modal);
+}
+
+html.dark .liquid-glass-overlay {
+  backdrop-filter: url(#liquid-glass-modal-dark);
+  -webkit-backdrop-filter: url(#liquid-glass-modal-dark);
+}
+
+/* Fallback for non-Chromium: the browsers that reject url() will
+   use these Tailwind/inline blur declarations that the components
+   already specify. No extra fallback CSS needed. */
 
 @media (min-width: 769px) {
 
@@ -1515,7 +1537,7 @@ html:not(.dark) .ios26-tab-btn.is-active svg {
     -webkit-backdrop-filter: url(#liquid-glass-living-dark) !important;
   }
 
-  /* --- TIER 2 (dropdown menus, expanded cards) --- */
+  /* --- TIER 2 --- */
   .glass-tier-2 {
     backdrop-filter: url(#liquid-glass-subtle);
     -webkit-backdrop-filter: url(#liquid-glass-subtle);
@@ -1526,7 +1548,7 @@ html:not(.dark) .ios26-tab-btn.is-active svg {
     -webkit-backdrop-filter: url(#liquid-glass-subtle-dark);
   }
 
-  /* --- TIER 3 (modals, high-elevation) --- */
+  /* --- TIER 3 --- */
   .glass-tier-3 {
     backdrop-filter: url(#liquid-glass-subtle);
     -webkit-backdrop-filter: url(#liquid-glass-subtle);

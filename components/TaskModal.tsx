@@ -154,10 +154,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
   return (
     <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center md:p-6">
       <div
-        className="absolute inset-0 animate-fade-in"
+        className="absolute inset-0 animate-fade-in liquid-glass-overlay backdrop-blur-[40px] saturate-[0.8] brightness-[0.7]"
         style={{
-          backdropFilter: 'blur(40px) saturate(0.8) brightness(0.7)',
-          WebkitBackdropFilter: 'blur(40px) saturate(0.8) brightness(0.7)',
           background: 'var(--modal-backdrop)',
         }}
         onClick={onClose}

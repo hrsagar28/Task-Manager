@@ -119,7 +119,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   return (
     <div className="fixed inset-0 z-[200] flex items-start justify-center pt-[15vh] px-4" onClick={onClose}>
-      <div className="absolute inset-0 backdrop-blur-2xl saturate-150 animate-fade-in" style={{ background: 'var(--modal-backdrop)' }} aria-hidden="true" />
+      <div className="absolute inset-0 backdrop-blur-2xl saturate-150 animate-fade-in liquid-glass-overlay" style={{ background: 'var(--modal-backdrop)' }} aria-hidden="true" />
 
       <div
         ref={focusTrapRef as any}

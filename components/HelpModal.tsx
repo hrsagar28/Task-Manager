@@ -15,7 +15,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6" onClick={onClose}>
-      <div className="absolute inset-0 backdrop-blur-2xl saturate-150 animate-fade-in" style={{ background: 'var(--modal-backdrop)' }} aria-hidden="true" />
+      <div className="absolute inset-0 backdrop-blur-2xl saturate-150 animate-fade-in liquid-glass-overlay" style={{ background: 'var(--modal-backdrop)' }} aria-hidden="true" />
       <div
         ref={focusTrapRef as any}
         className="relative volumetric-surface glass-noise w-full max-w-sm rounded-[32px] p-8 shadow-2xl animate-scale-in"

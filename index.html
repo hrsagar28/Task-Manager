@@ -24,16 +24,14 @@
 
   <!--
     AUTHENTIC LIQUID GLASS SVG FILTERS
-    These create real refraction (pixel displacement) — not just blur.
+    - Surface filters: refraction for cards, sidebar, tab bar
+    - Modal filters: refraction + dimming for full-screen overlays
     backdrop-filter: url(#id) is Chromium-only.
     Safari/Firefox ignore it and keep the CSS blur fallback.
   -->
   <svg style="position:absolute;width:0;height:0;pointer-events:none;overflow:hidden" aria-hidden="true">
     <defs>
-      <!--
-        PRIMARY: Full refraction + blur + saturation + specular
-        Used on: volumetric-surface (cards, sidebar panels, modals)
-      -->
+      <!-- PRIMARY: Cards, modals (volumetric-surface) — refraction + specular -->
       <filter id="liquid-glass-refract" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
         <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="3" seed="42" result="noise" />
         <feGaussianBlur in="noise" stdDeviation="2" result="smoothNoise" />
@@ -49,10 +47,7 @@
         <feBlend in="saturated" in2="specClipped" mode="screen" />
       </filter>
 
-      <!--
-        PRIMARY DARK: Same refraction but darker luminance + less saturation
-        Used on: volumetric-surface in dark mode
-      -->
+      <!-- PRIMARY DARK -->
       <filter id="liquid-glass-refract-dark" x="-10%" y="-10%" width="120%" height="120%"
         color-interpolation-filters="sRGB">
         <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="3" seed="42" result="noise" />
@@ -61,20 +56,10 @@
           result="refracted" />
         <feGaussianBlur in="refracted" stdDeviation="24" result="blurred" />
         <feColorMatrix in="blurred" type="saturate" values="1.7" result="saturated" />
-        <feColorMatrix in="saturated" type="matrix" values="0.92 0 0 0 0  0 0.92 0 0 0  0 0 0.92 0 0  0 0 0 1 0"
-          result="dimmed" />
-        <feSpecularLighting in="smoothNoise" surfaceScale="1.5" specularConstant="0.15" specularExponent="40"
-          lighting-color="#ffffff" result="specular">
-          <fePointLight x="200" y="-80" z="400" />
-        </feSpecularLighting>
-        <feComposite in="specular" in2="dimmed" operator="in" result="specClipped" />
-        <feBlend in="dimmed" in2="specClipped" mode="screen" />
+        <feColorMatrix in="saturated" type="matrix" values="0.92 0 0 0 0  0 0.92 0 0 0  0 0 0.92 0 0  0 0 0 1 0" />
       </filter>
 
-      <!--
-        SUBTLE: Gentler refraction, no specular
-        Used on: glass-tier-2, glass-tier-3, ios26-tab-bar
-      -->
+      <!-- SUBTLE: Tab bar, tier-2/tier-3 cards -->
       <filter id="liquid-glass-subtle" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
         <feTurbulence type="fractalNoise" baseFrequency="0.012 0.012" numOctaves="2" seed="7" result="noise" />
         <feGaussianBlur in="noise" stdDeviation="3" result="smoothNoise" />
@@ -84,9 +69,7 @@
         <feColorMatrix in="blurred" type="saturate" values="2.0" />
       </filter>
 
-      <!--
-        SUBTLE DARK: Gentler refraction for dark mode secondaries
-      -->
+      <!-- SUBTLE DARK -->
       <filter id="liquid-glass-subtle-dark" x="-5%" y="-5%" width="110%" height="110%"
         color-interpolation-filters="sRGB">
         <feTurbulence type="fractalNoise" baseFrequency="0.012 0.012" numOctaves="2" seed="7" result="noise" />
@@ -98,10 +81,7 @@
         <feColorMatrix in="saturated" type="matrix" values="0.88 0 0 0 0  0 0.88 0 0 0  0 0 0.88 0 0  0 0 0 1 0" />
       </filter>
 
-      <!--
-        LIVING: Animated refraction for sidebar
-        The seed cycles 1→100 over 60 seconds for organic movement.
-      -->
+      <!-- LIVING: Sidebar (animated seed cycling) -->
       <filter id="liquid-glass-living" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
         <feTurbulence type="fractalNoise" baseFrequency="0.006 0.006" numOctaves="2" seed="1" result="noise">
           <animate attributeName="seed" from="1" to="100" dur="60s" repeatCount="indefinite" />
@@ -119,9 +99,7 @@
         <feBlend in="saturated" in2="specClipped" mode="screen" />
       </filter>
 
-      <!--
-        LIVING DARK: Animated sidebar in dark mode
-      -->
+      <!-- LIVING DARK -->
       <filter id="liquid-glass-living-dark" x="-10%" y="-10%" width="120%" height="120%"
         color-interpolation-filters="sRGB">
         <feTurbulence type="fractalNoise" baseFrequency="0.006 0.006" numOctaves="2" seed="1" result="noise">
@@ -132,14 +110,46 @@
           result="refracted" />
         <feGaussianBlur in="refracted" stdDeviation="20" result="blurred" />
         <feColorMatrix in="blurred" type="saturate" values="1.7" result="saturated" />
-        <feColorMatrix in="saturated" type="matrix" values="0.92 0 0 0 0  0 0.92 0 0 0  0 0 0.92 0 0  0 0 0 1 0"
+        <feColorMatrix in="saturated" type="matrix" values="0.92 0 0 0 0  0 0.92 0 0 0  0 0 0.92 0 0  0 0 0 1 0" />
+      </filter>
+
+      <!--
+        MODAL OVERLAY: High-impact refraction + dimming + blur
+        When a modal opens, the ENTIRE app is behind this overlay.
+        That means lots of varied content (sidebar, cards, icons, text)
+        to refract through — this is where liquid glass shines most.
+        
+        Higher displacement scale (22) for dramatic "looking through
+        thick glass" effect. Brightness reduced to 0.7 for focus dimming.
+      -->
+      <filter id="liquid-glass-modal" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.006" numOctaves="3" seed="23" result="noise" />
+        <feGaussianBlur in="noise" stdDeviation="3" result="smoothNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="22" xChannelSelector="R" yChannelSelector="G"
+          result="refracted" />
+        <feGaussianBlur in="refracted" stdDeviation="20" result="blurred" />
+        <feColorMatrix in="blurred" type="saturate" values="0.85" result="desat" />
+        <!-- Dim to ~70% brightness for modal focus -->
+        <feColorMatrix in="desat" type="matrix" values="0.7 0 0 0 0  0 0.7 0 0 0  0 0 0.7 0 0  0 0 0 1 0"
           result="dimmed" />
-        <feSpecularLighting in="smoothNoise" surfaceScale="1.2" specularConstant="0.12" specularExponent="45"
+        <feSpecularLighting in="smoothNoise" surfaceScale="1" specularConstant="0.12" specularExponent="30"
           lighting-color="#ffffff" result="specular">
-          <fePointLight x="150" y="-60" z="350" />
+          <fePointLight x="300" y="-100" z="500" />
         </feSpecularLighting>
         <feComposite in="specular" in2="dimmed" operator="in" result="specClipped" />
         <feBlend in="dimmed" in2="specClipped" mode="screen" />
+      </filter>
+
+      <!-- MODAL OVERLAY DARK: Similar but darker dimming -->
+      <filter id="liquid-glass-modal-dark" x="-10%" y="-10%" width="120%" height="120%"
+        color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.006" numOctaves="3" seed="23" result="noise" />
+        <feGaussianBlur in="noise" stdDeviation="3" result="smoothNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="22" xChannelSelector="R" yChannelSelector="G"
+          result="refracted" />
+        <feGaussianBlur in="refracted" stdDeviation="22" result="blurred" />
+        <feColorMatrix in="blurred" type="saturate" values="0.7" result="desat" />
+        <feColorMatrix in="desat" type="matrix" values="0.55 0 0 0 0  0 0.55 0 0 0  0 0 0.55 0 0  0 0 0 1 0" />
       </filter>
     </defs>
   </svg>
