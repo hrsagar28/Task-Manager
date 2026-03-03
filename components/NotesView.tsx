@@ -318,12 +318,14 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
             </GlassCard>
 
             {/* Main Editor Area */}
-            <GlassCard className={`flex-1 flex-col h-full absolute inset-0 md:relative z-20 transition-all duration-500 ease-spring ${selectedNote ? 'translate-x-0' : 'translate-x-[110%] md:translate-x-0 md:opacity-100'
-                } ${!selectedNote && notes.length > 0 ? 'md:flex' : 'flex'} ${selectedNote ? (NOTE_COLORS.find(c => c.id === selectedNote.color)?.className || '') : ''}`}>
+            <GlassCard className={`flex-1 flex-col h-full absolute inset-0 md:relative z-20 transition-all duration-500 ease-spring overflow-hidden ${selectedNote ? 'translate-x-0' : 'translate-x-[110%] md:translate-x-0 md:opacity-100'
+                } ${!selectedNote && notes.length > 0 ? 'md:flex' : 'flex'}`}>
+                {/* Dynamic background inject for GlassCard */}
+                {selectedNote && (
+                    <div className={`absolute inset-0 pointer-events-none -z-10 transition-colors duration-500 opacity-40 ${NOTE_COLORS.find(c => c.id === selectedNote?.color)?.className || ''}`} />
+                )}
                 {selectedNote ? (
-                    <div key={selectedNote.id} className="flex flex-col h-full animate-fade-in p-2 relative">
-                        {/* Dynamic background inject for GlassCard */}
-                        <div className={`absolute inset-0 pointer-events-none rounded-[inherit] -z-10 transition-colors duration-500 opacity-40 ${NOTE_COLORS.find(c => c.id === selectedNote.color)?.className || ''}`} />
+                    <div key={selectedNote.id} className="flex flex-col h-full animate-fade-in z-10 p-2 relative">
 
                         {/* Mobile top row: back button + action buttons */}
                         <div className="md:hidden flex items-center justify-between mb-3">
@@ -562,10 +564,10 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                         </div>
 
                         {/* WYSIWYG Editor Area */}
-                        <div className="flex-1 w-full overflow-y-auto custom-scrollbar px-2 pb-16 animate-fade-in relative">
+                        <div className="flex-1 w-full overflow-y-auto custom-scrollbar px-2 pb-16 animate-fade-in relative [&_.ProseMirror]:focus-visible:outline-none [&_.ProseMirror]:focus:outline-none">
                             <EditorContent
                                 editor={editor}
-                                className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-headings:font-bold prose-headings:tracking-tight prose-a:text-blue-500 focus:outline-none min-h-full"
+                                className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-headings:font-bold prose-headings:tracking-tight prose-a:text-blue-500 focus:outline-none focus-visible:outline-none min-h-full"
                             />
                         </div>
 
