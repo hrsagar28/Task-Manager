@@ -61,6 +61,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onNavigateToTasks
 }) => {
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const [activeMenuTaskId, setActiveMenuTaskId] = useState<string | null>(null);
   const overdueRoving = useRovingTabIndex();
   const todayRoving = useRovingTabIndex();
 
@@ -143,6 +144,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const handleToggleExpand = (id: string) => {
     setExpandedTaskId(prev => prev === id ? null : id);
+    setActiveMenuTaskId(null);
   };
 
   const circumference = 2 * Math.PI * 54; // r=54
@@ -278,6 +280,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       onToggleSubtask={(subId) => onToggleSubtask(task.id, subId)}
                       onViewNote={onViewNote}
                       isOverdue
+                      isMenuOpen={activeMenuTaskId === task.id}
+                      onToggleMenu={() => setActiveMenuTaskId(activeMenuTaskId === task.id ? null : task.id)}
+                      onCloseMenu={() => setActiveMenuTaskId(null)}
                     />
                   </div>
                 ))}
@@ -328,6 +333,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       onDelete={() => onDeleteTask(task.id)}
                       onToggleSubtask={(subId) => onToggleSubtask(task.id, subId)}
                       onViewNote={onViewNote}
+                      isMenuOpen={activeMenuTaskId === task.id}
+                      onToggleMenu={() => setActiveMenuTaskId(activeMenuTaskId === task.id ? null : task.id)}
+                      onCloseMenu={() => setActiveMenuTaskId(null)}
                     />
                   </div>
                 ))}
@@ -425,15 +433,17 @@ interface TaskItemProps {
   onToggleSubtask: (subId: string) => void;
   onViewNote: (noteId: string) => void;
   isOverdue?: boolean;
+  isMenuOpen: boolean;
+  onToggleMenu: () => void;
+  onCloseMenu: () => void;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({
-  task, relatedNotes, index = 0, isExpanded, onToggleExpand, onCycleStatus, onEdit, onDuplicate, onDelete, onToggleSubtask, onViewNote, isOverdue = false
+  task, relatedNotes, index = 0, isExpanded, onToggleExpand, onCycleStatus, onEdit, onDuplicate, onDelete, onToggleSubtask, onViewNote, isOverdue = false, isMenuOpen, onToggleMenu, onCloseMenu
 }) => {
   const isCompleted = task.status === TaskStatus.COMPLETED;
   const isInProgress = task.status === TaskStatus.IN_PROGRESS;
   const [isRippling, setIsRippling] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const priorityColors = {
     [TaskPriority.URGENT]: 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.25)]',
@@ -571,7 +581,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
           <div className="flex items-center gap-1 relative z-10">
             <button
-              onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}
+              onClick={(e) => { e.stopPropagation(); onToggleMenu(); }}
               className="md:hidden min-w-[44px] min-h-[44px] p-2 rounded-full flex items-center justify-center text-theme-tertiary hover:bg-theme-divider transition-all"
               aria-label="Task actions"
             >
@@ -585,15 +595,15 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
             {isMenuOpen && (
               <>
-                <div className="fixed inset-0 z-[90]" onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); }} />
+                <div className="fixed inset-0 z-[90]" onClick={(e) => { e.stopPropagation(); onCloseMenu(); }} />
                 <div className="absolute right-0 top-12 z-[100] glass-tier-3 glass-noise rounded-[20px] p-2 min-w-[180px] shadow-lg animate-scale-in origin-top-right flex flex-col">
-                  <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); onEdit(); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-theme-secondary text-sm font-semibold transition-colors">
+                  <button onClick={(e) => { e.stopPropagation(); onCloseMenu(); onEdit(); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-theme-secondary text-sm font-semibold transition-colors">
                     <Edit2 className="w-4 h-4" /> Edit
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); onDuplicate(); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-theme-secondary text-sm font-semibold transition-colors">
+                  <button onClick={(e) => { e.stopPropagation(); onCloseMenu(); onDuplicate(); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-theme-secondary text-sm font-semibold transition-colors">
                     <Copy className="w-4 h-4" /> Duplicate
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); onDelete(); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-red-500 text-sm font-semibold transition-colors mt-1 border-t border-theme-divider">
+                  <button onClick={(e) => { e.stopPropagation(); onCloseMenu(); onDelete(); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-red-500 text-sm font-semibold transition-colors mt-1 border-t border-theme-divider">
                     <Trash className="w-4 h-4" /> Delete
                   </button>
                 </div>

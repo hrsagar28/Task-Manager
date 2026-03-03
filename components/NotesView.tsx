@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Note, Task } from '../types';
 import { GlassCard } from './GlassCard';
 import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
+import { useDebounce } from '../hooks/useDebounce';
 import { Plus, FileText, Pin, Trash, Search, BoldIcon, ItalicIcon, ListIcon, EyeIcon, EditIcon, LinkIcon, X, ChevronLeft } from './Icons';
 import { NOTE_COLORS } from '../constants';
 import { marked } from 'marked';
@@ -33,6 +34,7 @@ interface NotesViewProps {
 
 export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, onUpdateNote, onDeleteNote, activeNoteId, onSelectNote }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 200);
   const [isPreview, setIsPreview] = useState(true);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [isLinking, setIsLinking] = useState(false);
@@ -68,8 +70,8 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
   const selectedNote = notes.find(n => n.id === selectedNoteId) || null;
 
   const filteredNotes = notes.filter(n =>
-    n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    n.content.toLowerCase().includes(searchTerm.toLowerCase())
+    n.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    n.content.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
   const pinnedNotes = filteredNotes.filter(n => n.pinned);
@@ -390,6 +392,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
               <div className="flex-1">
                 <input
                   type="text"
+                  maxLength={200}
                   className="w-full text-3xl md:text-4xl font-semibold tracking-tight bg-transparent border-none focus:outline-none focus:ring-0 text-theme-primary placeholder:text-theme-tertiary transition-colors"
                   value={selectedNote.title}
                   onChange={e => handleUpdateField('title', e.target.value)}
@@ -534,6 +537,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
             ) : (
               <textarea
                 ref={textareaRef}
+                maxLength={50000}
                 className="flex-1 w-full resize-none bg-transparent border-none focus:outline-none focus:ring-0 text-theme-secondary placeholder:text-theme-tertiary leading-relaxed font-medium text-sm custom-scrollbar opacity-0 animate-slide-up"
                 style={{ animationDelay: '150ms' }}
                 value={selectedNote.content}
@@ -557,6 +561,11 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                 <span className={`transition-all duration-300 ${showSaved ? 'opacity-100 text-emerald-500' : 'opacity-0'}`}>
                   ✓ Saved
                 </span>
+                {!isPreview && selectedNote.content.length > 40000 && (
+                  <span className={`text-[10px] font-medium ${selectedNote.content.length > 48000 ? 'text-red-500' : 'text-theme-muted'}`}>
+                    {selectedNote.content.length.toLocaleString()}/50,000
+                  </span>
+                )}
                 <span>Last edited: {new Date(selectedNote.updatedAt).toLocaleString()}</span>
               </div>
             </div>

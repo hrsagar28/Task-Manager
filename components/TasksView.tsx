@@ -3,6 +3,7 @@ import { Task, TaskStatus, TaskPriority, Note } from '../types';
 import { Search, Archive, CheckCircle, Edit2, Trash, CheckSquare, Square, Layers, ListTodo, ChevronDown, FileText, Copy, MoreVertical, Filter } from './Icons';
 import { formatRelativeDate } from '../utils/formatRelativeDate';
 import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
+import { useDebounce } from '../hooks/useDebounce';
 
 interface TasksViewProps {
   tasks: Task[];
@@ -21,6 +22,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
   tasks, notes, toggleTaskStatus, onEditTask, onDuplicateTask, onDeleteTask, onToggleArchive, onBulkAction, onToggleSubtask, onViewNote
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 150);
   const [filterStatus, setFilterStatus] = useState<'ALL' | 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'>('ALL');
   const [filterArchived, setFilterArchived] = useState(false);
   const [sortBy, setSortBy] = useState<'DUE_DATE' | 'CREATED_AT' | 'PRIORITY'>('DUE_DATE');
@@ -41,8 +43,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
       });
     }
 
-    if (searchTerm) {
-      const lower = searchTerm.toLowerCase();
+    if (debouncedSearch) {
+      const lower = debouncedSearch.toLowerCase();
       result = result.filter(t =>
         t.title.toLowerCase().includes(lower) ||
         (t.description && t.description.toLowerCase().includes(lower)) ||
@@ -63,7 +65,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
     });
 
     return result;
-  }, [tasks, filterStatus, filterArchived, searchTerm, sortBy]);
+  }, [tasks, filterStatus, filterArchived, debouncedSearch, sortBy]);
 
   const groupedTasks = useMemo(() => {
     if (groupBy === 'NONE') return [{ label: null, tasks: filteredTasks }];
@@ -296,7 +298,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                         {...taskListRoving.getItemProps(idx)}
                         className={`group relative flex flex-col p-4 rounded-[20px] transition-all duration-300 ease-smooth hover-surface animate-slide-up overflow-hidden ${isSelected ? 'bg-blue-500/10 ring-1 ring-blue-500/30' : ''} ${isExpanded ? 'shadow-sm ring-1' : ''}`}
                         style={{
-                          ...(idx < 8 ? { animationDelay: `${idx * 8}ms` } : {}),
+                          animationDelay: `${Math.min(idx * 30, 300)}ms`,
                           ...(isExpanded ? { background: 'var(--glass-expanded)', '--tw-ring-color': 'var(--glass-border)' } as React.CSSProperties : {})
                         }}
                       >

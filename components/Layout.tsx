@@ -173,12 +173,14 @@ export const Layout: React.FC<LayoutProps> = ({
         <div className="mt-auto w-full pt-4 space-y-4" style={{ borderTop: '1px solid var(--divider)' }}>
           {isSidebarCollapsed && (
             <div className="flex flex-col items-center gap-3 w-full">
-              <button onClick={onAddNew} className="volumetric-btn volumetric-btn-primary w-14 h-14 rounded-[20px] flex items-center justify-center text-theme-primary" title="New Task">
+              <button onClick={onAddNew} className="group relative volumetric-btn volumetric-btn-primary w-14 h-14 rounded-[20px] flex items-center justify-center text-theme-primary" title="New Task">
                 <Plus className="w-6 h-6" />
+                <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-gray-900 text-white dark:bg-white dark:text-gray-900 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 hidden lg:block">New Task</span>
               </button>
               {onToggleTheme && (
-                <button onClick={onToggleTheme} className="volumetric-btn w-12 h-12 rounded-[16px] flex items-center justify-center text-theme-tertiary transition-colors hover:text-theme-primary" title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+                <button onClick={onToggleTheme} className="group relative volumetric-btn w-12 h-12 rounded-[16px] flex items-center justify-center text-theme-tertiary transition-colors hover:text-theme-primary" title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
                   {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                  <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-gray-900 text-white dark:bg-white dark:text-gray-900 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 hidden lg:block">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
                 </button>
               )}
               {tasks && onEditTask && onNavigateToTasks && (
@@ -188,12 +190,14 @@ export const Layout: React.FC<LayoutProps> = ({
                   onNavigateToTasks={onNavigateToTasks}
                 />
               )}
-              <button onClick={onOpenHelp} className="volumetric-btn w-12 h-12 rounded-[16px] flex items-center justify-center text-theme-tertiary transition-colors hover:text-theme-primary" title="Keyboard Shortcuts">
+              <button onClick={onOpenHelp} className="group relative volumetric-btn w-12 h-12 rounded-[16px] flex items-center justify-center text-theme-tertiary transition-colors hover:text-theme-primary" title="Keyboard Shortcuts">
                 <HelpCircle className="w-5 h-5" />
+                <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-gray-900 text-white dark:bg-white dark:text-gray-900 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 hidden lg:block">Keyboard Shortcuts</span>
               </button>
               {onToggleSidebar && (
-                <button onClick={onToggleSidebar} className="volumetric-input w-12 h-12 rounded-[16px] flex items-center justify-center text-theme-tertiary transition-colors hover:text-theme-primary mt-2" title="Expand Sidebar">
+                <button onClick={onToggleSidebar} className="group relative volumetric-input w-12 h-12 rounded-[16px] flex items-center justify-center text-theme-tertiary transition-colors hover:text-theme-primary mt-2" title="Expand Sidebar">
                   <ChevronRight className="w-5 h-5" />
+                  <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-gray-900 text-white dark:bg-white dark:text-gray-900 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 hidden lg:block">Expand Sidebar</span>
                 </button>
               )}
             </div>
@@ -422,7 +426,7 @@ const SidebarButton = ({ active, onClick, icon, label, shortcut, badge, collapse
   <button
     onClick={onClick}
     title={collapsed ? `${label}${shortcut ? ` (${shortcut})` : ''}` : undefined}
-    className={`relative z-10 w-full flex items-center gap-4 transition-all duration-300 ${collapsed
+    className={`group relative z-10 w-full flex items-center gap-4 transition-all duration-300 ${collapsed
       ? `justify-center w-14 h-14 mx-auto rounded-[20px] ${active ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`
       : `px-5 py-4 h-[52px] rounded-[20px] ${active ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-theme-tertiary hover:text-theme-secondary hover-surface'}`
       }`}
@@ -439,5 +443,10 @@ const SidebarButton = ({ active, onClick, icon, label, shortcut, badge, collapse
       <span className="text-sm tracking-tight flex-1 text-left whitespace-nowrap">{label}</span>
       {shortcut && <span className="text-[10px] font-mono font-medium text-theme-muted bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded-md whitespace-nowrap">{shortcut}</span>}
     </div>
+    {collapsed && (
+      <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-gray-900 text-white dark:bg-white dark:text-gray-900 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 hidden lg:block">
+        {label}
+      </span>
+    )}
   </button>
 );

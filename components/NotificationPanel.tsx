@@ -46,6 +46,18 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
         return () => document.removeEventListener('mousedown', handler);
     }, [isOpen]);
 
+    // Close on Escape key
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setIsOpen(false);
+            }
+        };
+        window.addEventListener('keydown', handleKey);
+        return () => window.removeEventListener('keydown', handleKey);
+    }, [isOpen]);
+
     const today = toLocalDateString();
     const tomorrow = (() => {
         const d = new Date();
@@ -155,7 +167,9 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                 <button
                     onClick={() => setIsOpen(!isOpen)}
                     className="relative w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-theme-secondary transition-all duration-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] active:scale-[0.98]"
-                    aria-label={`Notifications: ${totalCount} pending`}
+                    aria-label={`Notifications${totalCount > 0 ? `: ${totalCount} pending` : ''}`}
+                    aria-expanded={isOpen}
+                    aria-haspopup="dialog"
                     title={`${totalCount} notification${totalCount !== 1 ? 's' : ''}`}
                 >
                     <div className="relative shrink-0">
@@ -178,7 +192,9 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                     onClick={() => setIsOpen(!isOpen)}
                     className="relative volumetric-btn w-11 h-11 rounded-[16px] flex items-center justify-center transition-all hover:scale-105 active:scale-95"
                     style={{ color: 'var(--text-tertiary)' }}
-                    aria-label={`Notifications: ${totalCount} pending`}
+                    aria-label={`Notifications${totalCount > 0 ? `: ${totalCount} pending` : ''}`}
+                    aria-expanded={isOpen}
+                    aria-haspopup="dialog"
                     title={`${totalCount} notification${totalCount !== 1 ? 's' : ''}`}
                 >
                     <Bell className="w-5 h-5" />
@@ -194,6 +210,9 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
             {/* Dropdown Panel */}
             {isOpen && (
                 <div
+                    role="dialog"
+                    aria-modal="false"
+                    aria-label={`${totalCount} notification${totalCount !== 1 ? 's' : ''}`}
                     className={`
                         fixed md:absolute
                         ${expanded
@@ -266,7 +285,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                                                     dismissNotification(notification.task.id, notification.task.dueDate);
                                                 }}
                                                 className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 shrink-0"
-                                                aria-label="Dismiss notification"
+                                                aria-label={`Dismiss notification: ${notification.message}`}
                                                 title="Dismiss"
                                             >
                                                 <X className="w-3.5 h-3.5 text-theme-tertiary" />
@@ -284,6 +303,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                             <button
                                 onClick={() => { onNavigateToTasks(); setIsOpen(false); }}
                                 className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                                aria-label="View all overdue and upcoming tasks"
                             >
                                 View all tasks <ChevronRight className="w-3 h-3" />
                             </button>

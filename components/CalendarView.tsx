@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Task, TaskStatus, TaskPriority } from '../types';
 import { GlassCard } from './GlassCard';
@@ -26,6 +26,12 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const [pickerPos, setPickerPos] = useState<{ top: number; left: number } | null>(null);
   const pickerRef = React.useRef<HTMLDivElement>(null);
+
+  // Touch gesture tracking for month swipe
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
+  const touchStartY = useRef<number>(0);
+  const isSwiping = useRef<boolean>(false);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -95,6 +101,45 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
 
   const nextMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    isSwiping.current = false;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+    const deltaX = Math.abs(touchEndX.current - touchStartX.current);
+    const deltaY = Math.abs(e.touches[0].clientY - touchStartY.current);
+    // Only count as swipe if horizontal movement dominates
+    if (deltaX > 30 && deltaX > deltaY * 1.5) {
+      isSwiping.current = true;
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isSwiping.current) return;
+    const diff = touchStartX.current - touchEndX.current;
+    const SWIPE_THRESHOLD = 50;
+
+    if (diff > SWIPE_THRESHOLD) {
+      // Swiped left → next month
+      setCurrentDate(prev => {
+        const next = new Date(prev);
+        next.setMonth(next.getMonth() + 1);
+        return next;
+      });
+    } else if (diff < -SWIPE_THRESHOLD) {
+      // Swiped right → previous month
+      setCurrentDate(prev => {
+        const next = new Date(prev);
+        next.setMonth(next.getMonth() - 1);
+        return next;
+      });
+    }
+    isSwiping.current = false;
+  }, []);
 
   const handleMonthSelect = (monthIndex: number) => {
     setCurrentDate(new Date(pickerYear, monthIndex, 1));
@@ -247,72 +292,78 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1 md:gap-2 relative z-10">
-            {daysInMonth.map((dayObj, i) => {
-              const dateStr = toLocalDateString(dayObj.date);
-              const isSelected = dateStr === selectedDateStr;
-              const isToday = dateStr === todayStr;
-              const dayTasks = tasksByDate.get(dateStr) || [];
+          <div
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            <div className="grid grid-cols-7 gap-1 md:gap-2 relative z-10">
+              {daysInMonth.map((dayObj, i) => {
+                const dateStr = toLocalDateString(dayObj.date);
+                const isSelected = dateStr === selectedDateStr;
+                const isToday = dateStr === todayStr;
+                const dayTasks = tasksByDate.get(dateStr) || [];
 
-              const sortedForDots = [...dayTasks].sort((a, b) => {
-                if (a.status === TaskStatus.COMPLETED && b.status !== TaskStatus.COMPLETED) return 1;
-                if (a.status !== TaskStatus.COMPLETED && b.status === TaskStatus.COMPLETED) return -1;
-                const pOrder: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
-                return (pOrder[a.priority] ?? 3) - (pOrder[b.priority] ?? 3);
-              }).slice(0, 3);
+                const sortedForDots = [...dayTasks].sort((a, b) => {
+                  if (a.status === TaskStatus.COMPLETED && b.status !== TaskStatus.COMPLETED) return 1;
+                  if (a.status !== TaskStatus.COMPLETED && b.status === TaskStatus.COMPLETED) return -1;
+                  const pOrder: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+                  return (pOrder[a.priority] ?? 3) - (pOrder[b.priority] ?? 3);
+                }).slice(0, 3);
 
-              return (
-                <button
-                  key={`${currentDate.toISOString()}-${i}`}
-                  onClick={() => setSelectedDate(dayObj.date)}
-                  onDoubleClick={() => {
-                    const dateStr = toLocalDateString(dayObj.date);
-                    onAddTaskForDate(dateStr);
-                  }}
-                  style={{
-                    animationDelay: `${Math.min(50 + (i * 5), 150)}ms`,
-                    ...(isSelected ? {
-                      boxShadow: '0 0.5px 0 0 var(--edge-top) inset, 0 -0.5px 0 0 var(--edge-bottom) inset, 0 4px 12px -2px rgba(16, 185, 129, 0.15), 0 8px 24px -4px rgba(0,0,0,0.08)',
-                      background: 'linear-gradient(180deg, var(--glass-primary-from), var(--glass-primary-to))'
-                    } : {})
-                  }}
-                  className={`
+                return (
+                  <button
+                    key={`${currentDate.toISOString()}-${i}`}
+                    onClick={() => setSelectedDate(dayObj.date)}
+                    onDoubleClick={() => {
+                      const dateStr = toLocalDateString(dayObj.date);
+                      onAddTaskForDate(dateStr);
+                    }}
+                    style={{
+                      animationDelay: `${Math.min(50 + (i * 5), 150)}ms`,
+                      ...(isSelected ? {
+                        boxShadow: '0 0.5px 0 0 var(--edge-top) inset, 0 -0.5px 0 0 var(--edge-bottom) inset, 0 4px 12px -2px rgba(16, 185, 129, 0.15), 0 8px 24px -4px rgba(0,0,0,0.08)',
+                        background: 'linear-gradient(180deg, var(--glass-primary-from), var(--glass-primary-to))'
+                      } : {})
+                    }}
+                    className={`
                     relative aspect-square flex flex-col items-center justify-center rounded-2xl transition-all duration-300 ease-smooth font-semibold text-sm opacity-0 animate-scale-in
                     ${!dayObj.isCurrentMonth ? 'text-theme-muted' : 'text-theme-secondary'}
                     ${isSelected
-                      ? 'scale-[1.08] z-10 !text-theme-primary'
-                      : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.04] hover:scale-105 active:scale-95'}
+                        ? 'scale-[1.08] z-10 !text-theme-primary'
+                        : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.04] hover:scale-105 active:scale-95'}
                   `}
-                >
-                  {isSelected && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-4 bg-gradient-to-b from-white/30 to-transparent rounded-full blur-sm pointer-events-none" />
-                  )}
-                  <span className="relative z-10">{dayObj.date.getDate()}</span>
+                  >
+                    {isSelected && (
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-4 bg-gradient-to-b from-white/30 to-transparent rounded-full blur-sm pointer-events-none" />
+                    )}
+                    <span className="relative z-10">{dayObj.date.getDate()}</span>
 
-                  {isToday && (
-                    <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_4px_rgba(16,185,129,0.5)] relative z-10" />
-                  )}
+                    {isToday && (
+                      <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_4px_rgba(16,185,129,0.5)] relative z-10" />
+                    )}
 
-                  {sortedForDots.length > 0 && (
-                    <div className="absolute bottom-1.5 flex items-center gap-0.5 max-h-3 overflow-hidden md:max-h-none md:overflow-visible z-10">
-                      {sortedForDots.map((t, idx) => (
-                        <div key={idx} className={`w-1 h-1 rounded-full transition-colors duration-300 ${getDotColor(t, isSelected)}`} />
-                      ))}
-                      {dayTasks.length > 3 && (
-                        <>
-                          <span className={`text-[7px] font-bold leading-none ml-0.5 hidden md:inline ${isSelected ? 'text-theme-primary' : 'text-theme-tertiary'}`}>
-                            +{dayTasks.length - 3}
-                          </span>
-                          <span className={`text-[8px] font-bold leading-none ml-0.5 md:hidden ${isSelected ? 'text-theme-primary' : 'text-theme-tertiary'}`}>
-                            +{dayTasks.length - 3}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </button>
-              );
-            })}
+                    {sortedForDots.length > 0 && (
+                      <div className="absolute bottom-1.5 flex items-center gap-0.5 max-h-3 overflow-hidden md:max-h-none md:overflow-visible z-10">
+                        {sortedForDots.map((t, idx) => (
+                          <div key={idx} className={`w-1 h-1 rounded-full transition-colors duration-300 ${getDotColor(t, isSelected)}`} />
+                        ))}
+                        {dayTasks.length > 3 && (
+                          <>
+                            <span className={`text-[7px] font-bold leading-none ml-0.5 hidden md:inline ${isSelected ? 'text-theme-primary' : 'text-theme-tertiary'}`}>
+                              +{dayTasks.length - 3}
+                            </span>
+                            <span className={`text-[8px] font-bold leading-none ml-0.5 md:hidden ${isSelected ? 'text-theme-primary' : 'text-theme-tertiary'}`}>
+                              +{dayTasks.length - 3}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </GlassCard>

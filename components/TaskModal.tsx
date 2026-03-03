@@ -165,7 +165,12 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
         aria-modal="true"
         aria-labelledby="modal-title"
       >
-        <div className="flex justify-between items-center p-8 pb-4 flex-shrink-0">
+        {/* Mobile drag handle indicator */}
+        <div className="md:hidden flex justify-center pt-3 pb-1 flex-shrink-0">
+          <div className="w-9 h-1 rounded-full bg-current opacity-20" />
+        </div>
+
+        <div className="flex justify-between items-center p-4 pt-2 md:p-8 md:pb-4 flex-shrink-0">
           <h2 id="modal-title" className="text-2xl font-semibold tracking-tight text-theme-primary">
             {initialData ? 'Edit Task' : 'New Task'}
           </h2>
@@ -185,6 +190,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
             <input
               id="title"
               type="text"
+              maxLength={200}
               value={title}
               onChange={e => {
                 setTitle(e.target.value);
@@ -204,6 +210,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
               <input
                 id="clientName"
                 type="text"
+                maxLength={100}
                 value={clientName}
                 onChange={e => setClientName(e.target.value)}
                 className="volumetric-input w-full px-4 py-3 md:px-5 md:py-4 rounded-2xl md:rounded-[20px] font-semibold text-sm transition-all focus:-translate-y-0.5 text-theme-primary"
@@ -324,6 +331,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
             </div>
             <input
               type="text"
+              maxLength={50}
               value={tagInput}
               onChange={e => setTagInput(e.target.value)}
               onKeyDown={handleAddTag}
@@ -382,6 +390,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
             <textarea
               id="description"
               rows={3}
+              maxLength={2000}
               value={description}
               onChange={e => setDescription(e.target.value)}
               className="volumetric-input w-full px-4 py-3 md:px-5 md:py-4 rounded-2xl md:rounded-[20px] font-medium text-sm resize-none custom-scrollbar transition-all focus:-translate-y-0.5 text-theme-secondary"
@@ -409,6 +418,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
             <div className="flex gap-3">
               <input
                 type="text"
+                maxLength={200}
                 value={newSubtask}
                 onChange={e => setNewSubtask(e.target.value)}
                 onKeyDown={handleAddSubtask}

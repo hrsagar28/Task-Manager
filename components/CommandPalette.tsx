@@ -70,11 +70,34 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     { label: 'Create New Note', icon: <FileText className="w-4 h-4" />, action: () => onNewNote() },
   ].filter(c => c.label.toLowerCase().includes(lowerQuery));
 
+  // Default content shown when query is empty
+  const defaultCommands = [
+    { label: 'New Task', description: 'Create a new task', icon: <Plus className="w-5 h-5" />, action: () => { onNewTask(); onClose(); } },
+    { label: 'New Note', description: 'Create a new note', icon: <FileText className="w-5 h-5" />, action: () => { onNewNote(); onClose(); } },
+    { label: 'Dashboard', description: 'Go to dashboard', icon: <LayoutDashboard className="w-5 h-5" />, action: () => { onNavigate('DASHBOARD'); onClose(); } },
+    { label: 'Calendar', description: 'Go to calendar', icon: <Calendar className="w-5 h-5" />, action: () => { onNavigate('CALENDAR'); onClose(); } },
+    { label: 'All Tasks', description: 'View all tasks', icon: <ListTodo className="w-5 h-5" />, action: () => { onNavigate('TASKS'); onClose(); } },
+    { label: 'Notes', description: 'View notes', icon: <FileText className="w-5 h-5" />, action: () => { onNavigate('NOTES'); onClose(); } },
+  ];
+
+  const recentTasks = !query ? [...tasks]
+    .filter(t => !t.isArchived)
+    .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
+    .slice(0, 3) : [];
+
+  const recentNotes = !query ? [...notes]
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .slice(0, 2) : [];
+
   // Flatten results for keyboard navigation
-  const allResults = [
+  const allResults = query ? [
     ...commands.map(c => ({ type: 'command', action: () => { c.action(); onClose(); } })),
     ...filteredTasks.map(t => ({ type: 'task', action: () => { onEditTask(t); onClose(); } })),
     ...filteredNotes.map(n => ({ type: 'note', action: () => { onSelectNote(n.id); onClose(); } }))
+  ] : [
+    ...defaultCommands.map(c => ({ type: 'command', action: c.action })),
+    ...recentTasks.map(t => ({ type: 'task', action: () => { onEditTask(t); onClose(); } })),
+    ...recentNotes.map(n => ({ type: 'note', action: () => { onSelectNote(n.id); onClose(); } }))
   ];
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -112,7 +135,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             ref={inputRef}
             type="text"
             className="flex-1 bg-transparent border-none outline-none text-xl font-semibold text-theme-primary placeholder:text-theme-tertiary"
-            placeholder="Search tasks, notes, or type a command..."
+            placeholder="Search or type a command..."
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -127,7 +150,101 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             </div>
           )}
 
-          {commands.length > 0 && (
+          {/* Default content when query is empty */}
+          {!query && (
+            <>
+              <div className="animate-fade-in">
+                <h4 className="text-[11px] font-medium uppercase tracking-wider text-theme-tertiary mb-3 px-2">Quick Actions</h4>
+                <div className="space-y-2">
+                  {defaultCommands.map((cmd, i) => {
+                    const currentIndex = globalIndex++;
+                    const isActive = currentIndex === activeIndex;
+                    return (
+                      <button
+                        key={i}
+                        data-index={currentIndex}
+                        className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl volumetric-input hover-surface transition-all text-left group animate-slide-up cursor-pointer ${isActive ? 'bg-black/5 dark:bg-white/10 ring-1 ring-black/10 dark:ring-white/20 scale-[1.01]' : ''}`}
+                        style={{ animationDelay: `${Math.min(i * 10, 200)}ms` }}
+                        onClick={cmd.action}
+                        onMouseEnter={() => setActiveIndex(currentIndex)}
+                      >
+                        <div className={`w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-theme-secondary transition-transform duration-300 ease-spring ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
+                          {cmd.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className={`font-semibold text-base transition-colors ${isActive ? 'text-theme-primary' : 'text-theme-secondary group-hover:text-theme-primary'}`}>{cmd.label}</span>
+                          <p className="text-xs text-theme-tertiary mt-0.5">{cmd.description}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {(recentTasks.length > 0 || recentNotes.length > 0) && (
+                <div className="animate-fade-in">
+                  <h4 className="text-[11px] font-medium uppercase tracking-wider text-theme-tertiary mb-3 px-2">Recent</h4>
+                  <div className="space-y-2">
+                    {recentTasks.map((task, idx) => {
+                      const currentIndex = globalIndex++;
+                      const isActive = currentIndex === activeIndex;
+                      return (
+                        <button
+                          key={task.id}
+                          data-index={currentIndex}
+                          onClick={() => { onEditTask(task); onClose(); }}
+                          onMouseEnter={() => setActiveIndex(currentIndex)}
+                          className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl volumetric-input hover-surface text-left animate-slide-up transition-all cursor-pointer group ${isActive ? 'bg-black/5 dark:bg-white/10 ring-1 ring-black/10 dark:ring-white/20 scale-[1.01]' : ''}`}
+                          style={{ animationDelay: `${Math.min(idx * 10, 200)}ms` }}
+                        >
+                          <CheckCircle className={`w-5 h-5 transition-colors ${isActive ? 'text-emerald-500' : 'text-theme-tertiary group-hover:text-emerald-500'}`} />
+                          <div className="flex-1 min-w-0">
+                            <p className={`font-semibold text-base transition-colors truncate flex items-center ${isActive ? 'text-theme-primary' : 'text-theme-secondary group-hover:text-theme-primary'}`}>
+                              {task.title}
+                              {task.recurring && (
+                                <span className="ml-1.5 text-[9px] font-semibold uppercase tracking-wider text-theme-muted bg-slate-500/10 px-1.5 py-0.5 rounded shrink-0">↻ Recurring</span>
+                              )}
+                            </p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {task.clientName && (
+                                <span className="text-[10px] uppercase font-medium text-theme-tertiary">{task.clientName}</span>
+                              )}
+                              {task.category && (
+                                <span className="text-[10px] uppercase font-medium text-blue-500/70">{task.category}</span>
+                              )}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                    {recentNotes.map((note, idx) => {
+                      const currentIndex = globalIndex++;
+                      const isActive = currentIndex === activeIndex;
+                      return (
+                        <button
+                          key={note.id}
+                          data-index={currentIndex}
+                          onClick={() => { onSelectNote(note.id); onClose(); }}
+                          onMouseEnter={() => setActiveIndex(currentIndex)}
+                          className={`w-full flex items-start gap-4 px-4 py-3 rounded-xl volumetric-input hover-surface text-left animate-slide-up transition-all cursor-pointer group ${isActive ? 'bg-black/5 dark:bg-white/10 ring-1 ring-black/10 dark:ring-white/20 scale-[1.01]' : ''}`}
+                          style={{ animationDelay: `${Math.min(idx * 10, 200)}ms` }}
+                        >
+                          <FileText className={`w-5 h-5 mt-0.5 transition-colors ${isActive ? 'text-amber-500' : 'text-theme-tertiary group-hover:text-amber-500'}`} />
+                          <div className="flex-1 min-w-0">
+                            <p className={`font-semibold text-base transition-colors truncate ${isActive ? 'text-theme-primary' : 'text-theme-secondary group-hover:text-theme-primary'}`}>{note.title || 'Untitled Note'}</p>
+                            <p className="text-xs text-theme-tertiary truncate mt-1">{note.content}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Search results when query is non-empty */}
+          {query && commands.length > 0 && (
             <div className="animate-fade-in">
               <h4 className="text-[11px] font-medium uppercase tracking-wider text-theme-tertiary mb-3 px-2">Commands</h4>
               <div className="space-y-2">
@@ -154,7 +271,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             </div>
           )}
 
-          {filteredTasks.length > 0 && (
+          {query && filteredTasks.length > 0 && (
             <div className="animate-fade-in">
               <h4 className="text-[11px] font-medium uppercase tracking-wider text-theme-tertiary mb-3 px-2">Tasks</h4>
               <div className="space-y-2">
@@ -194,7 +311,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             </div>
           )}
 
-          {filteredNotes.length > 0 && (
+          {query && filteredNotes.length > 0 && (
             <div className="animate-fade-in">
               <h4 className="text-[11px] font-medium uppercase tracking-wider text-theme-tertiary mb-3 px-2">Notes</h4>
               <div className="space-y-2">

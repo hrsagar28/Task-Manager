@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import { createPortal } from 'react-dom';
 import { ViewState } from '../types';
 import { X, Search, HelpCircle, Moon, Sun, Crosshair } from './Icons';
@@ -22,6 +23,12 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
     isOpen, onClose, isDark, onToggleTheme, onOpenCommandPalette, onOpenHelp, focusMode, onToggleFocusMode, archiveRetentionDays = 90, onSetArchiveRetention
 }) => {
     const drawerRef = useRef<HTMLDivElement>(null);
+    const focusTrapRef = useFocusTrap(isOpen);
+
+    const combinedRef = useCallback((node: HTMLDivElement | null) => {
+        (drawerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        (focusTrapRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+    }, [focusTrapRef]);
 
     // Close on Escape
     useEffect(() => {
@@ -88,17 +95,19 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
             <div
                 className="absolute inset-0 z-[150] bg-black/30 backdrop-blur-sm animate-fade-in md:hidden"
                 onClick={onClose}
-                aria-hidden="true"
+                role="button"
+                tabIndex={-1}
+                aria-label="Close settings drawer"
             />
 
             {/* Drawer Container (Fixed to viewport to guarantee position) */}
             <div className="fixed inset-0 z-[151] pointer-events-none flex justify-end md:hidden">
                 <div
-                    ref={drawerRef}
+                    ref={combinedRef}
                     className="pointer-events-auto w-[300px] max-w-[85vw] h-full volumetric-surface glass-noise shadow-[-20px_0_60px_-12px_rgba(0,0,0,0.15)] flex flex-col animate-drawer-slide-in rounded-l-[28px]"
                     role="dialog"
                     aria-modal="true"
-                    aria-label="Settings drawer"
+                    aria-label="Settings and options"
                 >
                     {/* Drawer Header */}
                     <div className="flex items-center justify-between p-6 pb-4">
