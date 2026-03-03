@@ -21,11 +21,68 @@
 <body class="overflow-hidden fixed inset-0 w-full h-[100dvh]" style="color: var(--text-primary);">
   <div id="root" class="relative w-full h-full"></div>
   <script type="module" src="/index.tsx"></script>
-  <svg style="position:absolute;width:0;height:0;pointer-events:none" aria-hidden="true">
+
+  <!--
+    ============================================================
+    LIQUID GLASS SVG FILTERS
+    Authentic Apple-style refraction using SVG displacement maps.
+    These filters distort backdrop content through the glass,
+    simulating real curved glass optics — NOT just blur.
+    
+    Chromium-only: backdrop-filter: url(#...) is a Chromium
+    extension. Safari/Firefox gracefully fall back to standard
+    glassmorphism blur via CSS cascade.
+    ============================================================
+  -->
+  <svg style="position:absolute;width:0;height:0;pointer-events:none;overflow:hidden" aria-hidden="true">
     <defs>
-      <filter id="glass-lens">
-        <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" result="noise" seed="1"/>
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" xChannelSelector="R" yChannelSelector="G"/>
+      <!--
+        PRIMARY LIQUID GLASS FILTER
+        Used on: main card panels, modals (volumetric-surface)
+        Effect: Organic glass-like refraction with subtle specular highlight
+      -->
+      <filter id="liquid-glass-refract" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="3" seed="42" result="noise" />
+        <feGaussianBlur in="noise" stdDeviation="2" result="smoothNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="6" xChannelSelector="R" yChannelSelector="G"
+          result="refracted" />
+        <feSpecularLighting in="smoothNoise" surfaceScale="2" specularConstant="0.35" specularExponent="35"
+          lighting-color="#ffffff" result="specular">
+          <fePointLight x="200" y="-80" z="400" />
+        </feSpecularLighting>
+        <feComposite in="specular" in2="refracted" operator="in" result="specularClipped" />
+        <feBlend in="refracted" in2="specularClipped" mode="screen" />
+      </filter>
+
+      <!--
+        SUBTLE LIQUID GLASS FILTER
+        Used on: tab bar, tier-2/tier-3 cards, popovers
+        Effect: Gentler version — less distortion, no specular
+      -->
+      <filter id="liquid-glass-subtle" x="-3%" y="-3%" width="106%" height="106%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.012" numOctaves="2" seed="7" result="noise" />
+        <feGaussianBlur in="noise" stdDeviation="3" result="smoothNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+
+      <!--
+        LIVING GLASS FILTER (animated)
+        Used on: sidebar only
+        Effect: Slowly shifting turbulence creates "living" glass
+      -->
+      <filter id="liquid-glass-living" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.006" numOctaves="2" seed="1" result="noise">
+          <animate attributeName="seed" from="1" to="100" dur="60s" repeatCount="indefinite" />
+        </feTurbulence>
+        <feGaussianBlur in="noise" stdDeviation="2.5" result="smoothNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="5" xChannelSelector="R" yChannelSelector="G"
+          result="refracted" />
+        <feSpecularLighting in="smoothNoise" surfaceScale="1.5" specularConstant="0.25" specularExponent="40"
+          lighting-color="#ffffff" result="specular">
+          <fePointLight x="150" y="-60" z="350" />
+        </feSpecularLighting>
+        <feComposite in="specular" in2="refracted" operator="in" result="specularClipped" />
+        <feBlend in="refracted" in2="specularClipped" mode="screen" />
       </filter>
     </defs>
   </svg>
