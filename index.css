@@ -1473,3 +1473,92 @@ html:not(.dark) .ios26-tab-btn.is-active svg {
     transition-duration: 0.15s !important;
   }
 }
+
+/* ============================================================ */
+/* AUTHENTIC LIQUID GLASS — SVG DISPLACEMENT REFRACTION          */
+/* ============================================================ */
+/*
+  This section upgrades AuraDesk from "glassmorphism" (blur only)
+  to authentic Apple Liquid Glass (refraction + blur + specular).
+
+  HOW IT WORKS:
+  - SVG filters in index.html generate displacement maps using
+    fractal noise (feTurbulence → feDisplacementMap)
+  - backdrop-filter: url(#filter-id) applies displacement to
+    content BEHIND glass surfaces, warping it like real glass
+  - feSpecularLighting adds physically-based highlights
+
+  BROWSER SUPPORT:
+  - Chromium (Chrome, Edge, Opera, Brave): Full refraction effect
+  - Safari/Firefox: Graceful fallback — these browsers reject
+    url() in backdrop-filter, so the earlier blur-only declaration
+    applies automatically via CSS cascade. No broken layout.
+
+  PERFORMANCE:
+  - Desktop only (min-width: 769px) — mobile already uses
+    simplified blur via existing !important overrides
+  - SVG displacement is GPU-accelerated and lighter than blur
+    (single pixel lookup vs. multi-pixel averaging)
+  - Reduced-motion users keep simple blur (existing rules handle this)
+*/
+
+@media (min-width: 769px) {
+
+  /* ---- PRIMARY SURFACES: Full refraction + specular ---- */
+  /* Sidebar, main content cards, modals */
+  .volumetric-surface {
+    backdrop-filter: url(#liquid-glass-refract) blur(40px) saturate(2.0) brightness(1.05) contrast(0.98);
+    -webkit-backdrop-filter: url(#liquid-glass-refract) blur(40px) saturate(2.0) brightness(1.05) contrast(0.98);
+  }
+
+  html.dark .volumetric-surface {
+    backdrop-filter: url(#liquid-glass-refract) blur(48px) saturate(1.7) brightness(0.92) contrast(1.08);
+    -webkit-backdrop-filter: url(#liquid-glass-refract) blur(48px) saturate(1.7) brightness(0.92) contrast(1.08);
+  }
+
+  /* ---- SIDEBAR: Living glass with animated turbulence ---- */
+  /* Uses animated seed cycling for organic "breathing" refraction */
+  .liquid-glass-sidebar {
+    backdrop-filter: url(#liquid-glass-living) blur(40px) saturate(2.0) brightness(1.05) contrast(0.98);
+    -webkit-backdrop-filter: url(#liquid-glass-living) blur(40px) saturate(2.0) brightness(1.05) contrast(0.98);
+  }
+
+  html.dark .liquid-glass-sidebar {
+    backdrop-filter: url(#liquid-glass-living) blur(40px) saturate(1.7) brightness(0.92) contrast(1.08) !important;
+    -webkit-backdrop-filter: url(#liquid-glass-living) blur(40px) saturate(1.7) brightness(0.92) contrast(1.08) !important;
+  }
+
+  /* ---- SECONDARY SURFACES: Subtle refraction only ---- */
+  /* Tier-2: dropdown menus, expanded cards */
+  .glass-tier-2 {
+    backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(2.0) brightness(1.1);
+    -webkit-backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(2.0) brightness(1.1);
+  }
+
+  html.dark .glass-tier-2 {
+    backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(1.6) brightness(0.85);
+    -webkit-backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(1.6) brightness(0.85);
+  }
+
+  /* Tier-3: modals, high-elevation popups */
+  .glass-tier-3 {
+    backdrop-filter: url(#liquid-glass-subtle) blur(80px) saturate(2.2) brightness(1.12);
+    -webkit-backdrop-filter: url(#liquid-glass-subtle) blur(80px) saturate(2.2) brightness(1.12);
+  }
+
+  html.dark .glass-tier-3 {
+    backdrop-filter: url(#liquid-glass-subtle) blur(80px) saturate(1.8) brightness(0.9);
+    -webkit-backdrop-filter: url(#liquid-glass-subtle) blur(80px) saturate(1.8) brightness(0.9);
+  }
+
+  /* ---- TAB BAR: Subtle refraction ---- */
+  .ios26-tab-bar {
+    backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(1.8) brightness(0.95);
+    -webkit-backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(1.8) brightness(0.95);
+  }
+
+  html:not(.dark) .ios26-tab-bar {
+    backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(1.9) brightness(1.08);
+    -webkit-backdrop-filter: url(#liquid-glass-subtle) blur(64px) saturate(1.9) brightness(1.08);
+  }
+}
