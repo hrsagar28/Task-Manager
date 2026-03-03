@@ -326,7 +326,19 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
           {renderNoteList(otherNotes, pinnedNotes.length > 0 ? "Others" : undefined, 150 + (pinnedNotes.length * 10))}
 
           {filteredNotes.length === 0 && (
-            <p className="text-center text-sm font-medium text-theme-tertiary py-10 animate-fade-in">No notes found.</p>
+            <div className="text-center py-10 animate-fade-in">
+              <p className="text-sm font-medium text-theme-tertiary mb-4">
+                {searchTerm ? 'No notes match your search.' : 'No notes yet.'}
+              </p>
+              {!searchTerm && (
+                <button
+                  onClick={handleAdd}
+                  className="volumetric-btn volumetric-btn-primary px-6 py-2.5 rounded-2xl font-semibold text-xs text-theme-primary transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  Create a Note
+                </button>
+              )}
+            </div>
           )}
         </div>
       </GlassCard>

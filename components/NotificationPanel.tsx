@@ -195,13 +195,15 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
             {isOpen && (
                 <div
                     className={`
-                        fixed md:absolute 
-                        top-[80px] left-[50%] -translate-x-1/2 md:translate-x-0 md:left-auto
-                        md:${expanded ? 'bottom-full mb-3 left-0 top-auto' : 'top-full mt-3 right-0'} 
-                        w-[calc(100vw-2rem)] md:w-[380px] max-w-[400px] max-h-[70dvh] 
-                        rounded-[24px] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25),0_8px_20px_rgba(0,0,0,0.1)] 
+                        fixed md:absolute
+                        ${expanded
+                            ? 'bottom-auto md:bottom-full md:mb-3 md:left-0 md:top-auto top-[80px] left-[50%] -translate-x-1/2 md:translate-x-0'
+                            : 'top-[80px] left-[50%] -translate-x-1/2 md:translate-x-0 md:left-auto md:top-full md:mt-3 md:right-0'
+                        }
+                        w-[calc(100vw-2rem)] md:w-[380px] max-w-[400px] max-h-[70dvh]
+                        rounded-[24px] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25),0_8px_20px_rgba(0,0,0,0.1)]
                         overflow-hidden z-[200] animate-glass-materialize glass-tier-3 glass-noise
-                        origin-top md:${expanded ? 'origin-bottom-left' : 'origin-top-right'}
+                        origin-top md:origin-top-right
                     `}
                 >
                     {/* Header */}

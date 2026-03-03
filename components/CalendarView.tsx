@@ -44,10 +44,24 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, toggleTaskSta
   useEffect(() => {
     if (showMonthPicker && triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      setPickerPos({
-        top: rect.bottom + 8,
-        left: rect.left,
-      });
+      const pickerWidth = 340;
+      const pickerHeight = 300;
+      const pad = 16;
+
+      let top = rect.bottom + 8;
+      let left = rect.left;
+
+      // Clamp to viewport
+      if (left + pickerWidth > window.innerWidth - pad) {
+        left = window.innerWidth - pickerWidth - pad;
+      }
+      if (left < pad) left = pad;
+      if (top + pickerHeight > window.innerHeight - pad) {
+        top = rect.top - pickerHeight - 8;
+      }
+      if (top < pad) top = pad;
+
+      setPickerPos({ top, left });
     }
   }, [showMonthPicker]);
 

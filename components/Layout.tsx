@@ -98,7 +98,7 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
 
         {/* Search Bar */}
-        {!isSidebarCollapsed ? (
+        <div className={`overflow-hidden transition-all duration-300 ease-smooth ${isSidebarCollapsed ? 'opacity-0 max-h-0 pointer-events-none' : 'opacity-100 max-h-[500px]'}`}>
           <button
             onClick={onOpenCommandPalette}
             className="w-full mb-6 flex items-center gap-3 px-4 py-3 rounded-[20px] volumetric-input hover-surface transition-all duration-300 group cursor-pointer"
@@ -107,7 +107,8 @@ export const Layout: React.FC<LayoutProps> = ({
             <span className="text-sm font-medium text-theme-tertiary group-hover:text-theme-secondary transition-colors flex-1 text-left">Search...</span>
             <span className="text-[10px] font-mono font-medium text-theme-muted bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded-md">{modKey}K</span>
           </button>
-        ) : (
+        </div>
+        {isSidebarCollapsed && (
           <button
             onClick={onOpenCommandPalette}
             className="w-14 h-14 mx-auto mb-6 rounded-[20px] volumetric-input hover-surface flex items-center justify-center text-theme-tertiary hover:text-theme-secondary transition-colors"
@@ -170,7 +171,7 @@ export const Layout: React.FC<LayoutProps> = ({
         </nav>
 
         <div className="mt-auto w-full pt-4 space-y-4" style={{ borderTop: '1px solid var(--divider)' }}>
-          {isSidebarCollapsed ? (
+          {isSidebarCollapsed && (
             <div className="flex flex-col items-center gap-3 w-full">
               <button onClick={onAddNew} className="volumetric-btn volumetric-btn-primary w-14 h-14 rounded-[20px] flex items-center justify-center text-theme-primary" title="New Task">
                 <Plus className="w-6 h-6" />
@@ -196,52 +197,51 @@ export const Layout: React.FC<LayoutProps> = ({
                 </button>
               )}
             </div>
-          ) : (
-            <>
-              <div className="flex flex-col gap-3 w-full">
+          )}
+          <div className={`overflow-hidden transition-all duration-300 ease-smooth ${isSidebarCollapsed ? 'opacity-0 max-h-0 pointer-events-none' : 'opacity-100 max-h-[500px]'}`}>
+            <div className="flex flex-col gap-3 w-full">
+              <button
+                onClick={onAddNew}
+                className="volumetric-btn volumetric-btn-primary w-full py-4 px-6 rounded-[24px] font-semibold tracking-wide flex items-center justify-center gap-3"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                <Plus className="w-5 h-5" />
+                <span>New Task</span>
+                <span className="ml-auto text-[10px] tracking-widest opacity-60 font-medium">{altKey}N</span>
+              </button>
+              {tasks && onEditTask && onNavigateToTasks && (
+                <NotificationPanel
+                  tasks={tasks}
+                  onEditTask={onEditTask}
+                  onNavigateToTasks={onNavigateToTasks}
+                  expanded
+                />
+              )}
+              {onToggleTheme && (
                 <button
-                  onClick={onAddNew}
-                  className="volumetric-btn volumetric-btn-primary w-full py-4 px-6 rounded-[24px] font-semibold tracking-wide flex items-center justify-center gap-3"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  <Plus className="w-5 h-5" />
-                  <span>New Task</span>
-                  <span className="ml-auto text-[10px] tracking-widest opacity-60 font-medium">{altKey}N</span>
-                </button>
-                {tasks && onEditTask && onNavigateToTasks && (
-                  <NotificationPanel
-                    tasks={tasks}
-                    onEditTask={onEditTask}
-                    onNavigateToTasks={onNavigateToTasks}
-                    expanded
-                  />
-                )}
-                {onToggleTheme && (
-                  <button
-                    onClick={onToggleTheme}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-theme-secondary transition-all duration-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] active:scale-[0.98]"
-                    title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                  >
-                    {isDark ? <Sun className="w-5 h-5 shrink-0" /> : <Moon className="w-5 h-5 shrink-0" />}
-                    <span className="font-semibold text-sm tracking-tight">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
-                  </button>
-                )}
-                <button
-                  onClick={onOpenHelp}
+                  onClick={onToggleTheme}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-theme-secondary transition-all duration-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] active:scale-[0.98]"
-                  title="Keyboard Shortcuts"
+                  title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                 >
-                  <HelpCircle className="w-5 h-5 shrink-0" />
-                  <span className="font-semibold text-sm tracking-tight">Keyboard Shortcuts</span>
-                </button>
-              </div>
-              {onToggleSidebar && (
-                <button onClick={onToggleSidebar} className="volumetric-input w-full py-2.5 rounded-xl text-[11px] font-semibold uppercase tracking-wider text-theme-tertiary flex items-center justify-center gap-2 hover:text-theme-primary transition-colors">
-                  <ChevronLeft className="w-4 h-4" /> Collapse Sidebar
+                  {isDark ? <Sun className="w-5 h-5 shrink-0" /> : <Moon className="w-5 h-5 shrink-0" />}
+                  <span className="font-semibold text-sm tracking-tight">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
                 </button>
               )}
-            </>
-          )}
+              <button
+                onClick={onOpenHelp}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-theme-secondary transition-all duration-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] active:scale-[0.98]"
+                title="Keyboard Shortcuts"
+              >
+                <HelpCircle className="w-5 h-5 shrink-0" />
+                <span className="font-semibold text-sm tracking-tight">Keyboard Shortcuts</span>
+              </button>
+            </div>
+            {onToggleSidebar && (
+              <button onClick={onToggleSidebar} className="volumetric-input w-full py-2.5 mt-4 rounded-xl text-[11px] font-semibold uppercase tracking-wider text-theme-tertiary flex items-center justify-center gap-2 hover:text-theme-primary transition-colors">
+                <ChevronLeft className="w-4 h-4" /> Collapse Sidebar
+              </button>
+            )}
+          </div>
         </div>
       </aside>
 
@@ -435,11 +435,9 @@ const SidebarButton = ({ active, onClick, icon, label, shortcut, badge, collapse
         </div>
       ) : null}
     </div>
-    {!collapsed && (
-      <>
-        <span className="text-sm tracking-tight flex-1 text-left">{label}</span>
-        {shortcut && <span className="text-[10px] font-mono font-medium text-theme-muted bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded-md">{shortcut}</span>}
-      </>
-    )}
+    <div className={`overflow-hidden transition-all duration-300 ease-smooth flex items-center gap-4 flex-1 min-w-0 ${collapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[300px]'}`}>
+      <span className="text-sm tracking-tight flex-1 text-left whitespace-nowrap">{label}</span>
+      {shortcut && <span className="text-[10px] font-mono font-medium text-theme-muted bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded-md whitespace-nowrap">{shortcut}</span>}
+    </div>
   </button>
 );

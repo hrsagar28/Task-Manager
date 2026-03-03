@@ -166,20 +166,20 @@ export const TasksView: React.FC<TasksViewProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-            <div className="flex items-center gap-1 volumetric-input p-1.5 rounded-2xl flex-wrap">
+            <div className="flex items-center gap-1 volumetric-input p-1.5 rounded-2xl overflow-x-auto no-scrollbar">
               {(['ALL', 'PENDING', 'IN_PROGRESS', 'COMPLETED'] as const).map(status => (
                 <button
                   key={status}
                   onClick={() => { setFilterArchived(false); setFilterStatus(status); }}
-                  className={`px-4 py-2 rounded-[10px] text-[10px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth whitespace-nowrap ${!filterArchived && filterStatus === status ? 'volumetric-surface glass-noise shadow-sm text-theme-primary scale-[1.02]' : 'text-theme-tertiary hover:text-theme-secondary'}`}
+                  className={`px-3 md:px-4 py-2 rounded-[10px] text-[10px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth whitespace-nowrap shrink-0 ${!filterArchived && filterStatus === status ? 'volumetric-surface glass-noise shadow-sm text-theme-primary scale-[1.02]' : 'text-theme-tertiary hover:text-theme-secondary'}`}
                 >
-                  {status === 'IN_PROGRESS' ? 'In Progress' : status}
+                  {status === 'IN_PROGRESS' ? 'Active' : status === 'COMPLETED' ? 'Done' : status === 'ALL' ? 'All' : status === 'PENDING' ? 'Pending' : status}
                 </button>
               ))}
-              <div className="w-px h-6 bg-theme-divider mx-1" />
+              <div className="w-px h-6 bg-theme-divider mx-1 shrink-0" />
               <button
                 onClick={() => { setFilterArchived(true); }}
-                className={`px-4 py-2 rounded-[10px] text-[10px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth flex items-center gap-2 whitespace-nowrap ${filterArchived ? 'volumetric-surface glass-noise shadow-sm text-theme-primary scale-[1.02]' : 'text-theme-tertiary hover:text-theme-secondary'}`}
+                className={`px-3 md:px-4 py-2 rounded-[10px] text-[10px] font-semibold uppercase tracking-wider transition-all duration-300 ease-smooth flex items-center gap-2 whitespace-nowrap shrink-0 ${filterArchived ? 'volumetric-surface glass-noise shadow-sm text-theme-primary scale-[1.02]' : 'text-theme-tertiary hover:text-theme-secondary'}`}
               >
                 <Archive className="w-3 h-3" /> Archived
               </button>
@@ -190,7 +190,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 <button
                   key={g}
                   onClick={() => setGroupBy(g)}
-                  className={`px-3 py-1.5 rounded-xl text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all duration-300 ${groupBy === g
+                  className={`px-3 py-1.5 rounded-xl text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap shrink-0 transition-all duration-300 ${groupBy === g
                     ? 'volumetric-surface glass-noise text-theme-primary shadow-sm'
                     : 'text-theme-tertiary hover:text-theme-secondary hover-surface'
                     }`}
@@ -259,6 +259,12 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 </div>
                 <p className="text-sm font-semibold text-theme-secondary">No tasks match your filters</p>
                 <p className="text-xs font-medium text-theme-tertiary mt-2">Try adjusting your search or filters</p>
+                <button
+                  onClick={() => { setFilterStatus('ALL'); setFilterArchived(false); setSearchTerm(''); }}
+                  className="mt-4 volumetric-btn px-6 py-2.5 rounded-2xl font-semibold text-xs uppercase tracking-wider text-theme-tertiary hover:text-theme-primary transition-all"
+                >
+                  Clear Filters
+                </button>
               </div>
             )
           ) : (
@@ -290,7 +296,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                         {...taskListRoving.getItemProps(idx)}
                         className={`group relative flex flex-col p-4 rounded-[20px] transition-all duration-300 ease-smooth hover-surface animate-slide-up overflow-hidden ${isSelected ? 'bg-blue-500/10 ring-1 ring-blue-500/30' : ''} ${isExpanded ? 'shadow-sm ring-1' : ''}`}
                         style={{
-                          animationDelay: `${Math.min(idx * 6, 120)}ms`,
+                          ...(idx < 8 ? { animationDelay: `${idx * 8}ms` } : {}),
                           ...(isExpanded ? { background: 'var(--glass-expanded)', '--tw-ring-color': 'var(--glass-border)' } as React.CSSProperties : {})
                         }}
                       >
@@ -312,9 +318,11 @@ export const TasksView: React.FC<TasksViewProps> = ({
                             <div className="md:col-span-5 flex items-center gap-3">
                               <button
                                 onClick={(e) => { e.stopPropagation(); toggleTaskStatus(task.id); }}
-                                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors shrink-0 ${isCompleted ? 'bg-emerald-500/20 text-emerald-500' : 'volumetric-input text-transparent hover:text-theme-tertiary'}`}
+                                className="relative w-11 h-11 -ml-2.5 flex items-center justify-center shrink-0"
                               >
-                                <CheckCircle className={`w-4 h-4 ${isCompleted ? 'animate-pop text-emerald-500' : ''}`} />
+                                <span className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isCompleted ? 'bg-emerald-500/20 text-emerald-500' : 'volumetric-input text-transparent hover:text-theme-tertiary'}`}>
+                                  <CheckCircle className={`w-4 h-4 ${isCompleted ? 'animate-pop text-emerald-500' : ''}`} />
+                                </span>
                               </button>
                               <div className="min-w-0">
                                 <span className={`font-medium text-[15px] truncate transition-all flex items-center ${isCompleted ? 'line-through text-theme-tertiary' : 'text-theme-secondary'}`}>
@@ -469,9 +477,11 @@ export const TasksView: React.FC<TasksViewProps> = ({
                                   <div key={sub.id} className="flex items-center gap-3 group/sub opacity-0 animate-slide-up" style={{ animationDelay: `${Math.min(sIdx * 30, 150)}ms` }}>
                                     <button
                                       onClick={(e) => { e.stopPropagation(); onToggleSubtask(task.id, sub.id); }}
-                                      className={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-300 ease-smooth ${sub.done ? 'volumetric-btn volumetric-btn-primary text-theme-primary' : 'volumetric-input text-transparent hover:text-theme-tertiary'}`}
+                                      className="relative w-10 h-10 -ml-2 flex items-center justify-center shrink-0"
                                     >
-                                      {sub.done ? <CheckCircle className="w-3 h-3 animate-pop" /> : <CheckCircle className="w-3 h-3 opacity-0 group-hover/sub:opacity-100 transition-opacity" />}
+                                      <span className={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-300 ease-smooth ${sub.done ? 'volumetric-btn volumetric-btn-primary text-theme-primary' : 'volumetric-input text-transparent hover:text-theme-tertiary'}`}>
+                                        {sub.done ? <CheckCircle className="w-3 h-3 animate-pop" /> : <CheckCircle className="w-3 h-3 opacity-0 group-hover/sub:opacity-100 transition-opacity" />}
+                                      </span>
                                     </button>
                                     <span className={`text-sm font-medium transition-all duration-300 ${sub.done ? 'line-through text-theme-tertiary' : 'text-theme-secondary'}`}>
                                       {sub.text}
@@ -558,8 +568,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
         {/* Floating Bulk Action Bar */}
         {selectedTaskIds.size > 0 && (
-          <div className="absolute bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
-            <div className="volumetric-surface glass-noise px-6 py-4 rounded-[24px] flex items-center gap-6 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15),0_4px_12px_-4px_rgba(0,0,0,0.06)]">
+          <div className="sticky top-0 z-30 animate-slide-up p-2">
+            <div className="volumetric-surface glass-noise px-6 py-4 rounded-[20px] flex items-center gap-6 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15),0_4px_12px_-4px_rgba(0,0,0,0.06)]">
               <span className="text-sm font-semibold bg-blue-500/6 text-blue-600/70 dark:text-blue-400 border border-blue-500/8 px-3 py-1.5 rounded-[8px] backdrop-blur-sm">{selectedTaskIds.size} selected</span>
               <div className="w-px h-8 bg-theme-divider" />
               <button onClick={() => executeBulkAction('complete')} className="text-sm font-semibold text-emerald-500 hover:text-emerald-600 flex items-center gap-2 transition-transform hover:scale-105 active:scale-95"><CheckCircle className="w-4 h-4" /> Complete</button>

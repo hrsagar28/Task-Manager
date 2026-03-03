@@ -178,7 +178,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
           </button>
         </div>
 
-        <form id="task-form" onSubmit={handleSubmit} className="p-8 pt-4 space-y-8 overflow-y-auto custom-scrollbar flex-1">
+        <form id="task-form" onSubmit={handleSubmit} className="p-4 pt-2 md:p-8 md:pt-4 space-y-6 md:space-y-8 overflow-y-auto custom-scrollbar flex-1">
           {/* Title Area */}
           <div>
             <label htmlFor="title" className={`block text-[11px] font-medium uppercase tracking-wider mb-2 pl-1 transition-colors ${titleError ? 'text-red-500' : 'text-theme-tertiary'}`}>Title <span className="text-red-500">*</span></label>
@@ -190,7 +190,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
                 setTitle(e.target.value);
                 if (titleError) setTitleError(false);
               }}
-              className={`volumetric-input w-full px-5 py-4 rounded-[20px] font-semibold text-base transition-all focus:-translate-y-0.5 text-theme-primary ${titleError ? '!border-red-400/40 !shadow-[0_0_0_3px_rgba(239,68,68,0.1)_inset]' : ''}`}
+              className={`volumetric-input w-full px-4 py-3 md:px-5 md:py-4 rounded-2xl md:rounded-[20px] font-semibold text-base transition-all focus:-translate-y-0.5 text-theme-primary ${titleError ? '!border-red-400/40 !shadow-[0_0_0_3px_rgba(239,68,68,0.1)_inset]' : ''}`}
               placeholder="e.g. File Q3 Returns"
             />
             {titleError && (
@@ -206,7 +206,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
                 type="text"
                 value={clientName}
                 onChange={e => setClientName(e.target.value)}
-                className="volumetric-input w-full px-5 py-4 rounded-[20px] font-semibold text-sm transition-all focus:-translate-y-0.5 text-theme-primary"
+                className="volumetric-input w-full px-4 py-3 md:px-5 md:py-4 rounded-2xl md:rounded-[20px] font-semibold text-sm transition-all focus:-translate-y-0.5 text-theme-primary"
                 placeholder="e.g. Wayne Enterprises"
               />
             </div>
@@ -218,7 +218,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
                 required
                 value={dueDate}
                 onChange={e => setDueDate(e.target.value)}
-                className="volumetric-input w-full px-5 py-4 rounded-[20px] font-semibold text-sm transition-all focus:-translate-y-0.5 text-theme-primary"
+                className="volumetric-input w-full px-4 py-3 md:px-5 md:py-4 rounded-2xl md:rounded-[20px] font-semibold text-sm transition-all focus:-translate-y-0.5 text-theme-primary"
               />
             </div>
           </div>
@@ -231,7 +231,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
                   id="priority"
                   value={priority}
                   onChange={e => setPriority(e.target.value as TaskPriority)}
-                  className="volumetric-input w-full px-5 py-4 rounded-[20px] font-semibold text-sm appearance-none cursor-pointer transition-all focus:-translate-y-0.5 text-theme-primary"
+                  className="volumetric-input w-full px-4 py-3 md:px-5 md:py-4 rounded-2xl md:rounded-[20px] font-semibold text-sm appearance-none cursor-pointer transition-all focus:-translate-y-0.5 text-theme-primary"
                 >
                   <option value={TaskPriority.LOW}>Low</option>
                   <option value={TaskPriority.MEDIUM}>Medium</option>
@@ -384,7 +384,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
               rows={3}
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="volumetric-input w-full px-5 py-4 rounded-[20px] font-medium text-sm resize-none custom-scrollbar transition-all focus:-translate-y-0.5 text-theme-secondary"
+              className="volumetric-input w-full px-4 py-3 md:px-5 md:py-4 rounded-2xl md:rounded-[20px] font-medium text-sm resize-none custom-scrollbar transition-all focus:-translate-y-0.5 text-theme-secondary"
               placeholder="Any additional details..."
             />
           </div>
@@ -431,7 +431,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
           <button
             type="button"
             onClick={onClose}
-            className="volumetric-input px-8 py-4 rounded-[20px] font-semibold text-theme-tertiary hover:text-theme-primary transition-all hover:-translate-y-0.5 active:translate-y-0"
+            className="volumetric-input px-6 py-3 md:px-8 md:py-4 rounded-2xl md:rounded-[20px] font-semibold text-theme-tertiary hover:text-theme-primary transition-all hover:-translate-y-0.5 active:translate-y-0"
           >
             Cancel
           </button>
@@ -442,7 +442,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, i
             <button
               type="submit"
               form="task-form"
-              className="volumetric-btn volumetric-btn-primary px-10 py-4 rounded-[20px] font-semibold tracking-wide text-theme-primary transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              className="volumetric-btn volumetric-btn-primary px-8 py-3 md:px-10 md:py-4 rounded-2xl md:rounded-[20px] font-semibold tracking-wide text-theme-primary transition-transform hover:scale-[1.02] active:scale-[0.98]"
             >
               {initialData ? 'Update Task' : 'Save Task'}
             </button>

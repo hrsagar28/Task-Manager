@@ -477,23 +477,25 @@ const TaskItem: React.FC<TaskItemProps> = ({
         <div className="flex items-center gap-4 cursor-pointer" onClick={onToggleExpand}>
           <button
             onClick={handleToggle}
-            className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isRippling ? 'animate-glass-ripple text-emerald-500' : ''} ${isCompleted
+            className="relative w-11 h-11 -ml-2.5 flex items-center justify-center shrink-0"
+            aria-label={`Cycle status for task ${task.title}`}
+          >
+            <span className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isRippling ? 'animate-glass-ripple text-emerald-500' : ''} ${isCompleted
               ? 'text-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/20'
               : isInProgress
                 ? 'text-indigo-500 bg-indigo-500/10 dark:bg-indigo-500/20'
                 : 'bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] shadow-sm hover:bg-black/[0.05] dark:hover:bg-white/[0.08] text-theme-tertiary'
-              }`}
-            aria-label={`Cycle status for task ${task.title}`}
-          >
-            {isCompleted ? (
-              <CheckCircle className="w-5 h-5 animate-pop" />
-            ) : isRippling ? (
-              <CheckCircle className="w-5 h-5" />
-            ) : isInProgress ? (
-              <Clock className="w-4 h-4 animate-pulse text-indigo-500" />
-            ) : (
-              <div className="w-3 h-3 rounded-full bg-slate-400 dark:bg-slate-300 opacity-60 transition-transform group-hover/task:scale-110" />
-            )}
+              }`}>
+              {isCompleted ? (
+                <CheckCircle className="w-5 h-5 animate-pop" />
+              ) : isRippling ? (
+                <CheckCircle className="w-5 h-5" />
+              ) : isInProgress ? (
+                <Clock className="w-4 h-4 animate-pulse text-indigo-500" />
+              ) : (
+                <div className="w-3 h-3 rounded-full bg-slate-400 dark:bg-slate-300 opacity-60 transition-transform group-hover/task:scale-110" />
+              )}
+            </span>
           </button>
 
           <div className="flex-1 min-w-0">
@@ -615,9 +617,11 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   <div key={sub.id} className="flex items-center gap-3 group/sub opacity-0 animate-slide-up" style={{ animationDelay: `${Math.min(sIdx * 30, 150)}ms` }}>
                     <button
                       onClick={(e) => { e.stopPropagation(); onToggleSubtask(sub.id); }}
-                      className={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-300 ease-smooth ${sub.done ? 'volumetric-btn volumetric-btn-primary text-theme-primary' : 'volumetric-input text-transparent hover:text-theme-tertiary'}`}
+                      className="relative w-10 h-10 -ml-2 flex items-center justify-center shrink-0"
                     >
-                      {sub.done ? <CheckCircle className="w-3 h-3 animate-pop" /> : <CheckCircle className="w-3 h-3 opacity-0 group-hover/sub:opacity-100 transition-opacity" />}
+                      <span className={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-300 ease-smooth ${sub.done ? 'volumetric-btn volumetric-btn-primary text-theme-primary' : 'volumetric-input text-transparent hover:text-theme-tertiary'}`}>
+                        {sub.done ? <CheckCircle className="w-3 h-3 animate-pop" /> : <CheckCircle className="w-3 h-3 opacity-0 group-hover/sub:opacity-100 transition-opacity" />}
+                      </span>
                     </button>
                     <span className={`text-sm font-medium transition-all duration-300 ${sub.done ? 'line-through text-theme-tertiary' : 'text-theme-secondary'}`}>
                       {sub.text}

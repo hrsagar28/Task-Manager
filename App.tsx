@@ -225,6 +225,8 @@ function App() {
     let ticking = false;
     let animationFrameId: number;
     let isTouch = false;
+    let idleTimer: ReturnType<typeof setTimeout>;
+    let isLoopRunning = false;
 
     // Check purely on mount
     if (typeof window !== 'undefined') {
@@ -247,9 +249,11 @@ function App() {
       const angle = 100 + (x * 20) + (y * 10);
       doc.style.setProperty('--specular-angle', `${angle}deg`);
 
-      // Keep running the loop if we haven't reached the target
-      if (Math.abs(rawMouseX - smoothMouseX) > 0.1 || Math.abs(rawMouseY - smoothMouseY) > 0.1) {
+      // Keep running the loop if we haven't reached the target and not idle
+      if (isLoopRunning && (Math.abs(rawMouseX - smoothMouseX) > 0.5 || Math.abs(rawMouseY - smoothMouseY) > 0.5)) {
         animationFrameId = requestAnimationFrame(updateVariables);
+      } else {
+        isLoopRunning = false;
       }
     };
 
@@ -261,16 +265,17 @@ function App() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(() => {
-          // Map mouse position to a gentle angle shift (100deg to 130deg range)
-          const x = e.clientX / window.innerWidth;  // 0 to 1
-          const y = e.clientY / window.innerHeight; // 0 to 1
-          const angle = 100 + (x * 20) + (y * 10);  // Range: 100deg to 130deg
-          document.documentElement.style.setProperty('--specular-angle', `${angle}deg`);
-          ticking = false;
-        });
+      rawMouseX = e.clientX;
+      rawMouseY = e.clientY;
+
+      // Restart idle timer
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => { isLoopRunning = false; }, 2000);
+
+      // Start loop if not running
+      if (!isLoopRunning) {
+        isLoopRunning = true;
+        animationFrameId = requestAnimationFrame(updateVariables);
       }
     };
 
@@ -323,11 +328,13 @@ function App() {
       // Seed with initial center
       rawMouseX = window.innerWidth / 2;
       rawMouseY = window.innerHeight / 2;
+      isLoopRunning = true;
       requestVariableUpdate();
     }
 
     return () => {
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      clearTimeout(idleTimer);
       if (isTouch) {
         window.removeEventListener('scroll', handleTouchScroll, { capture: true });
         window.removeEventListener('deviceorientation', handleDeviceOrientation as EventListener);

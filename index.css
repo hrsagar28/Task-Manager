@@ -965,6 +965,10 @@ html.dark .volumetric-chip:hover {
   }
 }
 
+.animate-drawer-slide-in {
+  animation: drawer-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Markdown Styles */
 .markdown-body h1,
 .markdown-body h2,
@@ -1130,19 +1134,16 @@ html.dark input[type="date"] {
 /* GPU & MOBILE PERF OPTIMIZATIONS*/
 /* ============================== */
 
-/* Fix 1 & 6: Hardware acceleration and layout containment */
-.volumetric-surface,
-.glass-tier-2,
-.glass-tier-3,
-.volumetric-chip,
-.volumetric-btn,
-.volumetric-btn-primary,
-.volumetric-input,
+/* GPU hints only for elements that actually animate */
 .liquid-glass-sidebar {
-  will-change: transform;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+  will-change: width;
 }
+
+.ios26-tab-bar {
+  will-change: transform;
+}
+
+/* Remove translateZ(0) hack — modern browsers auto-promote elements with backdrop-filter */
 
 .volumetric-surface,
 .glass-tier-2,
