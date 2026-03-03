@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Task, TaskStatus, TaskPriority, Note } from '../types';
 import { Search, Archive, CheckCircle, Edit2, Trash, CheckSquare, Square, Layers, ListTodo, ChevronDown, FileText, Copy, MoreVertical, Filter } from './Icons';
 import { formatRelativeDate } from '../utils/formatRelativeDate';
@@ -45,7 +46,21 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [activeMenuTaskId, setActiveMenuTaskId] = useState<string | null>(null);
   const [isSelectMode, setIsSelectMode] = useState(false);
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
   const taskListRoving = useRovingTabIndex();
+
+  // Close sort dropdown on click outside
+  useEffect(() => {
+    if (!sortDropdownOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(e.target as Node)) {
+        setSortDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [sortDropdownOpen]);
 
   const notesByTaskId = useMemo(() => {
     const map = new Map<string, Note[]>();
@@ -215,15 +230,31 @@ export const TasksView: React.FC<TasksViewProps> = ({
               ))}
             </div>
 
-            <select
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value as any)}
-              className="volumetric-input px-4 py-3 rounded-xl text-[10px] font-semibold uppercase tracking-wider text-theme-tertiary outline-none cursor-pointer min-w-[140px]"
-            >
-              <option value="DUE_DATE">Sort by Due Date</option>
-              <option value="PRIORITY">Sort by Priority</option>
-              <option value="CREATED_AT">Sort by Created</option>
-            </select>
+            <div ref={sortDropdownRef} className="relative">
+              <button
+                onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
+                className={`volumetric-input px-4 py-3 rounded-xl text-[10px] font-semibold uppercase tracking-wider text-theme-tertiary cursor-pointer min-w-[140px] flex items-center justify-between gap-2 transition-all duration-300 ${sortDropdownOpen ? 'ring-1 ring-blue-500/20' : ''}`}
+              >
+                <span>{sortBy === 'DUE_DATE' ? 'Due Date' : sortBy === 'PRIORITY' ? 'Priority' : 'Created'}</span>
+                <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${sortDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {sortDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 z-[100] glass-tier-3 glass-noise rounded-[16px] p-1.5 min-w-[160px] shadow-lg animate-scale-in origin-top-right">
+                  {([['DUE_DATE', 'Due Date'], ['PRIORITY', 'Priority'], ['CREATED_AT', 'Created']] as const).map(([value, label]) => (
+                    <button
+                      key={value}
+                      onClick={() => { setSortBy(value as any); setSortDropdownOpen(false); }}
+                      className={`w-full text-left px-4 py-2.5 rounded-[12px] text-[11px] font-semibold tracking-wider transition-all duration-200 ${sortBy === value
+                          ? 'volumetric-surface glass-noise text-theme-primary shadow-sm'
+                          : 'text-theme-tertiary hover:text-theme-secondary hover-surface'
+                        }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <button
               onClick={() => {
@@ -477,25 +508,43 @@ export const TasksView: React.FC<TasksViewProps> = ({
                                 <MoreVertical className="w-5 h-5" />
                               </button>
 
-                              {/* Mobile Action Menu Dropdown */}
-                              {activeMenuTaskId === task.id && (
-                                <>
-                                  <div className="fixed inset-0 z-[90]" onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); }} />
-                                  <div className="absolute right-8 top-10 z-[100] glass-tier-3 glass-noise rounded-[20px] p-2 min-w-[180px] shadow-lg animate-scale-in origin-top-right flex flex-col">
-                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); onEditTask(task); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-theme-secondary text-sm font-semibold transition-colors">
-                                      <Edit2 className="w-4 h-4" /> Edit
+                              {/* Mobile Action Menu — Bottom Sheet via Portal */}
+                              {activeMenuTaskId === task.id && createPortal(
+                                <div className="fixed inset-0 z-[200] md:hidden" onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); }}>
+                                  {/* Backdrop */}
+                                  <div className="absolute inset-0 bg-black/30 backdrop-blur-sm animate-fade-in" />
+                                  {/* Bottom Sheet */}
+                                  <div
+                                    className="absolute bottom-0 inset-x-0 glass-tier-3 glass-noise rounded-t-[28px] p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-8px_40px_-8px_rgba(0,0,0,0.15)] animate-bottom-sheet-up flex flex-col"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {/* Drag Handle */}
+                                    <div className="flex justify-center pt-2 pb-3">
+                                      <div className="w-10 h-1 rounded-full bg-theme-tertiary/30" />
+                                    </div>
+                                    {/* Task Title */}
+                                    <p className="px-4 pb-3 text-xs font-semibold uppercase tracking-wider text-theme-tertiary truncate">{task.title}</p>
+                                    {/* Actions */}
+                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); onEditTask(task); }} className="flex items-center gap-3 px-5 py-3.5 rounded-[14px] hover-surface text-theme-secondary text-[15px] font-semibold transition-colors">
+                                      <Edit2 className="w-5 h-5" /> Edit
                                     </button>
-                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); onDuplicateTask(task); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-theme-secondary text-sm font-semibold transition-colors">
-                                      <Copy className="w-4 h-4" /> Duplicate
+                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); onDuplicateTask(task); }} className="flex items-center gap-3 px-5 py-3.5 rounded-[14px] hover-surface text-theme-secondary text-[15px] font-semibold transition-colors">
+                                      <Copy className="w-5 h-5" /> Duplicate
                                     </button>
-                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); onToggleArchive(task.id); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-theme-secondary text-sm font-semibold transition-colors">
-                                      <Archive className="w-4 h-4" /> {task.isArchived ? 'Unarchive' : 'Archive'}
+                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); onToggleArchive(task.id); }} className="flex items-center gap-3 px-5 py-3.5 rounded-[14px] hover-surface text-theme-secondary text-[15px] font-semibold transition-colors">
+                                      <Archive className="w-5 h-5" /> {task.isArchived ? 'Unarchive' : 'Archive'}
                                     </button>
-                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); onDeleteTask(task.id); }} className="flex items-center gap-3 px-4 py-3 rounded-[14px] hover-surface text-red-500 text-sm font-semibold transition-colors mt-1 border-t border-theme-divider">
-                                      <Trash className="w-4 h-4" /> Delete
+                                    <div className="mx-4 my-1 border-t border-theme-divider" />
+                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); onDeleteTask(task.id); }} className="flex items-center gap-3 px-5 py-3.5 rounded-[14px] hover-surface text-red-500 text-[15px] font-semibold transition-colors">
+                                      <Trash className="w-5 h-5" /> Delete
+                                    </button>
+                                    <div className="mx-4 my-1 border-t border-theme-divider" />
+                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenuTaskId(null); }} className="flex items-center justify-center px-5 py-3.5 rounded-[14px] hover-surface text-theme-tertiary text-[15px] font-semibold transition-colors">
+                                      Cancel
                                     </button>
                                   </div>
-                                </>
+                                </div>,
+                                document.body
                               )}
 
                               <ChevronDown className={`w-4 h-4 text-theme-tertiary ml-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
