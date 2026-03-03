@@ -34,6 +34,7 @@
   --animate-glass-materialize: glass-materialize 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-glass-dematerialize: glass-dematerialize 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-completion-flare: completion-flare 0.6s ease-in-out forwards;
+  --animate-bottom-sheet-up: bottom-sheet-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
   /* Keyframes */
   @keyframes glass-ripple {

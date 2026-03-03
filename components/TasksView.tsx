@@ -18,6 +18,20 @@ interface TasksViewProps {
   onViewNote: (noteId: string) => void;
 }
 
+export const PriorityBadge = React.memo(({ priority }: { priority: TaskPriority }) => {
+  const styles = {
+    [TaskPriority.URGENT]: 'text-red-600/80 dark:text-red-400 bg-red-500/10 border-red-400/15',
+    [TaskPriority.HIGH]: 'text-orange-600/80 dark:text-orange-400 bg-orange-500/10 border-orange-400/15',
+    [TaskPriority.MEDIUM]: 'text-blue-600/70 dark:text-blue-400 bg-blue-500/8 border-blue-400/12',
+    [TaskPriority.LOW]: 'text-theme-muted bg-slate-500/6 border-slate-400/10'
+  };
+  return (
+    <span className={`px-2.5 py-1 rounded-[10px] border text-[10px] font-semibold uppercase tracking-wider shadow-[0_0.5px_0_0_rgba(255,255,255,0.15)_inset] ${styles[priority]}`}>
+      {priority}
+    </span>
+  );
+});
+
 export const TasksView: React.FC<TasksViewProps> = ({
   tasks, notes, toggleTaskStatus, onEditTask, onDuplicateTask, onDeleteTask, onToggleArchive, onBulkAction, onToggleSubtask, onViewNote
 }) => {
@@ -30,7 +44,18 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [activeMenuTaskId, setActiveMenuTaskId] = useState<string | null>(null);
+  const [isSelectMode, setIsSelectMode] = useState(false);
   const taskListRoving = useRovingTabIndex();
+
+  const notesByTaskId = useMemo(() => {
+    const map = new Map<string, Note[]>();
+    notes.forEach(note => {
+      if (!note.linkedTaskId) return;
+      if (!map.has(note.linkedTaskId)) map.set(note.linkedTaskId, []);
+      map.get(note.linkedTaskId)!.push(note);
+    });
+    return map;
+  }, [notes]);
 
   const filteredTasks = useMemo(() => {
     let result = tasks.filter(t => filterArchived ? t.isArchived : !t.isArchived);
@@ -125,19 +150,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
     setSelectedTaskIds(new Set());
   };
 
-  const PriorityBadge = ({ priority }: { priority: TaskPriority }) => {
-    const styles = {
-      [TaskPriority.URGENT]: 'text-red-600/80 dark:text-red-400 bg-red-500/10 border-red-400/15',
-      [TaskPriority.HIGH]: 'text-orange-600/80 dark:text-orange-400 bg-orange-500/10 border-orange-400/15',
-      [TaskPriority.MEDIUM]: 'text-blue-600/70 dark:text-blue-400 bg-blue-500/8 border-blue-400/12',
-      [TaskPriority.LOW]: 'text-theme-muted bg-slate-500/6 border-slate-400/10'
-    };
-    return (
-      <span className={`px-2.5 py-1 rounded-[10px] border text-[10px] font-semibold uppercase tracking-wider backdrop-blur-sm shadow-[0_0.5px_0_0_rgba(255,255,255,0.15)_inset] ${styles[priority]}`}>
-        {priority}
-      </span>
-    );
-  };
+
 
   return (
     <div className="animate-fade-in flex flex-col h-[calc(100dvh-10rem)] md:h-[calc(100dvh-4rem)] relative">
@@ -211,8 +224,31 @@ export const TasksView: React.FC<TasksViewProps> = ({
               <option value="PRIORITY">Sort by Priority</option>
               <option value="CREATED_AT">Sort by Created</option>
             </select>
+
+            <button
+              onClick={() => {
+                setIsSelectMode(!isSelectMode);
+                if (isSelectMode) setSelectedTaskIds(new Set());
+              }}
+              className={`md:hidden volumetric-btn px-4 py-3 rounded-xl text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap transition-colors ${isSelectMode ? 'bg-blue-500/10 text-blue-500 shadow-sm' : 'text-theme-secondary hover-surface'}`}
+            >
+              {isSelectMode ? 'Done' : 'Select'}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Bulk Selection Bar - Only visible in Select Mode */}
+        {isSelectMode && (
+          <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-theme-divider bg-theme-divider text-[11px] font-semibold tracking-wider animate-slide-down">
+            <div className="flex items-center gap-3">
+              <button onClick={handleSelectAll} className="flex items-center gap-2 text-theme-secondary">
+                {selectedTaskIds.size === filteredTasks.length && filteredTasks.length > 0 ? <CheckSquare className="w-5 h-5 text-blue-500" /> : <Square className="w-5 h-5" />}
+                <span className="uppercase text-[10px]">Select All</span>
+              </button>
+            </div>
+            <span className="text-theme-primary">{selectedTaskIds.size} selected</span>
+          </div>
+        )}
 
         {/* Task List Header */}
         <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 border-b border-theme-divider bg-theme-divider text-[10px] font-semibold uppercase tracking-wider text-theme-tertiary">
@@ -290,15 +326,15 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     const totalSubtasks = task.subtasks?.length || 0;
                     const completedSubtasks = task.subtasks?.filter(s => s.done).length || 0;
                     const progressPercent = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
-                    const relatedNotes = notes.filter(n => n.linkedTaskId === task.id);
+                    const relatedNotes = notesByTaskId.get(task.id) || [];
 
                     return (
                       <div
                         key={task.id}
                         {...taskListRoving.getItemProps(idx)}
-                        className={`group relative flex flex-col p-4 rounded-[20px] transition-all duration-300 ease-smooth hover-surface animate-slide-up overflow-hidden ${isSelected ? 'bg-blue-500/10 ring-1 ring-blue-500/30' : ''} ${isExpanded ? 'shadow-sm ring-1' : ''}`}
+                        className={`group relative flex flex-col p-4 rounded-[20px] transition-all duration-300 ease-smooth hover-surface ${idx < 8 ? 'animate-slide-up' : ''} overflow-hidden ${isSelected ? 'bg-blue-500/10 ring-1 ring-blue-500/30' : ''} ${isExpanded ? 'shadow-sm ring-1' : ''}`}
                         style={{
-                          animationDelay: `${Math.min(idx * 30, 300)}ms`,
+                          ...(idx < 8 ? { animationDelay: `${Math.min(idx * 30, 300)}ms` } : {}),
                           ...(isExpanded ? { background: 'var(--glass-expanded)', '--tw-ring-color': 'var(--glass-border)' } as React.CSSProperties : {})
                         }}
                       >
@@ -312,7 +348,10 @@ export const TasksView: React.FC<TasksViewProps> = ({
                           className="flex items-center gap-4 cursor-pointer w-full"
                           onClick={() => setExpandedTaskId(prev => prev === task.id ? null : task.id)}
                         >
-                          <button onClick={(e) => { e.stopPropagation(); handleToggleSelect(task.id); }} className="text-theme-tertiary hover:text-blue-500 transition-colors shrink-0">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleToggleSelect(task.id); }}
+                            className={`${isSelectMode ? 'flex' : 'hidden md:flex'} text-theme-tertiary hover:text-blue-500 transition-colors shrink-0`}
+                          >
                             {isSelected ? <CheckSquare className="w-5 h-5 text-blue-500 animate-pop" /> : <Square className="w-5 h-5" />}
                           </button>
 
@@ -400,10 +439,10 @@ export const TasksView: React.FC<TasksViewProps> = ({
                             </div>
 
                             <div className="hidden md:block md:col-span-2 truncate">
-                              {task.clientName && <span className="px-2.5 py-1 rounded-[8px] bg-slate-500/5 text-theme-muted border border-slate-500/8 text-[10px] font-semibold uppercase tracking-wider truncate max-w-full inline-block backdrop-blur-sm">{task.clientName}</span>}
+                              {task.clientName && <span className="px-2.5 py-1 rounded-[8px] bg-slate-500/5 text-theme-muted border border-slate-500/8 text-[10px] font-semibold uppercase tracking-wider truncate max-w-full inline-block">{task.clientName}</span>}
                             </div>
                             <div className="hidden md:block md:col-span-2 truncate">
-                              {task.category && <span className="px-2.5 py-1 rounded-[8px] bg-blue-500/6 text-blue-600/70 dark:text-blue-400 border border-blue-500/8 text-[10px] font-semibold uppercase tracking-wider truncate inline-block backdrop-blur-sm">{task.category}</span>}
+                              {task.category && <span className="px-2.5 py-1 rounded-[8px] bg-blue-500/6 text-blue-600/70 dark:text-blue-400 border border-blue-500/8 text-[10px] font-semibold uppercase tracking-wider truncate inline-block">{task.category}</span>}
                             </div>
 
                             <div

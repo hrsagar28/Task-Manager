@@ -507,12 +507,21 @@ function App() {
   const handleBulkAction = useCallback((ids: string[], action: 'complete' | 'delete' | 'archive') => {
     if (action === 'delete') {
       const tasksToDelete = tasks.filter(t => ids.includes(t.id));
-      setTasks(prev => prev.filter(t => !ids.includes(t.id)));
-      showToast(`${ids.length} tasks deleted`, 'info', {
-        label: 'Undo',
-        onClick: () => {
-          setTasks(prev => [...prev, ...tasksToDelete]);
-          showToast(`${tasksToDelete.length} tasks restored`);
+      setConfirmDialog({
+        title: 'Delete Tasks',
+        message: `Are you sure you want to delete ${tasksToDelete.length} tasks? You can undo this action briefly after deletion.`,
+        confirmLabel: 'Delete All',
+        variant: 'danger',
+        onConfirm: () => {
+          setTasks(prev => prev.filter(t => !ids.includes(t.id)));
+          showToast(`${ids.length} tasks deleted`, 'info', {
+            label: 'Undo',
+            onClick: () => {
+              setTasks(prev => [...prev, ...tasksToDelete]);
+              showToast(`${tasksToDelete.length} tasks restored`);
+            }
+          });
+          setConfirmDialog(null);
         }
       });
     } else if (action === 'complete') {
