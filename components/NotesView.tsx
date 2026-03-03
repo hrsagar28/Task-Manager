@@ -3,7 +3,7 @@ import { Note, Task } from '../types';
 import { GlassCard } from './GlassCard';
 import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
 import { useDebounce } from '../hooks/useDebounce';
-import { Plus, FileText, Pin, Trash, Search, BoldIcon, ItalicIcon, ListIcon, LinkIcon, X, ChevronLeft, Maximize, Minimize } from './Icons';
+import { Plus, FileText, Pin, Trash, Search, BoldIcon, ItalicIcon, ListIcon, LinkIcon, X, ChevronLeft, Maximize, Minimize, UndoIcon, RedoIcon, UnderlineIcon, RemoveFormattingIcon } from './Icons';
 import { NOTE_COLORS } from '../constants';
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
@@ -12,6 +12,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TipTapLink from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
+import Underline from '@tiptap/extension-underline';
 
 // Configure marked for safe legacy migration rendering
 marked.setOptions({ breaks: true, gfm: true });
@@ -122,6 +123,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
     const editor = useEditor({
         extensions: [
             StarterKit,
+            Underline,
             TipTapLink.configure({
                 openOnClick: true,
                 autolink: true,
@@ -206,6 +208,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                                 key={note.id}
                                 data-roving-item
                                 tabIndex={index === 0 && staggerOffset === 150 ? 0 : -1}
+                                onPointerDown={(e) => { if (e.pointerType === 'mouse') e.preventDefault() }}
                                 onClick={() => {
                                     onSelectNote(note.id);
                                     if (window.innerWidth < 768) setIsFullscreen(false);
@@ -318,7 +321,9 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
             <GlassCard className={`flex-1 flex-col h-full absolute inset-0 md:relative z-20 transition-all duration-500 ease-spring ${selectedNote ? 'translate-x-0' : 'translate-x-[110%] md:translate-x-0 md:opacity-100'
                 } ${!selectedNote && notes.length > 0 ? 'md:flex' : 'flex'} ${selectedNote ? (NOTE_COLORS.find(c => c.id === selectedNote.color)?.className || '') : ''}`}>
                 {selectedNote ? (
-                    <div key={selectedNote.id} className="flex flex-col h-full animate-fade-in p-2">
+                    <div key={selectedNote.id} className="flex flex-col h-full animate-fade-in p-2 relative">
+                        {/* Dynamic background inject for GlassCard */}
+                        <div className={`absolute inset-0 pointer-events-none rounded-[inherit] -z-10 transition-colors duration-500 opacity-40 ${NOTE_COLORS.find(c => c.id === selectedNote.color)?.className || ''}`} />
 
                         {/* Mobile top row: back button + action buttons */}
                         <div className="md:hidden flex items-center justify-between mb-3">
@@ -482,6 +487,13 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                             >
                                 <ItalicIcon className="w-4 h-4" />
                             </button>
+                            <button
+                                onClick={() => editor?.chain().focus().toggleUnderline().run()}
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all active:scale-95 ${editor?.isActive('underline') ? 'volumetric-btn text-theme-primary' : 'bg-transparent hover:bg-black/5 dark:hover:bg-white/5 text-theme-secondary hover:text-theme-primary'}`}
+                                title="Underline"
+                            >
+                                <UnderlineIcon className="w-4 h-4" />
+                            </button>
                             <div className="w-px h-6 bg-theme-divider mx-1" />
                             <button
                                 onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -508,16 +520,44 @@ export const NotesView: React.FC<NotesViewProps> = ({ notes, tasks, onAddNote, o
                             <button
                                 onClick={() => {
                                     const url = window.prompt('URL:');
-                                    if (url) {
-                                        editor?.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-                                    } else if (url === '') {
-                                        editor?.chain().focus().extendMarkRange('link').unsetLink().run();
+                                    if (url !== null) {
+                                        if (url === '') {
+                                            editor?.chain().focus().extendMarkRange('link').unsetLink().run();
+                                        } else {
+                                            const formattedUrl = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+                                            editor?.chain().focus().extendMarkRange('link').setLink({ href: formattedUrl }).run();
+                                        }
                                     }
                                 }}
                                 className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all active:scale-95 ${editor?.isActive('link') ? 'volumetric-btn text-blue-500' : 'bg-transparent hover:bg-black/5 dark:hover:bg-white/5 text-theme-secondary hover:text-theme-primary'}`}
                                 title="Insert Link"
                             >
                                 <LinkIcon className="w-4 h-4" />
+                            </button>
+                            <div className="w-px h-6 bg-theme-divider mx-1" />
+                            <button
+                                onClick={() => editor?.chain().focus().unsetAllMarks().clearNodes().run()}
+                                className="bg-transparent hover:bg-black/5 w-8 h-8 rounded-lg flex items-center justify-center text-theme-secondary hover:text-theme-primary transition-all active:scale-95 dark:hover:bg-white/5"
+                                title="Clear Formatting"
+                            >
+                                <RemoveFormattingIcon className="w-4 h-4" />
+                            </button>
+                            <div className="flex-1" />
+                            <button
+                                onClick={() => editor?.chain().focus().undo().run()}
+                                disabled={!editor?.can().undo()}
+                                className="bg-transparent hover:bg-black/5 w-8 h-8 rounded-lg flex items-center justify-center text-theme-secondary hover:text-theme-primary transition-all active:scale-95 dark:hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent"
+                                title="Undo"
+                            >
+                                <UndoIcon className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={() => editor?.chain().focus().redo().run()}
+                                disabled={!editor?.can().redo()}
+                                className="bg-transparent hover:bg-black/5 w-8 h-8 rounded-lg flex items-center justify-center text-theme-secondary hover:text-theme-primary transition-all active:scale-95 dark:hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent"
+                                title="Redo"
+                            >
+                                <RedoIcon className="w-4 h-4" />
                             </button>
                         </div>
 
